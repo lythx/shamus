@@ -1,4 +1,4 @@
-import config from "./config"
+import { config } from "./config"
 import { Timer } from "./Timer"
 import { Point, Vector } from "./Utils"
 

@@ -1,7 +1,7 @@
 import { LinearTween } from "./Tweens"
 import { Point } from "./Utils"
 
-class Unit {
+export class Unit {
 
   private pos: Point
   private readonly size: number
