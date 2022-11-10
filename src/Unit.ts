@@ -1,20 +1,21 @@
-import { LinearTween } from "./Tweens"
-import { Point } from "./Utils"
+import { LinearTween } from "./Tweens.js";
+import { Point } from "./Utils.js";
 
 export class Unit {
 
+  static activeUnits: Unit[] = []
   private pos: Point
-  private readonly size: number
+  readonly size: number
   private readonly speed: number
   private tween: LinearTween | undefined
   /** TODO */
-  private readonly model: any
+  private readonly images: HTMLImageElement[] = []
 
-  constructor(posX: number, posY: number, size: number, speed: number, model: any /** TODO */) {
+  constructor(posX: number, posY: number, size: number, speed: number, svgs: string[]) {
     this.pos = { x: posX, y: posY }
     this.size = size
     this.speed = speed
-    this.model = model
+    Unit.activeUnits.push(this)
   }
 
   get x(): number {
@@ -33,6 +34,10 @@ export class Unit {
     this.tween.onUpdate = (pos) => {
       this.pos = pos
     }
+  }
+
+  get image(): HTMLImageElement {
+    return this.images[0]
   }
 
 }

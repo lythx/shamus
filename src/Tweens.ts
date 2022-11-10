@@ -1,6 +1,6 @@
-import { config } from "./config"
-import { Timer } from "./Timer"
-import { Point, Vector } from "./Utils"
+import { config } from "./config.js"
+import { Timer } from "./Timer.js"
+import { Point, Vector } from "./Utils.js"
 
 export class LinearTween {
 

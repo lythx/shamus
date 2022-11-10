@@ -3,6 +3,11 @@ interface Point {
   y: number
 }
 
+const math = {
+  sin: (x: number) => Math.sin(Number(x.toFixed(4))),
+  cos: (x: number) => Math.cos(Number(x.toFixed(4)))
+}
+
 class Vector {
 
   a: Point
@@ -22,8 +27,8 @@ class Vector {
       this.a = a
       const radians = arg * Math.PI / 180
       this.b = {
-        x: length * Math.cos(radians) + this.a.x,
-        y: length * Math.sin(radians) + this.a.y
+        x: length * math.cos(radians) + a.x,
+        y: length * math.sin(radians) + a.y
       }
     } else {
       this.a = a
@@ -76,5 +81,14 @@ class Vector {
 
 export {
   Point,
-  Vector
+  Vector,
+  math
 }
+const vecs = [new Vector({ x: 0, y: 0 }, 0, 100),
+new Vector({ x: 0, y: 0 }, 90, 100),
+new Vector({ x: 0, y: 0 }, 180, 100),
+new Vector({ x: 0, y: 0 }, 270, 100),]
+for (const e of vecs) {
+  console.log(e.a, e.b)
+}
+

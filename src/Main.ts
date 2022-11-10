@@ -1,5 +1,7 @@
-import { Player } from "./Player"
-import { Vector } from "./Utils"
+import { Player } from "./Player.js";
+import { Vector } from "./Utils.js";
+import { Unit } from "./Unit.js";
+import { Timer } from "./Timer.js";
 
 type Direction = 'up' | 'down' | 'left' | 'right'
 const player = new Player()
@@ -18,11 +20,13 @@ const angles: { [key in Direction]: number } = {
 const pressedKeys: Direction[] = []
 const onMoveChange = () => {
   let angle = angles[pressedKeys[0]]
+  if (angle === undefined) { return }
   const angle2 = angles[pressedKeys[1]]
-  if (Math.abs(angle - angle2) !== 180) {
+  if (angle2 !== undefined && Math.abs(angle - angle2) !== 180) {
     angle = (angle + angle2) / 2
   }
   const destination = new Vector({ x: player.x, y: player.y }, angle, 100).b
+  console.log(destination)
   player.move(destination)
 }
 
@@ -48,3 +52,17 @@ document.addEventListener('keyup', (e) => {
     }
   }
 })
+
+const canvas = document.getElementById('canvas') as HTMLCanvasElement
+const ctx = canvas.getContext('2d') as CanvasRenderingContext2D
+
+const gameLoop = () => {
+  for (const e of Unit.activeUnits) {
+    ctx.beginPath();
+    ctx.arc(e.x, e.y, e.size, 0, 2 * Math.PI);
+    ctx.stroke();
+  }
+  requestAnimationFrame(gameLoop)
+}
+
+requestAnimationFrame(gameLoop)
