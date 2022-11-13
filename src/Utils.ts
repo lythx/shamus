@@ -84,11 +84,4 @@ export {
   Vector,
   math
 }
-// const vecs = [new Vector({ x: 0, y: 0 }, 0, 100),
-// new Vector({ x: 0, y: 0 }, 90, 100),
-// new Vector({ x: 0, y: 0 }, 180, 100),
-// new Vector({ x: 0, y: 0 }, 270, 100),]
-// for (const e of vecs) {
-//   console.log(e.a, e.b)
-// }
 

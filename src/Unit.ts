@@ -6,14 +6,14 @@ export class Unit {
 
   static enemies: Unit[] = []
   static player: Player
-  private pos: Point
+  protected pos: Point
   readonly size: number
-  private readonly speed: number
-  private tween: LinearTween | undefined
+  protected readonly speed: number
+  protected tween: LinearTween | undefined
   readonly side: 'player' | 'enemy'
   angle: number
   /** TODO */
-  private readonly images: HTMLImageElement[] = []
+  protected readonly images: HTMLImageElement[] = []
 
   constructor(posX: number, posY: number, size: number, speed: number, angle: number,
     side: 'player' | 'enemy', svgs: string[]) {
@@ -22,7 +22,9 @@ export class Unit {
     this.speed = speed
     this.angle = angle
     this.side = side
-    side === 'player' ? Unit.player = this : Unit.enemies.push(this)
+    if (side === 'enemy') {
+      Unit.enemies.push(this)
+    }
   }
 
   move(angle: number, length: number) {
@@ -34,6 +36,15 @@ export class Unit {
     this.tween = new LinearTween(this.pos, destination, this.speed)
     this.tween.onUpdate = (pos) => {
       this.pos = pos
+    }
+  }
+
+  destroy() {
+    this.tween?.stop()
+    if (this.side === 'enemy') {
+      const index = Unit.enemies.indexOf(this)
+      if (index === -1) { throw new Error(`Unit ${this.constructor.name} not in enemy list on delete`) }
+      Unit.enemies.splice(index, 1)
     }
   }
 

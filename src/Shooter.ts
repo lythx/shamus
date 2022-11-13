@@ -18,7 +18,7 @@ export class Shooter extends Fighter {
     this.shotDamage = shotOptions.damage
   }
 
-  shot() {
+  shoot() {
     new Projectile({ x: this.x, y: this.y },
       this.angle, this.shotSpeed, this.shotDamage, this.side)
   }

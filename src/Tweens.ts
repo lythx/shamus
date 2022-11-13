@@ -11,12 +11,9 @@ export class LinearTween {
 
   constructor(start: Point, end: Point, speed: number) {
     this.vector = new Vector(start, end)
-    console.log({ speed, lgt: this.vector.length })
-    console.log(speed * this.vector.length * (1 / config.speedMultiplier))
-    this.timer = new Timer((speed * this.vector.length) / config.speedMultiplier)
+    this.timer = new Timer((this.vector.length * 10000) / (speed * config.speedMultiplier))
     this._currentPosition = start
     this.timer.onUpdate = () => {
-      console.log('timur')
       const length = this.vector.length * this.timer.passedTimeRatio
       this._currentPosition = Vector.from(this.vector, length).b
       this.onUpdate?.(this._currentPosition)

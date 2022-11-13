@@ -1,7 +1,7 @@
 import { models } from './models.js'
 
 export const config = {
-  speedMultiplier: 10,
+  speedMultiplier: 20,
   player: {
     size: 10,
     speed: 100,

@@ -1,14 +1,22 @@
 import { Player } from "./Player.js";
+import { Projectile } from "./Projectile.js";
 import { Unit } from "./Unit.js";
 
 const infinity = 10000000
 type Direction = 'up' | 'down' | 'left' | 'right'
+type Action = 'shoot'
 const player = new Player()
-const actions: { [key in Direction]: string[] } = {
+const directionKeys: { [direction in Direction]: string[] } = {
   up: ['w', 'W', 'ArrowUp'],
   down: ['s', 'S', 'ArrowDown'],
   left: ['a', 'A', 'ArrowLeft'],
   right: ['d', 'D', 'ArrowRight']
+}
+const actionKeys: { [action in Action]: string[] } = {
+  shoot: [' ']
+}
+const actionFunctions: { [action in Action]: () => void } = {
+  shoot: () => player.shoot()
 }
 const angles: { [direction in Direction]: number } = {
   right: 0,
@@ -39,10 +47,15 @@ const onMoveChange = () => {
 }
 
 document.addEventListener('keydown', (e) => {
-  for (const action in actions) {
-    if (actions[action as Direction].includes(e.key)) {
-      if (!pressedKeys.includes(action as Direction)) {
-        pressedKeys.push(action as Direction)
+  for (const action in actionKeys) {
+    if (actionKeys[action as Action].includes(e.key)) {
+      actionFunctions[action as Action]()
+    }
+  }
+  for (const direction in directionKeys) {
+    if (directionKeys[direction as Direction].includes(e.key)) {
+      if (!pressedKeys.includes(direction as Direction)) {
+        pressedKeys.push(direction as Direction)
         onMoveChange()
       }
     }
@@ -50,8 +63,8 @@ document.addEventListener('keydown', (e) => {
 })
 
 document.addEventListener('keyup', (e) => {
-  for (const action in actions) {
-    if (actions[action as Direction].includes(e.key)) {
+  for (const action in directionKeys) {
+    if (directionKeys[action as Direction].includes(e.key)) {
       const index = pressedKeys.indexOf(action as Direction)
       if (index !== -1) {
         pressedKeys.splice(index, 1)
@@ -62,14 +75,18 @@ document.addEventListener('keyup', (e) => {
 })
 
 const canvas = document.getElementById('canvas') as HTMLCanvasElement
-const ctx = canvas.getContext('2d') as CanvasRenderingContext2D
+const ctx = canvas.getContext('2d', { alpha: false }) as CanvasRenderingContext2D
 
 const gameLoop = () => {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.beginPath();
-  console.log(player.x, player.y)
   ctx.arc(player.x, player.y, player.size, 0, 2 * Math.PI);
   ctx.stroke();
+  for (const e of Projectile.playerProjectiles) {
+    ctx.beginPath();
+    ctx.arc(e.x, e.y, e.size, 0, 2 * Math.PI);
+    ctx.stroke();
+  }
   for (const e of Unit.enemies) {
     ctx.beginPath();
     ctx.arc(e.x, e.y, e.size, 0, 2 * Math.PI);
