@@ -1,4 +1,4 @@
-import { Unit } from "./Unit";
+import { Unit } from "./Unit.js";
 
 export class Fighter extends Unit {
 

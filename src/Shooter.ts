@@ -1,5 +1,5 @@
-import { Fighter } from "./Fighter";
-import { Projectile } from "./Projectile";
+import { Fighter } from "./Fighter.js";
+import { Projectile } from "./Projectile.js";
 
 interface ProjectileOptions {
   speed: number

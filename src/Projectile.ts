@@ -1,6 +1,6 @@
-import { Unit } from "./Unit";
+import { Unit } from "./Unit.js";
 import { config } from './config.js'
-import { Point, Vector } from "./Utils";
+import { Point, Vector } from "./Utils.js";
 const size = 1
 const infinty = 10000000
 

@@ -1,8 +1,7 @@
 import { Player } from "./Player.js";
-import { Vector } from "./Utils.js";
 import { Unit } from "./Unit.js";
-import { Timer } from "./Timer.js";
 
+const infinity = 10000000
 type Direction = 'up' | 'down' | 'left' | 'right'
 const player = new Player()
 const actions: { [key in Direction]: string[] } = {
@@ -11,11 +10,11 @@ const actions: { [key in Direction]: string[] } = {
   left: ['a', 'A', 'ArrowLeft'],
   right: ['d', 'D', 'ArrowRight']
 }
-const angles: { [key in Direction]: number } = {
-  up: 0,
-  left: 90,
-  down: 180,
-  right: 270
+const angles: { [direction in Direction]: number } = {
+  right: 0,
+  down: 90,
+  left: 180,
+  up: 270
 }
 const pressedKeys: Direction[] = []
 const onMoveChange = () => {
@@ -24,11 +23,19 @@ const onMoveChange = () => {
     player.stop()
     return
   }
-  const angle2 = angles[pressedKeys[1]]
+  let angle2 = angles[pressedKeys[1]]
   if (angle2 !== undefined && Math.abs(angle - angle2) !== 180) {
-    angle = (angle + angle2) / 2
+    if (angle > angle2) {
+      let temp = angle
+      angle = angle2
+      angle2 = temp
+    }
+    if (angle2 - angle > 180) {
+      angle2 -= 360
+    }
+    angle = ((angle + angle2) / 2) % 360
   }
-  player.move(angle, 100)
+  player.move(angle, infinity)
 }
 
 document.addEventListener('keydown', (e) => {
@@ -58,8 +65,12 @@ const canvas = document.getElementById('canvas') as HTMLCanvasElement
 const ctx = canvas.getContext('2d') as CanvasRenderingContext2D
 
 const gameLoop = () => {
-  for (const e of Unit.activeUnits) {
-    console.log(e.x, e.y)
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.beginPath();
+  console.log(player.x, player.y)
+  ctx.arc(player.x, player.y, player.size, 0, 2 * Math.PI);
+  ctx.stroke();
+  for (const e of Unit.enemies) {
     ctx.beginPath();
     ctx.arc(e.x, e.y, e.size, 0, 2 * Math.PI);
     ctx.stroke();
