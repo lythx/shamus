@@ -1,6 +1,6 @@
-import { Unit } from "./Unit.js";
+import { Fighter } from "./Fighter.js";
 
-class Enemy extends Unit {
+class Enemy extends Fighter {
 
 
 

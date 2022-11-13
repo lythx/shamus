@@ -42,7 +42,7 @@ class Vector {
     if (fromAngle) {
       return new Vector(vector.a, arg, vector.length)
     }
-    return new Vector(vector.a, vector.angle, length)
+    return new Vector(vector.a, vector.angle, arg)
   }
 
   static isVector(arg: any): arg is Vector {
@@ -84,11 +84,11 @@ export {
   Vector,
   math
 }
-const vecs = [new Vector({ x: 0, y: 0 }, 0, 100),
-new Vector({ x: 0, y: 0 }, 90, 100),
-new Vector({ x: 0, y: 0 }, 180, 100),
-new Vector({ x: 0, y: 0 }, 270, 100),]
-for (const e of vecs) {
-  console.log(e.a, e.b)
-}
+// const vecs = [new Vector({ x: 0, y: 0 }, 0, 100),
+// new Vector({ x: 0, y: 0 }, 90, 100),
+// new Vector({ x: 0, y: 0 }, 180, 100),
+// new Vector({ x: 0, y: 0 }, 270, 100),]
+// for (const e of vecs) {
+//   console.log(e.a, e.b)
+// }
 
