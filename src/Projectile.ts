@@ -24,7 +24,8 @@ export class Projectile extends Unit {
         const dy = e.y - this.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
         if (distance < e.size + this.size) {
-          // handle collision
+          this.destroy()
+          e.destroy()
         }
       }
     }

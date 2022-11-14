@@ -1,3 +1,5 @@
+import { config } from "./config.js";
+import { Enemy } from "./Enemy.js";
 import { Player } from "./Player.js";
 import { Projectile } from "./Projectile.js";
 import { Unit } from "./Unit.js";
@@ -76,13 +78,14 @@ document.addEventListener('keyup', (e) => {
 
 const canvas = document.getElementById('canvas') as HTMLCanvasElement
 const ctx = canvas.getContext('2d', { alpha: false }) as CanvasRenderingContext2D
-
+ctx.strokeStyle = "#FFFFFF";
 const gameLoop = () => {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.beginPath();
   ctx.arc(player.x, player.y, player.size, 0, 2 * Math.PI);
   ctx.stroke();
   for (const e of Projectile.playerProjectiles) {
+    e.checkCollision()
     ctx.beginPath();
     ctx.arc(e.x, e.y, e.size, 0, 2 * Math.PI);
     ctx.stroke();
@@ -96,3 +99,8 @@ const gameLoop = () => {
 }
 
 requestAnimationFrame(gameLoop)
+
+new Enemy(300, 300, config.enemy.size, config.enemy.speed, 0)
+new Enemy(100, 300, config.enemy.size, config.enemy.speed, 0)
+new Enemy(200, 300, config.enemy.size, config.enemy.speed, 0)
+new Enemy(400, 300, config.enemy.size, config.enemy.speed, 0)

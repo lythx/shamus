@@ -1,6 +1,10 @@
 import { Fighter } from "./Fighter.js";
 
-class Enemy extends Fighter {
+export class Enemy extends Fighter {
+
+  constructor(posX: number, posY: number, size: number, speed: number, angle: number) {
+    super(posX, posY, size, speed, angle, 'enemy', [])
+  }
 
 
 
