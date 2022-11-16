@@ -13,4 +13,8 @@ export class Player extends Shooter {
     })
   }
 
+  shoot(): void {
+    this._shoot(this._angle)
+  }
+
 }

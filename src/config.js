@@ -13,6 +13,12 @@ export const config = {
   },
   enemy: {
     size: 30,
-    speed: 100
+    speed: 50
+  },
+  ai: {
+    maxMovementOffset: 100,
+    /** msec */
+    updateInterval: 1000,
+    updateIntervalOffset: 700
   }
 }
