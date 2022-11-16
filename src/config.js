@@ -5,6 +5,10 @@ export const config = {
   player: {
     size: 40,
     speed: 100,
+    projectile: {
+      speed: 150,
+      size: 5
+    },
     models: [models.player]
   },
   enemy: {

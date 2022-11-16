@@ -1,26 +1,41 @@
 import { Fighter } from "./Fighter.js";
 import { Projectile } from "./Projectile.js";
+import { Point } from "./Utils.js";
 
-interface ProjectileOptions {
+interface ShooterOptions {
+  pos: Point
+  size: number
   speed: number
-  damage: number
+  projectile: {
+    speed: number
+    size: number
+  }
+  angle: number
+  side: 'player' | 'enemy'
 }
 
 export class Shooter extends Fighter {
 
-  readonly shotSpeed: number
-  readonly shotDamage: number
+  readonly projectileSpeed: number
+  readonly projectileSize: number
 
-  constructor(posX: number, posY: number, size: number, speed: number,
-    shotOptions: ProjectileOptions, angle: number, side: 'player' | 'enemy', svgs: string[]) {
-    super(posX, posY, size, speed, angle, side, svgs)
-    this.shotSpeed = shotOptions.speed
-    this.shotDamage = shotOptions.damage
+  constructor(options: ShooterOptions) {
+    super(options)
+    this.projectileSpeed = options.projectile.speed
+    this.projectileSize = options.projectile.size
   }
 
-  shoot() {
-    new Projectile({ x: this.x, y: this.y },
-      this.angle, this.shotSpeed, this.shotDamage, this.side)
+  /**
+   * Fires a projectile in given angle
+   */
+  shoot(angle: number) {
+    new Projectile({
+      pos: this._pos,
+      angle,
+      speed: this.projectileSpeed,
+      size: this.projectileSize,
+      side: this.side
+    })
   }
 
 }

@@ -2,12 +2,12 @@ import { config } from "./config.js";
 import { Enemy } from "./Enemy.js";
 import { Player } from "./Player.js";
 import { Projectile } from "./Projectile.js";
-import { Unit } from "./Unit.js";
+import { events } from './Events.js'
 
 const infinity = 10000000
 type Direction = 'up' | 'down' | 'left' | 'right'
 type Action = 'shoot'
-const player = new Player()
+const player = new Player({ x: 0, y: 0 }, 0)
 const directionKeys: { [direction in Direction]: string[] } = {
   up: ['w', 'W', 'ArrowUp'],
   down: ['s', 'S', 'ArrowDown'],
@@ -18,7 +18,7 @@ const actionKeys: { [action in Action]: string[] } = {
   shoot: [' ']
 }
 const actionFunctions: { [action in Action]: () => void } = {
-  shoot: () => player.shoot()
+  shoot: () => player.shoot(player.angle)
 }
 const angles: { [direction in Direction]: number } = {
   right: 0,
@@ -90,7 +90,7 @@ const gameLoop = () => {
     ctx.arc(e.x, e.y, e.size, 0, 2 * Math.PI);
     ctx.stroke();
   }
-  for (const e of Unit.enemies) {
+  for (const e of Enemy.enemies) {
     ctx.beginPath();
     ctx.arc(e.x, e.y, e.size, 0, 2 * Math.PI);
     ctx.stroke();
@@ -100,7 +100,27 @@ const gameLoop = () => {
 
 requestAnimationFrame(gameLoop)
 
-new Enemy(300, 300, config.enemy.size, config.enemy.speed, 0)
-new Enemy(100, 300, config.enemy.size, config.enemy.speed, 0)
-new Enemy(200, 300, config.enemy.size, config.enemy.speed, 0)
-new Enemy(400, 300, config.enemy.size, config.enemy.speed, 0)
+new Enemy({
+  pos: { x: 300, y: 300 },
+  size: config.enemy.size,
+  speed: config.enemy.speed,
+  angle: 0
+})
+new Enemy({
+  pos: { x: 400, y: 300 },
+  size: config.enemy.size,
+  speed: config.enemy.speed,
+  angle: 0
+})
+new Enemy({
+  pos: { x: 300, y: 400 },
+  size: config.enemy.size,
+  speed: config.enemy.speed,
+  angle: 0
+})
+new Enemy({
+  pos: { x: 550, y: 250 },
+  size: config.enemy.size,
+  speed: config.enemy.speed,
+  angle: 0
+})
