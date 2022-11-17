@@ -7,7 +7,7 @@ export class LinearTween {
   private readonly timer: Timer
   private readonly vector: Vector
   private _currentPosition: Point
-  onUpdate: ((currentPosition: Readonly<Point>) => unknown) | undefined
+  onUpdate: ((currentPosition: Point) => unknown) | undefined
 
   constructor(start: Point, end: Point, speed: number) {
     this.vector = new Vector(start, end)

@@ -31,7 +31,7 @@ export class Shooter extends Fighter {
   protected _shoot(angle: number) {
     console.log(angle)
     new Projectile({
-      pos: this._pos,
+      pos: this.pos,
       angle,
       speed: this.projectileSpeed,
       size: this.projectileSize,

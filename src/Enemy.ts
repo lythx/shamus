@@ -41,11 +41,11 @@ export class Enemy extends Fighter {
       cfg.updateInterval + updateSeed - (cfg.updateIntervalOffset / 2)
     const xSeed = Math.random() * cfg.maxMovementOffset
     const ySeed = Math.random() * cfg.maxMovementOffset
-    const destination = {
-      x: playerPos.x + xSeed - (cfg.maxMovementOffset / 2),
-      y: playerPos.y + ySeed - (cfg.maxMovementOffset / 2)
-    }
-    const vector = new Vector(this._pos, destination)
+    const destination = new Point(
+      playerPos.x + xSeed - (cfg.maxMovementOffset / 2),
+      playerPos.y + ySeed - (cfg.maxMovementOffset / 2)
+    )
+    const vector = new Vector(this.pos, destination)
     this.move(vector.angle, vector.length)
   }
 

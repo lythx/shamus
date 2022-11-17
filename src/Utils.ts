@@ -1,11 +1,29 @@
-interface Point {
-  x: number
-  y: number
-}
-
 const math = {
   sin: (x: number) => Math.sin(Number(x.toFixed(4))),
   cos: (x: number) => Math.cos(Number(x.toFixed(4)))
+}
+
+class Point {
+
+  private _x: number
+  private _y: number
+
+  constructor(x: number, y: number) {
+    this._x = x
+    this._y = y
+  }
+
+  calculateDistance = (p: Point): number =>
+    Math.sqrt((p.x - this.x) ** 2 + (p.y - this.y) ** 2)
+
+  get x(): number {
+    return this._x
+  }
+
+  get y(): number {
+    return this._y
+  }
+
 }
 
 class Vector {
@@ -26,10 +44,8 @@ class Vector {
       }
       this.a = a
       const radians = arg * Math.PI / 180
-      this.b = {
-        x: length * math.cos(radians) + a.x,
-        y: length * math.sin(radians) + a.y
-      }
+      this.b = new Point(length * math.cos(radians) + a.x,
+        length * math.sin(radians) + a.y)
     } else {
       this.a = a
       this.b = arg
@@ -64,24 +80,92 @@ class Vector {
   }
 
   set length(length: number) {
-    this.b = {
-      x: length * Math.cos(this.angle) + this.a.x,
-      y: length * Math.sin(this.angle) + this.a.y
-    }
+    this.b = new Point(length * Math.cos(this.angle) + this.a.x,
+      length * Math.sin(this.angle) + this.a.y)
   }
 
   set angle(angle: number) {
-    this.b = {
-      x: this.length * Math.cos(angle) + this.a.x,
-      y: this.length * Math.sin(angle) + this.a.y
-    }
+    this.b = new Point(this.length * Math.cos(angle) + this.a.x,
+      this.length * Math.sin(angle) + this.a.y)
   }
+
+}
+
+class Rectangle {
+
+  readonly width: number
+  readonly height: number
+  readonly a: Point
+  readonly b: Point
+
+  constructor(a: Point, b: Point) {
+    let topX, bottomX, leftY, rightY
+    if (a.x >= b.x) {
+      topX = a.x
+      bottomX = b.x
+    } else {
+      topX = b.x
+      bottomX = a.x
+    }
+    if (a.y >= b.y) {
+      leftY = a.y
+      rightY = b.y
+    } else {
+      leftY = b.y
+      rightY = a.y
+    }
+    this.a = new Point(topX, leftY)
+    this.b = new Point(bottomX, rightY)
+    this.width = this.b.x - this.a.x
+    this.height = this.b.y - this.a.y
+  }
+
+  pointCollision = (p: Point): boolean =>
+    (p.x >= this.a.x && p.x <= this.b.x) &&
+    (p.y <= this.a.y && p.y >= this.b.y)
+
+  rectangleCollision = (r: Rectangle): boolean =>
+    (r.b.x >= this.a.x || r.a.x <= this.b.x) &&
+    (r.b.y <= this.a.y || r.a.y >= this.b.y)
+
+  circleCollision(circle: Circle): boolean {
+    const c = circle.center
+    const distX = Math.abs(c.x - this.a.x - this.width / 2)
+    const distY = Math.abs(c.y - this.a.y - this.height / 2)
+    if (distX > (this.width / 2 + circle.radius) ||
+      distY > (this.height / 2 + circle.radius)) { return false }
+    if (distX <= (this.width / 2) ||
+      distY <= (this.height / 2)) { return true }
+    const dx = distX - this.width / 2
+    const dy = distY - this.height / 2
+    return dx ** 2 + dy ** 2 <= circle.radius ** 2;
+  }
+
+}
+
+class Circle {
+
+  center: Point
+  readonly radius: number
+
+  constructor(center: Point, radius: number) {
+    this.radius = radius
+    this.center = center
+  }
+
+  circleCollision = (c: Circle): boolean =>
+    this.center.calculateDistance(c.center) <= this.radius + c.radius
+
+
+  pointCollision = (p: Point): boolean =>
+    this.center.calculateDistance(p) <= this.radius
 
 }
 
 export {
   Point,
   Vector,
+  Rectangle,
   math
 }
 

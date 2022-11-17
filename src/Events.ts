@@ -39,7 +39,6 @@ const onMoveChange = () => {
   for (const e of movementListeners) { e(true, angle) }
 }
 document.addEventListener('keydown', (e) => {
-  console.log(e.key)
   for (const action in actionKeys) {
     if (actionKeys[action as Action].includes(e.key)) {
       for (const listener of actionListeners) {

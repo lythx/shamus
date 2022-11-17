@@ -3,9 +3,10 @@ import { Enemy } from "./Enemy.js";
 import { Player } from "./Player.js";
 import { Projectile } from "./Projectile.js";
 import { events } from './Events.js'
+import { Point } from "./Utils.js";
 
 const infinity = 10000000
-const player = new Player({ x: 0, y: 0 }, 0)
+const player = new Player(new Point(0, 0), 0)
 
 events.onMovementChange((isMoving, angle) => {
   if (!isMoving) {
@@ -42,25 +43,25 @@ const gameLoop = () => {
 requestAnimationFrame(gameLoop)
 
 new Enemy({
-  pos: { x: 300, y: 300 },
+  pos: new Point(300, 300),
   size: config.enemy.size,
   speed: config.enemy.speed,
   angle: 0
 })
 new Enemy({
-  pos: { x: 400, y: 300 },
+  pos: new Point(158, 300),
   size: config.enemy.size,
   speed: config.enemy.speed,
   angle: 0
 })
 new Enemy({
-  pos: { x: 300, y: 400 },
+  pos: new Point(214, 300),
   size: config.enemy.size,
   speed: config.enemy.speed,
   angle: 0
 })
 new Enemy({
-  pos: { x: 550, y: 250 },
+  pos: new Point(689, 300),
   size: config.enemy.size,
   speed: config.enemy.speed,
   angle: 0

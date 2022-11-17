@@ -11,7 +11,7 @@ export interface UnitOptions {
 
 export class Unit {
 
-  protected _pos: Point
+  pos: Point
   readonly size: number
   readonly speed: number
   protected tween: LinearTween | undefined
@@ -19,7 +19,7 @@ export class Unit {
   protected _angle: number
 
   constructor(options: UnitOptions) {
-    this._pos = options.pos
+    this.pos = options.pos
     this.size = options.size
     this.speed = options.speed
     this._angle = options.angle
@@ -33,13 +33,13 @@ export class Unit {
    */
   move(angle: number, length: number) {
     this._angle = angle
-    const destination = new Vector(this._pos, angle, length).b
+    const destination = new Vector(this.pos, angle, length).b
     if (this.tween !== undefined) {
       this.tween.stop()
     }
-    this.tween = new LinearTween(this._pos, destination, this.speed)
+    this.tween = new LinearTween(this.pos, destination, this.speed)
     this.tween.onUpdate = (pos) => {
-      this._pos = pos
+      this.pos = pos
     }
   }
 
@@ -58,24 +58,17 @@ export class Unit {
   }
 
   /**
-   * Current unit position
-   */
-  get pos(): Point {
-    return { ...this._pos }
-  }
-
-  /**
    * Current x axis position
    */
   get x(): number {
-    return this._pos.x
+    return this.pos.x
   }
 
   /**
    * Current y axis position
    */
   get y(): number {
-    return this._pos.y
+    return this.pos.y
   }
 
   /**
