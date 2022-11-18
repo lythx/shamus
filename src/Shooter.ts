@@ -1,6 +1,6 @@
-import { Fighter } from "./Fighter.js";
 import { Projectile } from "./Projectile.js";
 import { Point } from "./Utils.js";
+import { Unit } from "./Unit.js"
 
 interface ShooterOptions {
   pos: Point
@@ -14,7 +14,7 @@ interface ShooterOptions {
   side: 'player' | 'enemy'
 }
 
-export class Shooter extends Fighter {
+export abstract class Shooter extends Unit {
 
   readonly projectileSpeed: number
   readonly projectileSize: number
@@ -29,7 +29,6 @@ export class Shooter extends Fighter {
    * Fires a projectile in given angle
    */
   protected _shoot(angle: number) {
-    console.log(angle)
     new Projectile({
       pos: this.pos,
       angle,

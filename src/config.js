@@ -20,5 +20,6 @@ export const config = {
     /** msec */
     updateInterval: 1000,
     updateIntervalOffset: 700
-  }
+  },
+  debugColor: "#FFFFFF"
 }

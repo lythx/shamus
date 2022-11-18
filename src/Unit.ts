@@ -1,5 +1,5 @@
 import { LinearTween } from "./Tweens.js";
-import { Point, Vector } from "./Utils.js";
+import { Circle, Point, Vector } from "./Utils.js";
 
 export interface UnitOptions {
   pos: Point
@@ -9,7 +9,7 @@ export interface UnitOptions {
   side: 'player' | 'enemy'
 }
 
-export class Unit {
+export abstract class Unit {
 
   pos: Point
   readonly size: number
@@ -17,6 +17,7 @@ export class Unit {
   protected tween: LinearTween | undefined
   readonly side: 'player' | 'enemy'
   protected _angle: number
+  readonly hitbox: Circle
 
   constructor(options: UnitOptions) {
     this.pos = options.pos
@@ -24,6 +25,7 @@ export class Unit {
     this.speed = options.speed
     this._angle = options.angle
     this.side = options.side
+    this.hitbox = new Circle(this.pos, this.size)
   }
 
   /**
@@ -40,15 +42,16 @@ export class Unit {
     this.tween = new LinearTween(this.pos, destination, this.speed)
     this.tween.onUpdate = (pos) => {
       this.pos = pos
+      this.hitbox.center = pos
     }
   }
+
+  abstract update(playerPos: Point): void
 
   /**
    * Stops listeners
    */
-  destroy() {
-    this.tween?.stop()
-  }
+  abstract destroy(): void
 
   /**
    * Stops unit movement

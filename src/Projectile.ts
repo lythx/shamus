@@ -1,7 +1,6 @@
 import { Enemy } from "./Enemy.js";
 import { Unit } from "./Unit.js";
 import { Point } from "./Utils.js";
-const size = 3
 const infinty = 10000000
 
 interface ProjectileOptions {
@@ -24,11 +23,18 @@ export class Projectile extends Unit {
       : Projectile.enemyProjectiles.push(this)
   }
 
+  update(): void {
+    this.handleCollision()
+  }
+
   /**
-   * Checks collision with walls and opposite fighters and projectiles
+   * Hangles collision with walls and opposite fighters and projectiles
    */
-  checkCollision() {
+  private handleCollision() {
     if (this.side === 'player') {
+      for (const e of Projectile.enemyProjectiles) {
+
+      }
       for (const e of Enemy.enemies) {
         const dx = e.x - this.x;
         const dy = e.y - this.y;

@@ -3,10 +3,15 @@ import { Enemy } from "./Enemy.js";
 import { Player } from "./Player.js";
 import { Projectile } from "./Projectile.js";
 import { events } from './Events.js'
-import { Point } from "./Utils.js";
+import { Circle, Point } from "./Utils.js";
+import { loadRoom, getPolygons } from './Room.js'
+import { renderDebug, renderRoom, renderRoomDebug, renderUnits } from "./Renderer.js";
 
 const infinity = 10000000
 const player = new Player(new Point(0, 0), 0)
+loadRoom(1)
+let debug = true
+const polygons = getPolygons()
 
 events.onMovementChange((isMoving, angle) => {
   if (!isMoving) {
@@ -17,25 +22,22 @@ events.onMovementChange((isMoving, angle) => {
 })
 events.onAction('shoot', () => player.shoot())
 
-const canvas = document.getElementById('canvas') as HTMLCanvasElement
-const ctx = canvas.getContext('2d', { alpha: false }) as CanvasRenderingContext2D
-ctx.strokeStyle = "#FFFFFF";
 const gameLoop = () => {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.beginPath();
-  ctx.arc(player.x, player.y, player.size, 0, 2 * Math.PI);
-  ctx.stroke();
-  for (const e of Projectile.playerProjectiles) {
-    e.checkCollision()
-    ctx.beginPath();
-    ctx.arc(e.x, e.y, e.size, 0, 2 * Math.PI);
-    ctx.stroke();
+  for (let i = 0; i < Projectile.playerProjectiles.length; i++) {
+    Projectile.playerProjectiles[i].update()
   }
-  for (const e of Enemy.enemies) {
-    e.ai(player.pos)
-    ctx.beginPath();
-    ctx.arc(e.x, e.y, e.size, 0, 2 * Math.PI);
-    ctx.stroke();
+  for (let i = 0; i < Enemy.enemies.length; i++) {
+    Enemy.enemies[i].update(player.pos)
+  }
+  if (debug) {
+    const hitboxes: Circle[] = [player.hitbox]
+    for (let i = 0; i < Projectile.playerProjectiles.length; i++) {
+      hitboxes.push(Projectile.playerProjectiles[i].hitbox)
+    }
+    for (let i = 0; i < Enemy.enemies.length; i++) {
+      hitboxes.push(Enemy.enemies[i].hitbox)
+    }
+    renderDebug(hitboxes)
   }
   requestAnimationFrame(gameLoop)
 }

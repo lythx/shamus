@@ -79,6 +79,18 @@ class Vector {
     return new Vector(this.a, this.b)
   }
 
+  intersects(v: Vector): boolean {
+    const det = (this.b.x - this.a.x) * (v.b.x - v.a.x) -
+      (this.b.y - this.a.y) * (v.b.y - v.a.y);
+    if (det === 0) {
+      return false;
+    } else {
+      const lambda = ((v.b.y - v.a.y) * (v.b.x - this.a.x) + (v.a.x - v.b.x) * (v.b.y - this.a.y)) / det;
+      const gamma = ((this.a.y - this.b.y) * (v.b.x - this.a.x) + (this.b.x - this.a.x) * (v.b.y - this.a.y)) / det;
+      return (0 < lambda && lambda < 1) && (0 < gamma && gamma < 1);
+    }
+  }
+
   set length(length: number) {
     this.b = new Point(length * Math.cos(this.angle) + this.a.x,
       length * Math.sin(this.angle) + this.a.y)
@@ -98,26 +110,11 @@ class Rectangle {
   readonly a: Point
   readonly b: Point
 
-  constructor(a: Point, b: Point) {
-    let topX, bottomX, leftY, rightY
-    if (a.x >= b.x) {
-      topX = a.x
-      bottomX = b.x
-    } else {
-      topX = b.x
-      bottomX = a.x
-    }
-    if (a.y >= b.y) {
-      leftY = a.y
-      rightY = b.y
-    } else {
-      leftY = b.y
-      rightY = a.y
-    }
-    this.a = new Point(topX, leftY)
-    this.b = new Point(bottomX, rightY)
-    this.width = this.b.x - this.a.x
-    this.height = this.b.y - this.a.y
+  constructor(a: Point, width: number, height: number) {
+    this.a = a
+    this.b = new Point(a.x - height, a.y + width)
+    this.width = width
+    this.height = height
   }
 
   pointCollision = (p: Point): boolean =>
@@ -139,6 +136,15 @@ class Rectangle {
     const dx = distX - this.width / 2
     const dy = distY - this.height / 2
     return dx ** 2 + dy ** 2 <= circle.radius ** 2;
+  }
+
+  getPolygons(): [Vector, Vector, Vector, Vector] {
+    const rt = new Point(this.a.x, this.b.y)
+    const lb = new Point(this.a.y, this.b.x)
+    return [new Vector(this.a, rt),
+    new Vector(rt, this.b),
+    new Vector(lb, this.b),
+    new Vector(this.a, lb)]
   }
 
 }
@@ -166,6 +172,7 @@ export {
   Point,
   Vector,
   Rectangle,
+  Circle,
   math
 }
 

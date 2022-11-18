@@ -1,5 +1,5 @@
 import { config } from "./config.js";
-import { Fighter } from "./Fighter.js";
+import { Unit } from "./Unit.js";
 import { Point, Vector } from "./Utils.js";
 
 interface EnemyOptions {
@@ -9,7 +9,7 @@ interface EnemyOptions {
   angle: number
 }
 
-export class Enemy extends Fighter {
+export class Enemy extends Unit {
 
   protected static readonly angles: number[] = [0, 90, 180, 270]
   private nextAiUpdate = 0
@@ -33,7 +33,11 @@ export class Enemy extends Fighter {
     }
   }
 
-  ai(playerPos: Point) {
+  update(playerPos: Point): void {
+    this.ai(playerPos)
+  }
+
+  private ai(playerPos: Point) {
     if (Date.now() < this.nextAiUpdate) { return }
     const cfg = config.ai
     const updateSeed = Math.random() * cfg.updateIntervalOffset
