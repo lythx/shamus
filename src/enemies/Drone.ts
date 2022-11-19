@@ -74,19 +74,35 @@ export class Drone extends Enemy {
     const randX = Math.random() * config.aiMovementOffset
     const randY = Math.random() * config.aiMovementOffset
     let destination: Point
+    let length: number
     if (playerPos.calculateDistance(this.pos) > this.aiRange) {
       destination = new Point(
         this.x + randX - (config.aiMovementOffset / 2),
         this.y + randY - (config.aiMovementOffset / 2)
       )
+      length = config.aiNoTargetMoveLength
     } else {
       destination = new Point(
         playerPos.x + randX - (config.aiMovementOffset / 2),
         playerPos.y + randY - (config.aiMovementOffset / 2)
       )
+      length = config.aiTargetMoveLength
     }
-    const vector = new Vector(this.pos, destination)
-    this.move(vector.angle, vector.length)
+    const v = Vector.from(new Vector(this.pos, destination), length)
+    const v1 = new Vector(new Vector(this.pos, v.angle - 90, this.size).b, v.angle, length)
+    const v2 = new Vector(new Vector(this.pos, v.angle + 90, this.size).b, v.angle, length)
+    let angleCorrection = 0
+    for (let i = 0; i < Enemy.enemies.length; i++) {
+      const e = Enemy.enemies[i]
+      if (e.currentDestination) {
+        if (v1.intersects(e.currentDestination)) { angleCorrection -= 10 }
+        if (v2.intersects(e.currentDestination)) { angleCorrection += 10 } // todo
+      }
+    }
+    v.angle += angleCorrection
+    this.registerDebugData(v1, 300)
+    this.registerDebugData(v2, 300)
+    this.move(v.angle, v.length)
   }
 
 }
