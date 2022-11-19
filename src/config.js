@@ -2,6 +2,9 @@ import { models } from './models.js'
 
 export const config = {
   speedMultiplier: 20,
+  aiMovementOffset: 100,
+  aiShotFriendDetectionWidth: 100,
+  aiMaxShotAngleOffset: 30,
   player: {
     size: 40,
     speed: 100,
@@ -22,8 +25,9 @@ export const config = {
       size: 5
     },
     ai: {
-      maxMovementOffset: 100,
       range: 300,
+      shotInterval: 500,
+      shotIntervalOffset: 1000,
       /** msec */
       updateInterval: 1000,
       updateIntervalOffset: 700

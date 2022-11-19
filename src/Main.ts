@@ -3,7 +3,7 @@ import { Enemy } from "./Enemy.js";
 import { Player } from "./Player.js";
 import { Projectile } from "./Projectile.js";
 import { events } from './Events.js'
-import { Circle, Point } from "./Utils.js";
+import { Circle, Drawable, Point, Rectangle, Vector } from "./Utils.js";
 import { loadRoom, getPolygons } from './Room.js'
 import { renderDebug, renderRoom, renderRoomDebug, renderUnits } from "./Renderer.js";
 import { Drone } from './enemies/Drone.js'
@@ -31,20 +31,26 @@ const gameLoop = () => {
     Enemy.enemies[i].update(player.pos)
   }
   if (debug) {
-    const hitboxes: Circle[] = [player.hitbox]
+    const objects: Drawable[] = [player.hitbox]
+    let index = 1
     for (let i = 0; i < Projectile.playerProjectiles.length; i++) {
-      hitboxes.push(Projectile.playerProjectiles[i].hitbox)
+      objects[index++] = Projectile.playerProjectiles[i].hitbox
     }
     for (let i = 0; i < Projectile.enemyProjectiles.length; i++) {
-      hitboxes.push(Projectile.enemyProjectiles[i].hitbox)
+      objects[index++] = Projectile.enemyProjectiles[i].hitbox
     }
     for (let i = 0; i < Enemy.enemies.length; i++) {
-      hitboxes.push(Enemy.enemies[i].hitbox)
+      const e = Enemy.enemies[i]
+      objects[index++] = e.hitbox
+      if (e.currentDestination) { objects[index++] = e.currentDestination as Vector }
+      for (let j = 0; j < e.debug.length; j++) { objects[index++] = e.debug[j] }
     }
-    renderDebug(hitboxes)
+    renderDebug(objects)
   }
   requestAnimationFrame(gameLoop)
 }
 
 requestAnimationFrame(gameLoop)
+
 new Drone(new Point(500, 500), 'blue')
+new Drone(new Point(100, 100), 'blue')

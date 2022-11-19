@@ -1,5 +1,5 @@
 import { LinearTween } from "./Tweens.js";
-import { Circle, Point, Vector } from "./Utils.js";
+import { Circle, Drawable, Point, Rectangle, Vector } from "./Utils.js";
 
 export interface UnitOptions {
   pos: Point
@@ -17,6 +17,7 @@ export abstract class Unit {
   readonly side: 'player' | 'enemy'
   protected _angle: number = 0
   readonly hitbox: Circle
+  debug: Drawable[] = []
 
   constructor(options: UnitOptions) {
     this.pos = options.pos
@@ -42,6 +43,17 @@ export abstract class Unit {
       this.pos = pos
       this.hitbox.center = pos
     }
+  }
+
+  registerDebugData(debugData: Drawable, duration: number) {
+    this.debug.push(debugData)
+    setTimeout(() => this.debug = this.debug.filter(a => a !== debugData), duration)
+
+  }
+
+  get currentDestination(): Vector | undefined {
+    if (this.tween === undefined) { return undefined }
+    return new Vector(this.pos, this.tween.destination)
   }
 
   abstract update(playerPos: Point): void

@@ -14,8 +14,7 @@ interface EnemyOptions {
 
 export abstract class Enemy extends Fighter {
 
-  protected readonly angles: number[] = [0, 90, 180, 270]
-
+  protected readonly angles = [0, 90, 180, 270] as const
   static enemies: Enemy[] = []
 
   constructor(options: EnemyOptions) {

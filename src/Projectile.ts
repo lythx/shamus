@@ -1,6 +1,6 @@
 import { Enemy } from "./Enemy.js";
 import { Unit } from "./Unit.js";
-import { Point } from "./Utils.js";
+import { Circle, Point } from "./Utils.js";
 const infinty = 10000000
 
 interface ProjectileOptions {
@@ -18,7 +18,7 @@ export class Projectile extends Unit {
 
   constructor(options: ProjectileOptions) {
     super(options)
-    this.move(this.angle, infinty)
+    this.move(options.angle, infinty)
     this.side === 'player' ? Projectile.playerProjectiles.push(this)
       : Projectile.enemyProjectiles.push(this)
   }

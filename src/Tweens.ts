@@ -5,23 +5,21 @@ import { Point, Vector } from "./Utils.js"
 export class LinearTween {
 
   private readonly timer: Timer
-  private readonly vector: Vector
-  private _currentPosition: Point
+  readonly vector: Vector
+  destination: Point
+  currentPosition: Point
   onUpdate: ((currentPosition: Point) => unknown) | undefined
 
   constructor(start: Point, end: Point, speed: number) {
     this.vector = new Vector(start, end)
     this.timer = new Timer((this.vector.length * 10000) / (speed * config.speedMultiplier))
-    this._currentPosition = start
+    this.currentPosition = start
+    this.destination = end
     this.timer.onUpdate = () => {
       const length = this.vector.length * this.timer.passedTimeRatio
-      this._currentPosition = Vector.from(this.vector, length).b
-      this.onUpdate?.(this._currentPosition)
+      this.currentPosition = Vector.from(this.vector, length).b
+      this.onUpdate?.(this.currentPosition)
     }
-  }
-
-  get currentPosition(): Readonly<Point> {
-    return this._currentPosition
   }
 
   get remainingTime(): number {
@@ -41,6 +39,7 @@ export class LinearTween {
   }
 
   stop() {
+    this.destination = this.currentPosition
     this.timer.stop()
     this.onUpdate = undefined
   }

@@ -1,4 +1,4 @@
-import { Circle } from "./Utils.js"
+import { Circle, Drawable, Point, Rectangle, Vector } from "./Utils.js"
 import { config } from "./config.js"
 
 const canvas = document.getElementById('canvas') as HTMLCanvasElement
@@ -27,12 +27,10 @@ const renderUnits = (images: HTMLImageElement[]): void => {
   }
 }
 
-const renderDebug = (hitboxes: Circle[]): void => {
+const renderDebug = (objects: Drawable[]): void => {
   debugCtx.clearRect(0, 0, debugCanvas.width, debugCanvas.height)
-  for (const e of hitboxes) {
-    debugCtx.beginPath()
-    debugCtx.arc(e.center.x, e.center.y, e.radius, 0, 2 * Math.PI)
-    debugCtx.stroke()
+  for (let i = 0; i < objects.length; i++) {
+    objects[i].draw(debugCtx)
   }
 }
 

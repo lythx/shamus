@@ -3,7 +3,11 @@ const math = {
   cos: (x: number) => Math.cos(Number(x.toFixed(4)))
 }
 
-class Point {
+interface Drawable {
+  draw(ctx: CanvasRenderingContext2D): void
+}
+
+class Point implements Drawable {
 
   private _x: number
   private _y: number
@@ -12,6 +16,15 @@ class Point {
     this._x = x
     this._y = y
   }
+
+  draw(ctx: CanvasRenderingContext2D): void {
+    ctx.beginPath()
+    ctx.moveTo(this.x, this.y)
+    ctx.lineTo(this.x, this.y)
+    ctx.stroke()
+  }
+
+  static isPoint = (arg: any): arg is Point => arg.constructor.name === 'Point'
 
   calculateDistance = (p: Point): number =>
     Math.sqrt((p.x - this.x) ** 2 + (p.y - this.y) ** 2)
@@ -26,7 +39,7 @@ class Point {
 
 }
 
-class Vector {
+class Vector implements Drawable {
 
   a: Point
   b: Point
@@ -52,6 +65,15 @@ class Vector {
     }
   }
 
+  draw(ctx: CanvasRenderingContext2D): void {
+    ctx.beginPath()
+    ctx.moveTo(this.a.x, this.a.y)
+    ctx.lineTo(this.b.x, this.b.y)
+    ctx.stroke()
+  }
+
+  static isVector = (arg: any): arg is Vector => arg.constructor.name === 'Vector'
+
   static from(vector: Vector, length: number): Vector
   static from(vector: Vector, angle: number, fromAngle?: true): Vector
   static from(vector: Vector, arg: number, fromAngle?: true): Vector {
@@ -59,10 +81,6 @@ class Vector {
       return new Vector(vector.a, arg, vector.length)
     }
     return new Vector(vector.a, vector.angle, arg)
-  }
-
-  static isVector(arg: any): arg is Vector {
-    return ![arg.length, arg.angle, arg.copy, arg.a, arg.b].includes(undefined)
   }
 
   get length(): number {
@@ -75,19 +93,14 @@ class Vector {
     return (360 + Math.round(degrees)) % 360
   }
 
-  copy(): Vector {
-    return new Vector(this.a, this.b)
-  }
-
   intersects(v: Vector): boolean {
-    const det = (this.b.x - this.a.x) * (v.b.x - v.a.x) -
-      (this.b.y - this.a.y) * (v.b.y - v.a.y);
+    const det = (this.b.x - this.a.x) * (v.b.x - v.a.x) - (this.b.y - this.a.y) * (v.b.y - v.a.y)
     if (det === 0) {
-      return false;
+      return false
     } else {
-      const lambda = ((v.b.y - v.a.y) * (v.b.x - this.a.x) + (v.a.x - v.b.x) * (v.b.y - this.a.y)) / det;
-      const gamma = ((this.a.y - this.b.y) * (v.b.x - this.a.x) + (this.b.x - this.a.x) * (v.b.y - this.a.y)) / det;
-      return (0 < lambda && lambda < 1) && (0 < gamma && gamma < 1);
+      const lambda = ((v.b.y - v.a.y) * (v.b.x - this.a.x) + (v.a.x - v.b.x) * (v.b.y - this.a.y)) / det
+      const gamma = ((this.a.y - this.b.y) * (v.b.x - this.a.x) + (this.b.x - this.a.x) * (v.b.y - this.a.y)) / det
+      return (0 < lambda && lambda < 1) && (0 < gamma && gamma < 1)
     }
   }
 
@@ -103,7 +116,7 @@ class Vector {
 
 }
 
-class Rectangle {
+class Rectangle implements Drawable {
 
   readonly width: number
   readonly height: number
@@ -116,6 +129,14 @@ class Rectangle {
     this.width = width
     this.height = height
   }
+
+  draw(ctx: CanvasRenderingContext2D): void {
+    ctx.beginPath()
+    ctx.rect(this.a.x, this.a.y, this.width, this.height)
+    ctx.stroke()
+  }
+
+  static isRectangle = (arg: any): arg is Rectangle => arg.constructor.name === 'Rectangle'
 
   pointCollision = (p: Point): boolean =>
     (p.x >= this.a.x && p.x <= this.b.x) &&
@@ -149,7 +170,7 @@ class Rectangle {
 
 }
 
-class Circle {
+class Circle implements Drawable {
 
   center: Point
   readonly radius: number
@@ -158,6 +179,14 @@ class Circle {
     this.radius = radius
     this.center = center
   }
+
+  draw(ctx: CanvasRenderingContext2D): void {
+    ctx.beginPath()
+    ctx.arc(this.center.x, this.center.y, this.radius, 0, 2 * Math.PI)
+    ctx.stroke()
+  }
+
+  static isCircle = (arg: any): arg is Circle => arg.constructor.name === 'Circle'
 
   circleCollision = (c: Circle): boolean =>
     this.center.calculateDistance(c.center) <= this.radius + c.radius
@@ -173,6 +202,7 @@ export {
   Vector,
   Rectangle,
   Circle,
+  Drawable,
   math
 }
 
