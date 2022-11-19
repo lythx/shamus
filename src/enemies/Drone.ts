@@ -40,7 +40,6 @@ export class Drone extends Enemy {
     }
     if (minDiff > config.aiMaxShotAngleOffset) { return }
     const v = new Vector(this.pos, direction, playerPos.calculateDistance(this.pos))
-    this.registerDebugData(v, 1000)
     let a: Point
     let width: number
     let height: number
@@ -54,7 +53,6 @@ export class Drone extends Enemy {
       height = v.length
     }
     const r = new Rectangle(a, width, height)
-    this.registerDebugData(r, 500)
     for (let i = 0; i < Drone.enemies.length; i++) {
       if (Drone.enemies[i] !== this) {
         if (r.circleCollision(Drone.enemies[i].hitbox)) { return }
@@ -64,6 +62,45 @@ export class Drone extends Enemy {
     this.nextShot = Date.now() +
       this.shotInterval + randOffset - (this.shotIntervalOffset / 2)
     this._shoot(direction)
+  }
+
+  private getTargetVectors(target: Point, length: number): Vector[] {
+    const v = Vector.from(new Vector(this.pos, target), length)
+    const v1 = new Vector(new Vector(this.pos, v.angle - 90, this.size).b, v.angle, length)
+    const v2 = new Vector(new Vector(this.pos, v.angle + 90, this.size).b, v.angle, length)
+    const v3 = new Vector(new Vector(this.pos, v.angle - 90, this.size * 2).b, v.angle, length)
+    const v4 = new Vector(new Vector(this.pos, v.angle - 90, this.size * 2).b, v.angle, length)
+    return [v,
+      v1,
+      v2,
+      new Vector(v.a, v1.b),
+      new Vector(v.a, v2.b),
+      new Vector(v.a, v3.b),
+      new Vector(v.a, v4.b)]
+  }
+
+  private checkIntersection(vecs: Vector[]): false | Point {
+    for (let i = 0; i < Enemy.enemies.length; i++) {
+      if (Enemy.enemies[i] === this) { continue }
+      const e = Enemy.enemies[i]
+      for (let j = 0; j < e.targetVectors.length; j++) {
+        for (let k = 0; k < vecs.length; k++) {
+          if (e.targetVectors[j].intersects(vecs[k])) {
+            const a = e.targetVectors[j].intersectionPoint(vecs[k])
+            console.log(a)
+            if (a) {
+              this.registerDebugData(a, 500)
+            }
+            const vec = e.targetVectors[j]
+            const dist = vec.a.calculateDistance(this.pos)
+            if (dist > vec.b.calculateDistance(this.pos)) {
+              return vec.a
+            } else { return vec.b }
+          }
+        }
+      }
+    }
+    return false
   }
 
   private movementAi(playerPos: Point) {
@@ -88,20 +125,17 @@ export class Drone extends Enemy {
       )
       length = config.aiTargetMoveLength
     }
-    const v = Vector.from(new Vector(this.pos, destination), length)
-    const v1 = new Vector(new Vector(this.pos, v.angle - 90, this.size).b, v.angle, length)
-    const v2 = new Vector(new Vector(this.pos, v.angle + 90, this.size).b, v.angle, length)
-    let angleCorrection = 0
-    for (let i = 0; i < Enemy.enemies.length; i++) {
-      const e = Enemy.enemies[i]
-      if (e.currentDestination) {
-        if (v1.intersects(e.currentDestination)) { angleCorrection -= 10 }
-        if (v2.intersects(e.currentDestination)) { angleCorrection += 10 } // todo
-      }
+    let [v, ...vecs] = this.getTargetVectors(destination, length)
+    while (length > config.aiMinMovement) {
+      const intersects = this.checkIntersection(vecs)
+      if (intersects === false) { break }
+      length /= config.aiMovementTargetDivisor
+        ;[v, ...vecs] = this.getTargetVectors(intersects, length)
     }
-    v.angle += angleCorrection
-    this.registerDebugData(v1, 300)
-    this.registerDebugData(v2, 300)
+    for (const e of vecs) {
+      this.registerDebugData(e, 1000)
+    }
+    this.targetVectors = vecs
     this.move(v.angle, v.length)
   }
 

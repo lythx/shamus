@@ -13,7 +13,7 @@ export abstract class Unit {
   pos: Point
   readonly size: number
   readonly speed: number
-  protected tween: LinearTween | undefined
+  protected tween: LinearTween
   readonly side: 'player' | 'enemy'
   protected _angle: number = 0
   readonly hitbox: Circle
@@ -25,6 +25,7 @@ export abstract class Unit {
     this.speed = options.speed
     this.side = options.side
     this.hitbox = new Circle(this.pos, this.size)
+    this.tween = new LinearTween(this.pos, this.pos, this.speed)
   }
 
   /**
@@ -35,10 +36,7 @@ export abstract class Unit {
   move(angle: number, length: number) {
     this._angle = angle
     const destination = new Vector(this.pos, angle, length).b
-    if (this.tween !== undefined) {
-      this.tween.stop()
-    }
-    this.tween = new LinearTween(this.pos, destination, this.speed)
+    this.tween.reset(this.pos, destination, this.speed)
     this.tween.onUpdate = (pos) => {
       this.pos = pos
       this.hitbox.center = pos
@@ -48,7 +46,6 @@ export abstract class Unit {
   registerDebugData(debugData: Drawable, duration: number) {
     this.debug.push(debugData)
     setTimeout(() => this.debug = this.debug.filter(a => a !== debugData), duration)
-
   }
 
   get currentDestination(): Vector | undefined {

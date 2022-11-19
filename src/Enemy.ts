@@ -16,10 +16,22 @@ export abstract class Enemy extends Fighter {
 
   protected readonly angles = [0, 90, 180, 270] as const
   static enemies: Enemy[] = []
+  targetVectors: Vector[]
 
   constructor(options: EnemyOptions) {
     super({ ...options, side: 'enemy' })
     Enemy.enemies.push(this)
+    this.targetVectors = []
+    this.resetDestinationEdges()
+    this.tween.onEnd = () => this.resetDestinationEdges()
+  }
+
+  resetDestinationEdges(): void {
+    const v1 = new Vector(new Point(this.x - this.size, this.y), new Point(this.x + this.size, this.y))
+    const v2 = new Vector(new Point(this.x, this.y - this.size), new Point(this.x, this.y + this.size))
+    this.registerDebugData(v1, 500)
+    this.registerDebugData(v2, 500)
+    this.targetVectors = [v1, v2]
   }
 
   /**

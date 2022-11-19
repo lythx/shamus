@@ -42,6 +42,7 @@ export class Timer {
   private cycle() {
     const callback = () => {
       if (Date.now() > this.endTimestamp || this.isStopped) {
+        this.onUpdate?.()
         this.onEnd?.(this.isStopped)
         this.onUpdate = undefined
         this.onEnd = undefined

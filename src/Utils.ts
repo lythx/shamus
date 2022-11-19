@@ -18,10 +18,12 @@ class Point implements Drawable {
   }
 
   draw(ctx: CanvasRenderingContext2D): void {
+    ctx.strokeStyle = '#FF0000'
     ctx.beginPath()
-    ctx.moveTo(this.x, this.y)
-    ctx.lineTo(this.x, this.y)
-    ctx.stroke()
+    ctx.arc(this.x, this.y, 5, 0, 2 * Math.PI)
+    ctx.fillStyle = '#FF0000'
+    ctx.fill()
+    ctx.strokeStyle = '#FFFFFF'
   }
 
   static isPoint = (arg: any): arg is Point => arg.constructor.name === 'Point'
@@ -91,6 +93,23 @@ class Vector implements Drawable {
     const angle = Math.atan2(this.b.y - this.a.y, this.b.x - this.a.x)
     const degrees = 180 * angle / Math.PI;
     return (360 + Math.round(degrees)) % 360
+  }
+
+  intersectionPoint(v: Vector): Point | undefined {
+    // Check if none of the lines are of length 0
+    if ((this.a.x === this.b.x && this.a.y === this.b.y)
+      || (v.a.x === v.b.x && v.a.y === v.b.y)) { return }
+    const denominator = ((v.b.y - v.a.y) * (this.b.x - this.a.x) - (v.b.x - v.a.x) * (this.b.y - this.a.y))
+    // Lines are parallel
+    if (denominator === 0) { return }
+    let ua = ((v.b.x - v.a.x) * (this.a.y - v.a.y) - (v.b.y - v.a.y) * (this.a.x - v.a.x)) / denominator
+    let ub = ((this.b.x - this.a.x) * (this.a.y - v.a.y) - (this.b.y - this.a.y) * (this.a.x - v.a.x)) / denominator
+    // is the intersection along the segments
+    if (ua < 0 || ua > 1 || ub < 0 || ub > 1) { return }
+    // Return a object with the x and y coordinates of the intersection
+    let x = this.a.x + ua * (this.b.x - this.a.x)
+    let y = this.a.y + ua * (this.b.y - this.a.y)
+    return new Point(x, y)
   }
 
   intersects(v: Vector): boolean {

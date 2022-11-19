@@ -7,6 +7,8 @@ export const config = {
   aiMaxShotAngleOffset: 30,
   aiNoTargetMoveLength: 100,
   aiTargetMoveLength: 300,
+  aiMinMovement: 50,
+  aiMovementTargetDivisor: 2,
   player: {
     size: 40,
     speed: 100,
