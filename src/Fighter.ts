@@ -2,7 +2,7 @@ import { Projectile } from "./Projectile.js";
 import { Point } from "./Utils.js";
 import { Unit } from "./Unit.js"
 
-interface ShooterOptions {
+interface FighterOptions {
   pos: Point
   size: number
   speed: number
@@ -10,16 +10,15 @@ interface ShooterOptions {
     speed: number
     size: number
   }
-  angle: number
   side: 'player' | 'enemy'
 }
 
-export abstract class Shooter extends Unit {
+export abstract class Fighter extends Unit {
 
   readonly projectileSpeed: number
   readonly projectileSize: number
 
-  constructor(options: ShooterOptions) {
+  constructor(options: FighterOptions) {
     super(options)
     this.projectileSpeed = options.projectile.speed
     this.projectileSize = options.projectile.size

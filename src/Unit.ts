@@ -5,7 +5,6 @@ export interface UnitOptions {
   pos: Point
   size: number
   speed: number
-  angle: number
   side: 'player' | 'enemy'
 }
 
@@ -16,14 +15,13 @@ export abstract class Unit {
   readonly speed: number
   protected tween: LinearTween | undefined
   readonly side: 'player' | 'enemy'
-  protected _angle: number
+  protected _angle: number = 0
   readonly hitbox: Circle
 
   constructor(options: UnitOptions) {
     this.pos = options.pos
     this.size = options.size
     this.speed = options.speed
-    this._angle = options.angle
     this.side = options.side
     this.hitbox = new Circle(this.pos, this.size)
   }

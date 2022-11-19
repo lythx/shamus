@@ -11,15 +11,23 @@ export const config = {
     },
     models: [models.player]
   },
-  enemy: {
-    size: 30,
-    speed: 50
+  droid: {
+
   },
-  ai: {
-    maxMovementOffset: 100,
-    /** msec */
-    updateInterval: 1000,
-    updateIntervalOffset: 700
+  drone: {
+    size: 30,
+    speed: 100,
+    projectile: {
+      speed: 300,
+      size: 5
+    },
+    ai: {
+      maxMovementOffset: 100,
+      range: 300,
+      /** msec */
+      updateInterval: 1000,
+      updateIntervalOffset: 700
+    }
   },
   debugColor: "#FFFFFF"
 }

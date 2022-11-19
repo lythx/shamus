@@ -1,18 +1,17 @@
 import { config } from "./config.js";
 import { Projectile } from "./Projectile.js";
-import { Unit } from "./Unit.js";
+import { Fighter } from "./Fighter.js";
 import { Point } from "./Utils.js";
 
-export class Player extends Unit {
+export class Player extends Fighter {
 
   projectileSpeed: number
   projectileSize: number
 
-  constructor(pos: Point, angle: number) {
+  constructor(pos: Point) {
     super({
       ...config.player,
       pos,
-      angle,
       side: 'player'
     })
     this.projectileSpeed = config.player.projectile.speed
@@ -26,13 +25,7 @@ export class Player extends Unit {
   }
 
   shoot(): void {
-    new Projectile({
-      pos: this.pos,
-      angle: this.angle,
-      speed: this.projectileSpeed,
-      size: this.projectileSize,
-      side: this.side
-    })
+    this._shoot(this._angle)
   }
 
 }

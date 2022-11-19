@@ -6,9 +6,10 @@ import { events } from './Events.js'
 import { Circle, Point } from "./Utils.js";
 import { loadRoom, getPolygons } from './Room.js'
 import { renderDebug, renderRoom, renderRoomDebug, renderUnits } from "./Renderer.js";
+import { Drone } from './enemies/Drone.js'
 
 const infinity = 10000000
-const player = new Player(new Point(0, 0), 0)
+const player = new Player(new Point(0, 0))
 loadRoom(1)
 let debug = true
 const polygons = getPolygons()
@@ -34,6 +35,9 @@ const gameLoop = () => {
     for (let i = 0; i < Projectile.playerProjectiles.length; i++) {
       hitboxes.push(Projectile.playerProjectiles[i].hitbox)
     }
+    for (let i = 0; i < Projectile.enemyProjectiles.length; i++) {
+      hitboxes.push(Projectile.enemyProjectiles[i].hitbox)
+    }
     for (let i = 0; i < Enemy.enemies.length; i++) {
       hitboxes.push(Enemy.enemies[i].hitbox)
     }
@@ -43,28 +47,4 @@ const gameLoop = () => {
 }
 
 requestAnimationFrame(gameLoop)
-
-new Enemy({
-  pos: new Point(300, 300),
-  size: config.enemy.size,
-  speed: config.enemy.speed,
-  angle: 0
-})
-new Enemy({
-  pos: new Point(158, 300),
-  size: config.enemy.size,
-  speed: config.enemy.speed,
-  angle: 0
-})
-new Enemy({
-  pos: new Point(214, 300),
-  size: config.enemy.size,
-  speed: config.enemy.speed,
-  angle: 0
-})
-new Enemy({
-  pos: new Point(689, 300),
-  size: config.enemy.size,
-  speed: config.enemy.speed,
-  angle: 0
-})
+new Drone(new Point(500, 500), 'blue')
