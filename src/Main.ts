@@ -1,9 +1,8 @@
-import { config } from "./config.js";
 import { Enemy } from "./Enemy.js";
 import { Player } from "./Player.js";
 import { Projectile } from "./Projectile.js";
 import { events } from './Events.js'
-import { Circle, Drawable, Point, Rectangle, Vector } from "./Utils.js";
+import { Drawable, Point } from "./Utils.js";
 import { loadRoom, getPolygons } from './Room.js'
 import { renderDebug, renderRoom, renderRoomDebug, renderUnits } from "./Renderer.js";
 import { Drone } from './enemies/Drone.js'
@@ -24,6 +23,7 @@ events.onMovementChange((isMoving, angle) => {
 events.onAction('shoot', () => player.shoot())
 
 const gameLoop = () => {
+  Enemy.enemies.sort(a => player.pos.calculateDistance(a.pos))
   for (let i = 0; i < Projectile.playerProjectiles.length; i++) {
     Projectile.playerProjectiles[i].update()
   }
@@ -42,7 +42,7 @@ const gameLoop = () => {
     for (let i = 0; i < Enemy.enemies.length; i++) {
       const e = Enemy.enemies[i]
       objects[index++] = e.hitbox
-      if (e.currentDestination) { objects[index++] = e.currentDestination as Vector }
+      if (e.currentDestination !== undefined) { objects[index++] = e.currentDestination }
       for (let j = 0; j < e.debug.length; j++) { objects[index++] = e.debug[j] }
     }
     renderDebug(objects)

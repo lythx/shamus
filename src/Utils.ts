@@ -29,7 +29,7 @@ class Point implements Drawable {
   static isPoint = (arg: any): arg is Point => arg.constructor.name === 'Point'
 
   calculateDistance = (p: Point): number =>
-    Math.sqrt((p.x - this.x) ** 2 + (p.y - this.y) ** 2)
+    Math.hypot(p.x - this.x, p.y - this.y)
 
   get x(): number {
     return this._x
@@ -86,7 +86,7 @@ class Vector implements Drawable {
   }
 
   get length(): number {
-    return Math.sqrt((this.b.x - this.a.x) ** 2 + (this.b.y - this.a.y) ** 2)
+    return Math.hypot(this.b.x - this.a.x, this.b.y - this.a.y)
   }
 
   get angle(): number {
@@ -95,7 +95,7 @@ class Vector implements Drawable {
     return (360 + Math.round(degrees)) % 360
   }
 
-  intersectionPoint(v: Vector): Point | undefined {
+  intersection(v: Vector): Point | undefined {
     // Check if none of the lines are of length 0
     if ((this.a.x === this.b.x && this.a.y === this.b.y)
       || (v.a.x === v.b.x && v.a.y === v.b.y)) { return }
@@ -106,13 +106,12 @@ class Vector implements Drawable {
     let ub = ((this.b.x - this.a.x) * (this.a.y - v.a.y) - (this.b.y - this.a.y) * (this.a.x - v.a.x)) / denominator
     // is the intersection along the segments
     if (ua < 0 || ua > 1 || ub < 0 || ub > 1) { return }
-    // Return a object with the x and y coordinates of the intersection
     let x = this.a.x + ua * (this.b.x - this.a.x)
     let y = this.a.y + ua * (this.b.y - this.a.y)
     return new Point(x, y)
   }
 
-  intersects(v: Vector): boolean {
+  isIntersecting(v: Vector): boolean {
     const det = (this.b.x - this.a.x) * (v.b.x - v.a.x) - (this.b.y - this.a.y) * (v.b.y - v.a.y)
     if (det === 0) {
       return false

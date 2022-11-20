@@ -1,3 +1,4 @@
+import { config } from "./config.js";
 import { LinearTween } from "./Tweens.js";
 import { Circle, Drawable, Point, Rectangle, Vector } from "./Utils.js";
 
@@ -43,7 +44,7 @@ export abstract class Unit {
     }
   }
 
-  registerDebugData(debugData: Drawable, duration: number) {
+  registerDebugData(debugData: Drawable, duration: number = config.debugDuration) {
     this.debug.push(debugData)
     setTimeout(() => this.debug = this.debug.filter(a => a !== debugData), duration)
   }

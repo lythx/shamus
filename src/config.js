@@ -37,5 +37,6 @@ export const config = {
       updateIntervalOffset: 700
     }
   },
-  debugColor: "#FFFFFF"
+  debugColor: "#FFFFFF",
+  debugDuration: 500
 }

@@ -21,12 +21,12 @@ export class Drone extends Enemy {
   }
 
   update(playerPos: Point): void {
+    if (Date.now() < this.nextAiUpdate) { return }
     this.shotAi(playerPos)
     this.movementAi(playerPos)
   }
 
   private shotAi(playerPos: Point) {
-    if (Date.now() < this.nextAiUpdate) { return }
     if (Date.now() < this.nextShot) { return }
     const { angle } = new Vector(this.pos, playerPos)
     let minDiff = Infinity
@@ -85,8 +85,8 @@ export class Drone extends Enemy {
       const e = Enemy.enemies[i]
       for (let j = 0; j < e.targetVectors.length; j++) {
         for (let k = 0; k < vecs.length; k++) {
-          if (e.targetVectors[j].intersects(vecs[k])) {
-            const a = e.targetVectors[j].intersectionPoint(vecs[k])
+          if (e.targetVectors[j].isIntersecting(vecs[k])) {
+            const a = e.targetVectors[j].intersection(vecs[k])
             console.log(a)
             if (a) {
               this.registerDebugData(a, 500)
@@ -104,7 +104,6 @@ export class Drone extends Enemy {
   }
 
   private movementAi(playerPos: Point) {
-    if (Date.now() < this.nextAiUpdate) { return }
     const randOffset = Math.random() * this.aiUpdateOffset
     this.nextAiUpdate = Date.now() +
       this.aiUpdateInterval + randOffset - (this.aiUpdateOffset / 2)

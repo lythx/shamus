@@ -1,4 +1,4 @@
-import { Circle, Drawable, Point, Rectangle, Vector } from "./Utils.js"
+import { Drawable } from "./Utils.js"
 import { config } from "./config.js"
 
 const canvas = document.getElementById('canvas') as HTMLCanvasElement
