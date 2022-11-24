@@ -111,6 +111,14 @@ class Vector implements Drawable {
     return new Point(x, y)
   }
 
+  distanceToPoint(p: Point) {
+    if (this.length === 0) return p.calculateDistance(this.a);
+    let t = ((p.x - this.a.x) * (this.b.x - this.a.x) + (p.y - this.a.y) * (this.b.y - this.a.y)) / this.length;
+    t = Math.max(0, Math.min(1, t));
+    const closest = new Point(this.a.x + t * (this.b.x - this.a.x), this.a.y + t * (this.b.y - this.a.y))
+    return p.calculateDistance(closest)
+  }
+
   isIntersecting(v: Vector): boolean {
     const det = (this.b.x - this.a.x) * (v.b.x - v.a.x) - (this.b.y - this.a.y) * (v.b.y - v.a.y)
     if (det === 0) {
@@ -213,6 +221,9 @@ class Circle implements Drawable {
 
   pointCollision = (p: Point): boolean =>
     this.center.calculateDistance(p) <= this.radius
+
+  vectorCollision = (v: Vector): boolean =>
+    v.distanceToPoint(this.center) <= this.radius
 
 }
 

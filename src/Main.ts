@@ -23,7 +23,6 @@ events.onMovementChange((isMoving, angle) => {
 events.onAction('shoot', () => player.shoot())
 
 const gameLoop = () => {
-  Enemy.enemies.sort(a => player.pos.calculateDistance(a.pos))
   for (let i = 0; i < Projectile.playerProjectiles.length; i++) {
     Projectile.playerProjectiles[i].update()
   }
@@ -54,3 +53,4 @@ requestAnimationFrame(gameLoop)
 
 new Drone(new Point(500, 500), 'blue')
 new Drone(new Point(100, 100), 'blue')
+Enemy.enemies.sort(a => player.pos.calculateDistance(a.pos))

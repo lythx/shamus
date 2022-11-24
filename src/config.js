@@ -33,8 +33,8 @@ export const config = {
       shotInterval: 500,
       shotIntervalOffset: 1000,
       /** msec */
-      updateInterval: 1000,
-      updateIntervalOffset: 700
+      updateInterval: 500,
+      updateIntervalOffset: 30
     }
   },
   debugColor: "#FFFFFF",

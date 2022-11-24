@@ -12,6 +12,7 @@ export class Drone extends Enemy {
   private readonly shotInterval = config.drone.ai.shotInterval
   private readonly shotIntervalOffset = config.drone.ai.shotIntervalOffset
   private readonly friendDetectionWidth = config.aiShotFriendDetectionWidth
+  private group: number | undefined
 
   constructor(pos: Point, colour: 'blue' | 'purple') {
     super({
@@ -22,8 +23,23 @@ export class Drone extends Enemy {
 
   update(playerPos: Point): void {
     if (Date.now() < this.nextAiUpdate) { return }
+    if (this.group !== undefined) { this.leaderUpdate(playerPos, this.group) }
     this.shotAi(playerPos)
     this.movementAi(playerPos)
+  }
+
+  leaderUpdate(playerPos: Point, groupNumber: number): void {
+    const g = Enemy.groups[groupNumber]
+    const isLeader = g.indexOf(this) === 0
+    if (!isLeader) { return }
+    this.update(playerPos)
+    for (const e of g) {
+      e.groupUpdate(this._angle)
+    }
+  }
+
+  groupUpdate(angle: number): void {
+    this.move(angle, 10000)
   }
 
   private shotAi(playerPos: Point) {
@@ -83,24 +99,46 @@ export class Drone extends Enemy {
     for (let i = 0; i < Enemy.enemies.length; i++) {
       if (Enemy.enemies[i] === this) { continue }
       const e = Enemy.enemies[i]
-      for (let j = 0; j < e.targetVectors.length; j++) {
-        for (let k = 0; k < vecs.length; k++) {
-          if (e.targetVectors[j].isIntersecting(vecs[k])) {
-            const a = e.targetVectors[j].intersection(vecs[k])
-            console.log(a)
-            if (a) {
-              this.registerDebugData(a, 500)
-            }
-            const vec = e.targetVectors[j]
-            const dist = vec.a.calculateDistance(this.pos)
-            if (dist > vec.b.calculateDistance(this.pos)) {
-              return vec.a
-            } else { return vec.b }
+      for (let j = 0; j < vecs.length; j++) {
+        if (e.hitbox.vectorCollision(vecs[j])) {
+          return this.handleHitboxIntersection(e, vecs[j])
+        }
+      }
+      for (let j = 0; j < vecs.length; j++) {
+        for (let k = 0; k < e.targetVectors.length; k++) {
+          if (e.targetVectors[k].isIntersecting(vecs[j])) {
+            return this.handleVectorIntersection(e, vecs[j], e.targetVectors[k])
           }
         }
       }
     }
     return false
+  }
+
+  private handleHitboxIntersection(enemy: Enemy, vector: Vector): Point {
+    return this.pos
+  }
+
+  private createGroup(enemy: Enemy) {
+    Enemy.groups.push([this, enemy])
+    this.group = Enemy.groups.length - 1
+  }
+
+  private handleVectorIntersection(enemy: Enemy, thisVec: Vector, enemyVec: Vector): Point {
+    if (enemy.currentDestination === undefined) {
+      return new Point(0, 0)
+    }
+    if (Math.abs(this.angle - enemy.angle) < 30) {
+      this.createGroup(enemy)
+      return new Vector(this.pos, enemy.currentDestination.length, enemy.currentDestination.angle).b
+    } else {
+      const p = thisVec.intersection(enemyVec)
+      if (p !== undefined) { this.registerDebugData(p, 500) }
+      const dist = enemyVec.a.calculateDistance(this.pos)
+      if (dist > enemyVec.b.calculateDistance(this.pos)) {
+        return enemyVec.a
+      } else { return enemyVec.b }
+    }
   }
 
   private movementAi(playerPos: Point) {
@@ -131,11 +169,17 @@ export class Drone extends Enemy {
       length /= config.aiMovementTargetDivisor
         ;[v, ...vecs] = this.getTargetVectors(intersects, length)
     }
+    //this.debug.length = 0
     for (const e of vecs) {
-      this.registerDebugData(e, 1000)
+      this.registerDebugData(e, 500)
     }
     this.targetVectors = vecs
     this.move(v.angle, v.length)
+    if (this.group !== undefined) {
+      for (let i = 1; i < Enemy.groups[this.group].length; i++) {
+        Enemy.groups[this.group][i].groupUpdate(v.angle)
+      }
+    }
   }
 
 }

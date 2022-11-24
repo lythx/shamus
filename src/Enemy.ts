@@ -17,13 +17,14 @@ export abstract class Enemy extends Fighter {
   protected readonly angles = [0, 90, 180, 270] as const
   static enemies: Enemy[] = []
   targetVectors: Vector[]
+  static groups: Enemy[][] = []
 
   constructor(options: EnemyOptions) {
     super({ ...options, side: 'enemy' })
     Enemy.enemies.push(this)
     this.targetVectors = []
     this.resetDestinationEdges()
-    this.tween.onEnd = () => this.resetDestinationEdges()
+    this.tween.onEnd = () => undefined//this.resetDestinationEdges()
   }
 
   resetDestinationEdges(): void {
@@ -47,5 +48,9 @@ export abstract class Enemy extends Fighter {
   }
 
   abstract update(playerPos: Point): void
+
+  abstract groupUpdate(angle: number): void
+
+  abstract leaderUpdate(playerPos: Point, groupNumber: number): void
 
 }
