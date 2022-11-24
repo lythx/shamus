@@ -47,6 +47,10 @@ export class Projectile extends Unit {
     }
   }
 
+  draw(ctx: CanvasRenderingContext2D): void {
+    //todo
+  }
+
   /**
    * Stops listeners and unloads object from memory
    */

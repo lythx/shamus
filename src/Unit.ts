@@ -9,7 +9,7 @@ export interface UnitOptions {
   side: 'player' | 'enemy'
 }
 
-export abstract class Unit {
+export abstract class Unit implements Drawable {
 
   pos: Point
   readonly size: number
@@ -19,7 +19,6 @@ export abstract class Unit {
   protected _angle: number = 0
   readonly hitbox: Circle
   _debug: Drawable[] = []
-  debugKeys: { [key: string]: Drawable | undefined } = {}
 
   constructor(options: UnitOptions) {
     this.pos = options.pos
@@ -40,6 +39,8 @@ export abstract class Unit {
     }
   }
 
+  abstract draw(ctx: CanvasRenderingContext2D): void;
+
   /**
    * Moves unit by a vector of given angle and length
    * @param angle Angle in degrees
@@ -50,22 +51,13 @@ export abstract class Unit {
     this._move(destination)
   }
 
-  registerDebugKey(key: string, data: Drawable | undefined) {
-    // this.debugKeys[key] = data
-  }
-
   registerDebug(debugData: Drawable, duration: number = config.debugDuration) {
     this._debug.push(debugData)
     setTimeout(() => this._debug = this._debug.filter(a => a !== debugData), duration)
   }
 
   get debug(): Drawable[] {
-    const arr = this._debug
-    const keyData = Object.values(this.debugKeys)
-    for (let i = 0; i < keyData.length; i++) {
-      if (keyData[i] !== undefined) { arr.push(keyData[i] as Drawable) }
-    }
-    return arr
+    return this._debug
   }
 
   abstract update(playerPos: Point): void

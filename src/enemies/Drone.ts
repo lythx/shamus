@@ -12,7 +12,6 @@ export class Drone extends Enemy {
   private readonly aiRange = config.drone.ai.range
   private readonly aiUpdateInterval = config.drone.ai.updateInterval
   private readonly aiUpdateOffset = config.drone.ai.updateIntervalOffset
-  private readonly minWallDistance = config.ai.minWallDistance
   private readonly shotInterval = config.drone.ai.shotInterval
   private readonly shotIntervalOffset = config.drone.ai.shotIntervalOffset
   private readonly friendDetectionWidth = config.aiShotFriendDetectionWidth
@@ -39,8 +38,9 @@ export class Drone extends Enemy {
     this.nextCollisionCheck = Date.now() + config.aiCollisionCheckInterval
     this.target.pos = this.pos
     const vecs = this.target.get()
+    this.debug.length = 0
     for (const e of vecs) {
-      this.registerDebug(vecs[0])
+      this.registerDebug(e)
       if ((room.vectorCollision(e)?.calculateDistance(this.pos) ?? Infinity) < this.size * 2) {
         this.stop()
       }
@@ -48,17 +48,10 @@ export class Drone extends Enemy {
   }
 
   private movementAi(playerPos: Point) {
-    let destination: Point
-    let length: number
     if (playerPos.calculateDistance(this.pos) > this.aiRange) {
       this.untargetedMove()
     } else {
-      this.stop()
-      // destination = new Point(
-      //   playerPos.x + randX - (config.aiMovementOffset / 2),
-      //   playerPos.y + randY - (config.aiMovementOffset / 2)
-      // )
-      // length = config.aiTargetMoveLength
+      this.targetedMove(playerPos)
     }
   }
 
@@ -72,7 +65,30 @@ export class Drone extends Enemy {
       v = Vector.from(new Vector(this.pos, rand), config.aiNoTargetMoveLength)
       cDistance = this.checkCollision(v)
       tries++
-    } while ((cDistance ?? Infinity) < this.minWallDistance && tries < maxTries)
+    } while ((cDistance ?? Infinity) < this.size * 4 && tries < maxTries)
+    const length = Math.min(v.length, (cDistance ?? Infinity)) - this.size
+    if (tries === maxTries) { this.stop() }
+    else {
+      this.target.setTarget(new Vector(this.pos, v.angle, v.length).b, v.length)
+      this.move(v.angle, length)
+    }
+  }
+
+  draw(ctx: CanvasRenderingContext2D): void {
+    //todo
+  }
+
+  private targetedMove(p: Point) {
+    const maxTries = 10
+    let cDistance: number | undefined
+    let tries = 0
+    let v: Vector
+    do {
+      const rand = this.randomizeTarget(p)
+      v = Vector.from(new Vector(this.pos, rand), config.aiNoTargetMoveLength)
+      cDistance = this.checkCollision(v)
+      tries++
+    } while ((cDistance ?? Infinity) < this.size * 4 && tries < maxTries)
     const length = Math.min(v.length, (cDistance ?? Infinity)) - this.size
     if (tries === maxTries) { this.stop() }
     else {
@@ -103,6 +119,25 @@ export class Drone extends Enemy {
         const dist = p.calculateDistance(v.a)
         if ((minCollision ?? -1) < dist) {
           minCollision = dist
+        }
+      }
+    }
+    for (let i = 0; i < Enemy.enemies.length; i++) {
+      if (Enemy.enemies[i] === this) { continue }
+      if (Enemy.enemies[i].hitbox.vectorCollision(v)) {
+        console.log('asdasd')
+        return 0
+      }
+      const enemyRays = Enemy.enemies[i].target.get()
+      for (let j = 0; j < rays.length; j++) {
+        for (let k = 0; k < enemyRays.length; k++) {
+          const p = rays[j].intersection(enemyRays[k])
+          if (p !== undefined) {
+            const dist = p.calculateDistance(v.a)
+            if ((minCollision ?? -1) < dist) {
+              minCollision = dist
+            }
+          }
         }
       }
     }

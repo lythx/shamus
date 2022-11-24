@@ -23,10 +23,10 @@ const renderRoomDebug = (objects: Drawable[]): void => {
   }
 }
 
-const renderUnits = (images: HTMLImageElement[]): void => {
+const renderUnits = (units: Drawable[]): void => {
   ctx.clearRect(0, 0, canvas.width, canvas.height)
-  for (const e of images) {
-    ctx.drawImage(e, e.x, e.y)
+  for (let i = 0; i < units.length; i++) {
+    units[i].draw(ctx)
   }
 }
 

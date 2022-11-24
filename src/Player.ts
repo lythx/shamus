@@ -18,6 +18,10 @@ export class Player extends Fighter {
     this.projectileSize = config.player.projectile.size
   }
 
+  draw(ctx: CanvasRenderingContext2D): void {
+    //todo
+  }
+
   update(): void { }
 
   destroy(): void {

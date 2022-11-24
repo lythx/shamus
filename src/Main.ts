@@ -9,12 +9,14 @@ import { Drone } from './enemies/Drone.js'
 
 const infinity = 10000000
 const player = new Player(new Point(0, 0))
-const dbv = new Vector(new Point(500, 480), new Point(300, 300))
+const dbv = new Vector(new Point(42, 800), new Point(1100, 390))
+const dbv2 = new Vector(new Point(0, 200), new Point(500, 400))
 room.loadRoom(1)
 let debug = true
 const rects = room.getRectangles()
 const p = room.vectorCollision(dbv)
-renderRoomDebug(rects)
+const p2 = dbv.intersection(dbv2)
+renderRoomDebug(rects.flatMap(a => a.vecs))
 
 events.onMovementChange((isMoving, angle) => {
   if (!isMoving) {
@@ -49,7 +51,10 @@ const gameLoop = () => {
     if (p) {
       objects.push(p)
     }
-    objects.push(dbv)
+    if (p2) {
+      objects.push(p2)
+    }
+    objects.push(dbv, dbv2)
     renderDebug(objects)
   }
   requestAnimationFrame(gameLoop)
@@ -57,6 +62,6 @@ const gameLoop = () => {
 
 requestAnimationFrame(gameLoop)
 
-new Drone(new Point(500, 400), 'blue')
-new Drone(new Point(100, 100), 'blue')
+new Drone(new Point(500, 300), 'blue')
+new Drone(new Point(200, 200), 'blue')
 Enemy.enemies.sort(a => player.pos.calculateDistance(a.pos))

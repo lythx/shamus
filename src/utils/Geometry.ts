@@ -127,7 +127,7 @@ class Vector implements Drawable {
     const px = (u1 * c2x - c3x * u4) / d;
     const py = (u1 * c2y - c3y * u4) / d;
     const p = new Point(px, py)
-    if (calcIsInsideThickLineSegment(v, p)) {
+    if (calcIsInsideThickLineSegment(v, p) && calcIsInsideThickLineSegment(this, p)) {
       return new Point(px, py);
     }
   }
@@ -165,9 +165,9 @@ class Rectangle implements Drawable {
 
   constructor(a: Point, width: number, height: number) {
     this.a = a
-    this.b = new Point(a.x, a.y + width)
-    this.c = new Point(a.x - height, a.y + width)
-    this.d = new Point(a.x - height, a.y)
+    this.b = new Point(a.x, a.y + height)
+    this.c = new Point(a.x + width, a.y + height)
+    this.d = new Point(a.x + width, a.y)
     this.vecs = [new Vector(this.a, this.b),
     new Vector(this.b, this.c),
     new Vector(this.c, this.d),
@@ -177,9 +177,10 @@ class Rectangle implements Drawable {
   }
 
   draw(ctx: CanvasRenderingContext2D): void {
-    ctx.beginPath()
-    ctx.rect(this.a.x, this.a.y, this.width, this.height)
-    ctx.stroke()
+    for (const e of this.vecs) { e.draw(ctx) }
+    // ctx.beginPath()
+    // ctx.rect(this.a.x, this.a.y, this.height, this.width)
+    // ctx.stroke()
   }
 
   static isRectangle = (arg: any): arg is Rectangle => arg.constructor.name === 'Rectangle'
@@ -226,15 +227,6 @@ class Rectangle implements Drawable {
       }
     }
     return minPoint
-  }
-
-  getPolygons(): [Vector, Vector, Vector, Vector] {
-    const rt = new Point(this.a.x, this.c.y)
-    const lb = new Point(this.a.y, this.c.x)
-    return [new Vector(this.a, rt),
-    new Vector(rt, this.c),
-    new Vector(lb, this.c),
-    new Vector(this.a, lb)]
   }
 
 }
