@@ -8,6 +8,7 @@ export class Drone extends Enemy {
 
   private nextAiUpdate = 0
   private nextShot = 0
+  private nextCollisionCheck = 0
   private readonly aiRange = config.drone.ai.range
   private readonly aiUpdateInterval = config.drone.ai.updateInterval
   private readonly aiUpdateOffset = config.drone.ai.updateIntervalOffset
@@ -25,11 +26,25 @@ export class Drone extends Enemy {
   }
 
   update(playerPos: Point): void {
+    this.collisionAi()
     if (Date.now() < this.nextAiUpdate) { return }
     this.movementAi(playerPos)
     const randOffset = Math.random() * this.aiUpdateOffset
     this.nextAiUpdate = Date.now() +
       this.aiUpdateInterval + randOffset - (this.aiUpdateOffset / 2)
+  }
+
+  collisionAi() {
+    if (Date.now() < this.nextCollisionCheck) { return }
+    this.nextCollisionCheck = Date.now() + config.aiCollisionCheckInterval
+    this.target.pos = this.pos
+    const vecs = this.target.get()
+    for (const e of vecs) {
+      this.registerDebug(vecs[0])
+      if ((room.vectorCollision(e)?.calculateDistance(this.pos) ?? Infinity) < this.size * 2) {
+        this.stop()
+      }
+    }
   }
 
   private movementAi(playerPos: Point) {
@@ -49,20 +64,20 @@ export class Drone extends Enemy {
 
   private untargetedMove() {
     const maxTries = 10
-    const length = config.aiNoTargetMoveLength
     let cDistance: number | undefined
     let tries = 0
     let v: Vector
     do {
       const rand = this.randomizeTarget(this.pos)
-      v = Vector.from(new Vector(this.pos, rand), length)
+      v = Vector.from(new Vector(this.pos, rand), config.aiNoTargetMoveLength)
       cDistance = this.checkCollision(v)
-      console.log(cDistance)
       tries++
     } while ((cDistance ?? Infinity) < this.minWallDistance && tries < maxTries)
+    const length = Math.min(v.length, (cDistance ?? Infinity)) - this.size
     if (tries === maxTries) { this.stop() }
     else {
-      this.move(v.angle, v.length)
+      this.target.setTarget(new Vector(this.pos, v.angle, v.length).b, v.length)
+      this.move(v.angle, length)
     }
   }
 

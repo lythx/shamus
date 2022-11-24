@@ -38,6 +38,12 @@ export abstract class Enemy extends Fighter {
     }
   }
 
+  move(angle: number, length: number): void {
+    const v = new Vector(this.pos, angle, length)
+    this.target.setTarget(v.b, v.length + this.size)
+    this._move(v)
+  }
+
   abstract update(playerPos: Point): void
 
 }

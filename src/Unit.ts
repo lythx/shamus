@@ -30,14 +30,9 @@ export abstract class Unit {
     this.tween = new LinearTween(this.pos, this.pos, this.speed)
   }
 
-  /**
-   * Moves unit by a vector of given angle and length
-   * @param angle Angle in degrees
-   * @param length Vector length
-   */
-  move(angle: number, length: number) {
-    this._angle = angle
-    const destination = new Vector(this.pos, angle, length).b
+  protected _move(v: Vector) {
+    this._angle = v.angle
+    const destination = v.b
     this.tween.reset(this.pos, destination, this.speed)
     this.tween.onUpdate = (pos) => {
       this.pos = pos
@@ -45,8 +40,18 @@ export abstract class Unit {
     }
   }
 
+  /**
+   * Moves unit by a vector of given angle and length
+   * @param angle Angle in degrees
+   * @param length Vector length
+   */
+  move(angle: number, length: number) {
+    const destination = new Vector(this.pos, angle, length)
+    this._move(destination)
+  }
+
   registerDebugKey(key: string, data: Drawable | undefined) {
-    this.debugKeys[key] = data
+    // this.debugKeys[key] = data
   }
 
   registerDebug(debugData: Drawable, duration: number = config.debugDuration) {

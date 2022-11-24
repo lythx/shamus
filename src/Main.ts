@@ -57,6 +57,6 @@ const gameLoop = () => {
 
 requestAnimationFrame(gameLoop)
 
-new Drone(new Point(500, 500), 'blue')
+new Drone(new Point(500, 400), 'blue')
 new Drone(new Point(100, 100), 'blue')
 Enemy.enemies.sort(a => player.pos.calculateDistance(a.pos))

@@ -5,8 +5,9 @@ export const config = {
   aiMovementOffset: 100,
   aiShotFriendDetectionWidth: 100,
   aiMaxShotAngleOffset: 30,
-  aiNoTargetMoveLength: 100,
+  aiNoTargetMoveLength: 150,
   aiTargetMoveLength: 300,
+  aiCollisionCheckInterval: 100,
   aiMinMovement: 50,
   aiMovementTargetDivisor: 2,
   ai: {
