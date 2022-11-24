@@ -2,16 +2,19 @@ import { Enemy } from "./Enemy.js";
 import { Player } from "./Player.js";
 import { Projectile } from "./Projectile.js";
 import { events } from './Events.js'
-import { Drawable, Point } from "./Utils.js";
-import { loadRoom, getPolygons } from './Room.js'
+import { Drawable, Point, Vector } from "./utils/Geometry.js";
+import { room } from './Room.js'
 import { renderDebug, renderRoom, renderRoomDebug, renderUnits } from "./Renderer.js";
 import { Drone } from './enemies/Drone.js'
 
 const infinity = 10000000
 const player = new Player(new Point(0, 0))
-loadRoom(1)
+const dbv = new Vector(new Point(500, 480), new Point(300, 300))
+room.loadRoom(1)
 let debug = true
-const polygons = getPolygons()
+const rects = room.getRectangles()
+const p = room.vectorCollision(dbv)
+renderRoomDebug(rects)
 
 events.onMovementChange((isMoving, angle) => {
   if (!isMoving) {
@@ -41,9 +44,12 @@ const gameLoop = () => {
     for (let i = 0; i < Enemy.enemies.length; i++) {
       const e = Enemy.enemies[i]
       objects[index++] = e.hitbox
-      if (e.currentDestination !== undefined) { objects[index++] = e.currentDestination }
       for (let j = 0; j < e.debug.length; j++) { objects[index++] = e.debug[j] }
     }
+    if (p) {
+      objects.push(p)
+    }
+    objects.push(dbv)
     renderDebug(objects)
   }
   requestAnimationFrame(gameLoop)

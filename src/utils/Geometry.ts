@@ -96,19 +96,40 @@ class Vector implements Drawable {
   }
 
   intersection(v: Vector): Point | undefined {
-    // Check if none of the lines are of length 0
-    if ((this.a.x === this.b.x && this.a.y === this.b.y)
-      || (v.a.x === v.b.x && v.a.y === v.b.y)) { return }
-    const denominator = ((v.b.y - v.a.y) * (this.b.x - this.a.x) - (v.b.x - v.a.x) * (this.b.y - this.a.y))
-    // Lines are parallel
-    if (denominator === 0) { return }
-    let ua = ((v.b.x - v.a.x) * (this.a.y - v.a.y) - (v.b.y - v.a.y) * (this.a.x - v.a.x)) / denominator
-    let ub = ((this.b.x - this.a.x) * (this.a.y - v.a.y) - (this.b.y - this.a.y) * (this.a.x - v.a.x)) / denominator
-    // is the intersection along the segments
-    if (ua < 0 || ua > 1 || ub < 0 || ub > 1) { return }
-    let x = this.a.x + ua * (this.b.x - this.a.x)
-    let y = this.a.y + ua * (this.b.y - this.a.y)
-    return new Point(x, y)
+    function calcIsInsideThickLineSegment(v: Vector, p: Point, lineThickness = 1) {
+      var L2 = (((v.b.x - v.a.x) * (v.b.x - v.a.x)) + ((v.b.y - v.a.y) * (v.b.y - v.a.y)));
+      if (L2 == 0) return false;
+      var r = (((p.x - v.a.x) * (v.b.x - v.a.x)) + ((p.y - v.a.y) * (v.b.y - v.a.y))) / L2;
+      //Assume line thickness is circular
+      if (r < 0) {
+        //Outside v.a
+        return (Math.sqrt(((v.a.x - p.x) * (v.a.x - p.x)) + ((v.a.y - p.y) * (v.a.y - p.y))) <= lineThickness);
+      } else if ((0 <= r) && (r <= 1)) {
+        //On the line segment
+        var s = (((v.a.y - p.y) * (v.b.x - v.a.x)) - ((v.a.x - p.x) * (v.b.y - v.a.y))) / L2;
+        return (Math.abs(s) * Math.sqrt(L2) <= lineThickness);
+      } else {
+        //Outside v.b
+        return (Math.sqrt(((v.b.x - p.x) * (v.b.x - p.x)) + ((v.b.y - p.y) * (v.b.y - p.y))) <= lineThickness);
+      }
+    }
+    const c2x = v.a.x - v.b.x; // (x3 - x4)
+    const c3x = this.a.x - this.b.x; // (x1 - x2)
+    const c2y = v.a.y - v.b.y; // (y3 - y4)
+    const c3y = this.a.y - this.b.y; // (y1 - y2)
+    // down part of intersection point formula
+    const d = c3x * c2y - c3y * c2x;
+    if (d === 0) { return }
+    // upper part of intersection point formula
+    const u1 = this.a.x * this.b.y - this.a.y * this.b.x; // (x1 * y2 - y1 * x2)
+    const u4 = v.a.x * v.b.y - v.a.y * v.b.x; // (x3 * y4 - y3 * x4)
+    // intersection point formula
+    const px = (u1 * c2x - c3x * u4) / d;
+    const py = (u1 * c2y - c3y * u4) / d;
+    const p = new Point(px, py)
+    if (calcIsInsideThickLineSegment(v, p)) {
+      return new Point(px, py);
+    }
   }
 
   distanceToPoint(p: Point) {
@@ -117,17 +138,6 @@ class Vector implements Drawable {
     t = Math.max(0, Math.min(1, t));
     const closest = new Point(this.a.x + t * (this.b.x - this.a.x), this.a.y + t * (this.b.y - this.a.y))
     return p.calculateDistance(closest)
-  }
-
-  isIntersecting(v: Vector): boolean {
-    const det = (this.b.x - this.a.x) * (v.b.x - v.a.x) - (this.b.y - this.a.y) * (v.b.y - v.a.y)
-    if (det === 0) {
-      return false
-    } else {
-      const lambda = ((v.b.y - v.a.y) * (v.b.x - this.a.x) + (v.a.x - v.b.x) * (v.b.y - this.a.y)) / det
-      const gamma = ((this.a.y - this.b.y) * (v.b.x - this.a.x) + (this.b.x - this.a.x) * (v.b.y - this.a.y)) / det
-      return (0 < lambda && lambda < 1) && (0 < gamma && gamma < 1)
-    }
   }
 
   set length(length: number) {
@@ -149,10 +159,19 @@ class Rectangle implements Drawable {
   readonly height: number
   readonly a: Point
   readonly b: Point
+  readonly c: Point
+  readonly d: Point
+  readonly vecs: Vector[]
 
   constructor(a: Point, width: number, height: number) {
     this.a = a
-    this.b = new Point(a.x - height, a.y + width)
+    this.b = new Point(a.x, a.y + width)
+    this.c = new Point(a.x - height, a.y + width)
+    this.d = new Point(a.x - height, a.y)
+    this.vecs = [new Vector(this.a, this.b),
+    new Vector(this.b, this.c),
+    new Vector(this.c, this.d),
+    new Vector(this.d, this.a)]
     this.width = width
     this.height = height
   }
@@ -166,12 +185,12 @@ class Rectangle implements Drawable {
   static isRectangle = (arg: any): arg is Rectangle => arg.constructor.name === 'Rectangle'
 
   pointCollision = (p: Point): boolean =>
-    (p.x >= this.a.x && p.x <= this.b.x) &&
-    (p.y <= this.a.y && p.y >= this.b.y)
+    (p.x >= this.a.x && p.x <= this.c.x) &&
+    (p.y <= this.a.y && p.y >= this.c.y)
 
   rectangleCollision = (r: Rectangle): boolean =>
-    (r.b.x >= this.a.x || r.a.x <= this.b.x) &&
-    (r.b.y <= this.a.y || r.a.y >= this.b.y)
+    (r.c.x >= this.a.x || r.a.x <= this.c.x) &&
+    (r.c.y <= this.a.y || r.a.y >= this.c.y)
 
   circleCollision(circle: Circle): boolean {
     const c = circle.center
@@ -186,12 +205,35 @@ class Rectangle implements Drawable {
     return dx ** 2 + dy ** 2 <= circle.radius ** 2;
   }
 
+  vectorCollision(v: Vector): boolean {
+    for (let i = 0; i < this.vecs.length; i++) {
+      if (this.vecs[i].intersection(v) !== undefined) { return true }
+    }
+    return false
+  }
+
+  vectorIntersection(v: Vector): undefined | Point {
+    let minDistance = Infinity
+    let minPoint: Point | undefined
+    for (let i = 0; i < this.vecs.length; i++) {
+      const p = this.vecs[i].intersection(v)
+      if (p !== undefined) {
+        const dist = p.calculateDistance(v.a)
+        if (minDistance > dist) {
+          minDistance = dist
+          minPoint = p
+        }
+      }
+    }
+    return minPoint
+  }
+
   getPolygons(): [Vector, Vector, Vector, Vector] {
-    const rt = new Point(this.a.x, this.b.y)
-    const lb = new Point(this.a.y, this.b.x)
+    const rt = new Point(this.a.x, this.c.y)
+    const lb = new Point(this.a.y, this.c.x)
     return [new Vector(this.a, rt),
-    new Vector(rt, this.b),
-    new Vector(lb, this.b),
+    new Vector(rt, this.c),
+    new Vector(lb, this.c),
     new Vector(this.a, lb)]
   }
 

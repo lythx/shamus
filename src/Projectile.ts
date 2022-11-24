@@ -1,6 +1,6 @@
 import { Enemy } from "./Enemy.js";
 import { Unit } from "./Unit.js";
-import { Circle, Point } from "./Utils.js";
+import { Circle, Point } from "./utils/Geometry.js";
 const infinty = 10000000
 
 interface ProjectileOptions {

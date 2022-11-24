@@ -1,4 +1,4 @@
-import { Drawable } from "./Utils.js"
+import { Drawable } from "./utils/Geometry.js"
 import { config } from "./config.js"
 
 const canvas = document.getElementById('canvas') as HTMLCanvasElement
@@ -16,8 +16,11 @@ const renderRoom = (): void => {
 
 }
 
-const renderRoomDebug = (): void => {
-
+const renderRoomDebug = (objects: Drawable[]): void => {
+  const bgDebugCtx = bgDebugCanvas.getContext('2d') as CanvasRenderingContext2D
+  for (let i = 0; i < objects.length; i++) {
+    objects[i].draw(bgDebugCtx)
+  }
 }
 
 const renderUnits = (images: HTMLImageElement[]): void => {

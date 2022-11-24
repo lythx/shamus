@@ -1,5 +1,5 @@
 import { Projectile } from "./Projectile.js";
-import { Point } from "./Utils.js";
+import { Point } from "./utils/Geometry.js";
 import { Unit } from "./Unit.js"
 
 interface FighterOptions {

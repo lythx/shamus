@@ -1,4 +1,4 @@
-import { Circle, Point, Rectangle, Vector } from "./Utils.js";
+import { Circle, Point, Rectangle, Vector } from "./utils/Geometry.js";
 import rooms from './rooms.js'
 
 let wallRects: Rectangle[] = []
@@ -9,19 +9,31 @@ const loadRoom = (key: number) => {
   wallRects = data.map(a => new Rectangle(new Point(a[0], a[1]), a[2], a[3]))
 }
 
-const checkCollision = (c: Circle) => {
+const circleCollision = (c: Circle) => {
   for (let i = 0; i < wallRects.length; i++) {
     if (wallRects[i].circleCollision(c)) { return true }
   }
   return false
 }
 
-const getPolygons = () => {
-  const polygons: Vector[] = []
-  for (const e of wallRects) {
-    polygons.push(...e.getPolygons())
+const vectorCollision = (v: Vector): Point | undefined => {
+  let minDist = Infinity
+  let minPoint: Point | undefined
+  for (let i = 0; i < wallRects.length; i++) {
+    const p = wallRects[i].vectorIntersection(v)
+    if (p !== undefined) {
+      const dist = p.calculateDistance(v.a)
+      if (dist < minDist) {
+        minDist = dist
+        minPoint = p
+      }
+    }
   }
-  return polygons;
+  return minPoint
 }
 
-export { checkCollision, loadRoom, getPolygons }
+const getRectangles = () => {
+  return wallRects
+}
+
+export const room = { circleCollision, vectorCollision, loadRoom, getRectangles }

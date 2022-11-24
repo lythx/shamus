@@ -1,6 +1,7 @@
 import { config } from "./config.js";
 import { Fighter } from "./Fighter.js";
-import { Point, Vector } from "./Utils.js";
+import { Point, Vector } from "./utils/Geometry.js";
+import { Rays } from "./utils/Rays.js";
 
 interface EnemyOptions {
   pos: Point
@@ -16,23 +17,13 @@ export abstract class Enemy extends Fighter {
 
   protected readonly angles = [0, 90, 180, 270] as const
   static enemies: Enemy[] = []
-  targetVectors: Vector[]
+  target: Rays
   static groups: Enemy[][] = []
 
   constructor(options: EnemyOptions) {
     super({ ...options, side: 'enemy' })
     Enemy.enemies.push(this)
-    this.targetVectors = []
-    this.resetDestinationEdges()
-    this.tween.onEnd = () => undefined//this.resetDestinationEdges()
-  }
-
-  resetDestinationEdges(): void {
-    const v1 = new Vector(new Point(this.x - this.size, this.y), new Point(this.x + this.size, this.y))
-    const v2 = new Vector(new Point(this.x, this.y - this.size), new Point(this.x, this.y + this.size))
-    this.registerDebugData(v1, 500)
-    this.registerDebugData(v2, 500)
-    this.targetVectors = [v1, v2]
+    this.target = new Rays(options.pos, options.size)
   }
 
   /**
@@ -48,9 +39,5 @@ export abstract class Enemy extends Fighter {
   }
 
   abstract update(playerPos: Point): void
-
-  abstract groupUpdate(angle: number): void
-
-  abstract leaderUpdate(playerPos: Point, groupNumber: number): void
 
 }

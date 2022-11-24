@@ -1,7 +1,7 @@
 import { config } from "./config.js";
 import { Projectile } from "./Projectile.js";
 import { Fighter } from "./Fighter.js";
-import { Point } from "./Utils.js";
+import { Point } from "./utils/Geometry.js";
 
 export class Player extends Fighter {
 

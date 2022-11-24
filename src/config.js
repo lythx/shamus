@@ -9,6 +9,9 @@ export const config = {
   aiTargetMoveLength: 300,
   aiMinMovement: 50,
   aiMovementTargetDivisor: 2,
+  ai: {
+    minWallDistance: 100
+  },
   player: {
     size: 40,
     speed: 100,

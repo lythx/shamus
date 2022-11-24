@@ -1,6 +1,6 @@
 import { config } from "./config.js";
 import { LinearTween } from "./Tweens.js";
-import { Circle, Drawable, Point, Rectangle, Vector } from "./Utils.js";
+import { Circle, Drawable, Point, Rectangle, Vector } from "./utils/Geometry.js";
 
 export interface UnitOptions {
   pos: Point
@@ -18,7 +18,8 @@ export abstract class Unit {
   readonly side: 'player' | 'enemy'
   protected _angle: number = 0
   readonly hitbox: Circle
-  debug: Drawable[] = []
+  _debug: Drawable[] = []
+  debugKeys: { [key: string]: Drawable | undefined } = {}
 
   constructor(options: UnitOptions) {
     this.pos = options.pos
@@ -44,14 +45,22 @@ export abstract class Unit {
     }
   }
 
-  registerDebugData(debugData: Drawable, duration: number = config.debugDuration) {
-    this.debug.push(debugData)
-    setTimeout(() => this.debug = this.debug.filter(a => a !== debugData), duration)
+  registerDebugKey(key: string, data: Drawable | undefined) {
+    this.debugKeys[key] = data
   }
 
-  get currentDestination(): Vector | undefined {
-    if (this.tween === undefined) { return undefined }
-    return new Vector(this.pos, this.tween.destination)
+  registerDebug(debugData: Drawable, duration: number = config.debugDuration) {
+    this._debug.push(debugData)
+    setTimeout(() => this._debug = this._debug.filter(a => a !== debugData), duration)
+  }
+
+  get debug(): Drawable[] {
+    const arr = this._debug
+    const keyData = Object.values(this.debugKeys)
+    for (let i = 0; i < keyData.length; i++) {
+      if (keyData[i] !== undefined) { arr.push(keyData[i] as Drawable) }
+    }
+    return arr
   }
 
   abstract update(playerPos: Point): void
