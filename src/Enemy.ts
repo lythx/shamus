@@ -11,6 +11,10 @@ interface EnemyOptions {
     speed: number
     size: number
   }
+  models: {
+    dir: string
+    back: string[]
+  }
 }
 
 export abstract class Enemy extends Fighter {

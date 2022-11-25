@@ -11,6 +11,7 @@ export const config = {
   aiMinMovement: 50,
   aiMovementTargetDivisor: 2,
   player: {
+    modelUpdateInterval: 50,
     size: 40,
     speed: 100,
     projectile: {

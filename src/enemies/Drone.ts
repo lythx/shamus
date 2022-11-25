@@ -20,7 +20,11 @@ export class Drone extends Enemy {
   constructor(pos: Point, colour: 'blue' | 'purple') {
     super({
       ...config.drone,
-      pos
+      pos,
+      models: {
+        dir: '',
+        back: []
+      }
     })
   }
 

@@ -17,7 +17,7 @@ const renderRoom = (): void => {
 }
 
 const renderRoomDebug = (objects: Drawable[]): void => {
-  const bgDebugCtx = bgDebugCanvas.getContext('2d') as CanvasRenderingContext2D
+  bgDebugCtx.clearRect(0, 0, bgDebugCanvas.width, bgDebugCanvas.height)
   for (let i = 0; i < objects.length; i++) {
     objects[i].draw(bgDebugCtx)
   }

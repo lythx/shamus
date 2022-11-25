@@ -17,6 +17,7 @@ export abstract class Fighter extends Unit {
 
   readonly projectileSpeed: number
   readonly projectileSize: number
+  lastModel: number = 0
 
   constructor(options: FighterOptions) {
     super(options)

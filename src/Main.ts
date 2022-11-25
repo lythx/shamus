@@ -26,6 +26,15 @@ events.onMovementChange((isMoving, angle) => {
   }
 })
 events.onAction('shoot', () => player.shoot())
+events.onAction('debug', () => {
+  debug = !debug
+  if (!debug) {
+    renderDebug([])
+    renderRoomDebug([])
+  } else {
+    renderRoomDebug(rects.flatMap(a => a.vecs))
+  }
+})
 
 const gameLoop = () => {
   for (let i = 0; i < Projectile.playerProjectiles.length; i++) {
@@ -34,6 +43,12 @@ const gameLoop = () => {
   for (let i = 0; i < Enemy.enemies.length; i++) {
     Enemy.enemies[i].update(player.pos)
   }
+  const objects: Drawable[] = [player]
+  let index = 1
+  for (let i = 0; i < Enemy.enemies.length; i++) {
+    objects[index] = Enemy.enemies[i]
+  }
+  renderUnits(objects)
   if (debug) {
     const objects: Drawable[] = [player.hitbox]
     let index = 1
