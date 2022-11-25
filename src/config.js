@@ -2,6 +2,7 @@ import { models } from './models.js'
 
 export const config = {
   speedMultiplier: 20,
+  wallBorderWidth: 100,
   aiMovementOffset: 100,
   aiShotFriendDetectionWidth: 100,
   aiMaxShotAngleOffset: 30,

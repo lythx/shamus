@@ -1,5 +1,4 @@
 import { config } from "./config.js";
-import { Projectile } from "./Projectile.js";
 import { Fighter } from "./Fighter.js";
 import { models } from "./models.js";
 import { Point, Vector } from "./utils/Geometry.js";
