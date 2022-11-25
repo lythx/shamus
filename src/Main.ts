@@ -9,13 +9,9 @@ import { Drone } from './enemies/Drone.js'
 
 const infinity = 10000000
 const player = new Player(new Point(0, 0))
-const dbv = new Vector(new Point(42, 800), new Point(1100, 390))
-const dbv2 = new Vector(new Point(0, 200), new Point(500, 400))
 room.loadRoom(1)
 let debug = true
 const rects = room.getRectangles()
-const p = room.vectorCollision(dbv)
-const p2 = dbv.intersection(dbv2)
 renderRoomDebug(rects.flatMap(a => a.vecs))
 
 events.onMovementChange((isMoving, angle) => {
@@ -37,6 +33,7 @@ events.onAction('debug', () => {
 })
 
 const gameLoop = () => {
+  player.update()
   for (let i = 0; i < Projectile.playerProjectiles.length; i++) {
     Projectile.playerProjectiles[i].update()
   }
@@ -63,13 +60,6 @@ const gameLoop = () => {
       objects[index++] = e.hitbox
       for (let j = 0; j < e.debug.length; j++) { objects[index++] = e.debug[j] }
     }
-    if (p) {
-      objects.push(p)
-    }
-    if (p2) {
-      objects.push(p2)
-    }
-    objects.push(dbv, dbv2)
     renderDebug(objects)
   }
   requestAnimationFrame(gameLoop)

@@ -37,6 +37,7 @@ const onMoveChange = () => {
     }
     angle = ((angle + angle2) / 2) % 360
   }
+  if (angle === -45) { angle = 315 } //todo
   for (const e of movementListeners) { e(true, angle) }
 }
 document.addEventListener('keydown', (e) => {

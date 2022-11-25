@@ -114,12 +114,10 @@ export class Drone extends Enemy {
     const r = new Rays(this.pos, this.size)
     r.setTarget(v.b, v.length)
     const rays = r.get()
-    for (const e of rays) { this.registerDebug(e) }
     let minCollision: number | undefined
     for (let i = 0; i < rays.length; i++) {
       const p = room.vectorCollision(rays[i])
       if (p !== undefined) {
-        this.registerDebug(p)
         const dist = p.calculateDistance(v.a)
         if ((minCollision ?? -1) < dist) {
           minCollision = dist
@@ -127,25 +125,34 @@ export class Drone extends Enemy {
       }
     }
     for (let i = 0; i < Enemy.enemies.length; i++) {
-      if (Enemy.enemies[i] === this) { continue }
-      if (Enemy.enemies[i].hitbox.vectorCollision(v)) {
-        console.log('asdasd')
+      const dist = this.rayCollision(Enemy.enemies[i])
+      if (dist !== undefined && (minCollision ?? -1) < dist) {
+        minCollision = dist
+      }
+    }
+    return minCollision
+  }
+
+  private rayCollision(unit: Enemy): number | undefined {
+    if (unit === this) { return }
+    let minCollision: number | undefined
+    const rays = this.target.get()
+    const uRays = unit.target.get()
+    for (let i = 0; i < rays.length; i++) {
+      if (unit.hitbox.vectorCollision(rays[i])) {
         return 0
       }
-      const enemyRays = Enemy.enemies[i].target.get()
-      for (let j = 0; j < rays.length; j++) {
-        for (let k = 0; k < enemyRays.length; k++) {
-          const p = rays[j].intersection(enemyRays[k])
-          if (p !== undefined) {
-            const dist = p.calculateDistance(v.a)
-            if ((minCollision ?? -1) < dist) {
-              minCollision = dist
-            }
+      for (let j = 0; j < uRays.length; j++) {
+        const p = rays[i].intersection(uRays[j])
+        if (p !== undefined) {
+          this.registerDebug(p)
+          const dist = p.calculateDistance(this.pos)
+          if ((minCollision ?? -1) < dist) {
+            minCollision = dist
           }
         }
       }
     }
-    return minCollision
   }
 
   // update(playerPos: Point): void {

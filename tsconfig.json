@@ -61,8 +61,7 @@
     "resolveJsonModule": true
   },
   "include": [
-    "src/*",
-    "src/utils/Geometry.ts"
+    "src/*"
   ],
   "exclude": [
     "node_modules"
