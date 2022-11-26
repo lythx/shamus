@@ -1,6 +1,7 @@
 import { Enemy } from "./Enemy.js";
+import { room } from "./Room.js";
 import { Unit } from "./Unit.js";
-import { Circle, Point } from "./utils/Geometry.js";
+import { Circle, math, Point, Vector } from "./utils/Geometry.js";
 const infinty = 10000000
 
 interface ProjectileOptions {
@@ -8,6 +9,7 @@ interface ProjectileOptions {
   angle: number
   speed: number
   size: number
+  image: HTMLImageElement
   side: 'player' | 'enemy'
 }
 
@@ -15,12 +17,15 @@ export class Projectile extends Unit {
 
   static playerProjectiles: Projectile[] = []
   static enemyProjectiles: Projectile[] = []
+  private readonly image: HTMLImageElement
 
   constructor(options: ProjectileOptions) {
     super(options)
+    this.pos = new Vector(this.pos, this.angle, this.size * 2).b
     this.move(options.angle, infinty)
     this.side === 'player' ? Projectile.playerProjectiles.push(this)
       : Projectile.enemyProjectiles.push(this)
+    this.image = options.image
   }
 
   update(): void {
@@ -32,23 +37,29 @@ export class Projectile extends Unit {
    */
   private handleCollision() {
     if (this.side === 'player') {
-      for (const e of Projectile.enemyProjectiles) {
-
-      }
-      for (const e of Enemy.enemies) {
-        const dx = e.x - this.x;
-        const dy = e.y - this.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        if (distance < e.size + this.size) {
-          this.destroy()
-          e.destroy()
+      for (let i = 0; i < Projectile.enemyProjectiles.length; i++) {
+        if (Projectile.enemyProjectiles[i].hitbox.circleCollision(this.hitbox)) {
+          Projectile.enemyProjectiles[i].destroy()
         }
       }
+    }
+    for (let i = 0; i < Enemy.enemies.length; i++) {
+      if (Enemy.enemies[i].hitbox.circleCollision(this.hitbox)) {
+        Enemy.enemies[i].destroy()
+        this.destroy()
+      }
+    }
+    if (room.circleCollision(this.hitbox)) {
+      this.destroy()
     }
   }
 
   draw(ctx: CanvasRenderingContext2D): void {
-    //todo
+    ctx.save()
+    ctx.translate(this.x, this.y)
+    ctx.rotate(math.degToRad(this.angle))
+    ctx.drawImage(this.image, -this.size * 3, -this.size * 0.75, this.size * 6, this.size * 1.5)
+    ctx.restore()
   }
 
   /**

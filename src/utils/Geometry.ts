@@ -1,6 +1,7 @@
 const math = {
   sin: (x: number) => Math.sin(Number(x.toFixed(4))),
-  cos: (x: number) => Math.cos(Number(x.toFixed(4)))
+  cos: (x: number) => Math.cos(Number(x.toFixed(4))),
+  degToRad: (deg: number) => deg * (Math.PI / 180),
 }
 
 interface Drawable {
@@ -95,24 +96,25 @@ class Vector implements Drawable {
     return (360 + Math.round(degrees)) % 360
   }
 
-  intersection(v: Vector): Point | undefined {
-    function calcIsInsideThickLineSegment(v: Vector, p: Point, lineThickness = 1) {
-      var L2 = (((v.b.x - v.a.x) * (v.b.x - v.a.x)) + ((v.b.y - v.a.y) * (v.b.y - v.a.y)));
-      if (L2 == 0) return false;
-      var r = (((p.x - v.a.x) * (v.b.x - v.a.x)) + ((p.y - v.a.y) * (v.b.y - v.a.y))) / L2;
-      //Assume line thickness is circular
-      if (r < 0) {
-        //Outside v.a
-        return (Math.sqrt(((v.a.x - p.x) * (v.a.x - p.x)) + ((v.a.y - p.y) * (v.a.y - p.y))) <= lineThickness);
-      } else if ((0 <= r) && (r <= 1)) {
-        //On the line segment
-        var s = (((v.a.y - p.y) * (v.b.x - v.a.x)) - ((v.a.x - p.x) * (v.b.y - v.a.y))) / L2;
-        return (Math.abs(s) * Math.sqrt(L2) <= lineThickness);
-      } else {
-        //Outside v.b
-        return (Math.sqrt(((v.b.x - p.x) * (v.b.x - p.x)) + ((v.b.y - p.y) * (v.b.y - p.y))) <= lineThickness);
-      }
+  containsPoint(v: Vector, p: Point, lineThickness = 1) {
+    const L2 = (((v.b.x - v.a.x) * (v.b.x - v.a.x)) + ((v.b.y - v.a.y) * (v.b.y - v.a.y)));
+    if (L2 == 0) return false;
+    const r = (((p.x - v.a.x) * (v.b.x - v.a.x)) + ((p.y - v.a.y) * (v.b.y - v.a.y))) / L2;
+    //Assume line thickness is circular
+    if (r < 0) {
+      //Outside v.a
+      return (Math.sqrt(((v.a.x - p.x) * (v.a.x - p.x)) + ((v.a.y - p.y) * (v.a.y - p.y))) <= lineThickness);
+    } else if ((0 <= r) && (r <= 1)) {
+      //On the line segment
+      const s = (((v.a.y - p.y) * (v.b.x - v.a.x)) - ((v.a.x - p.x) * (v.b.y - v.a.y))) / L2;
+      return (Math.abs(s) * Math.sqrt(L2) <= lineThickness);
+    } else {
+      //Outside v.b
+      return (Math.sqrt(((v.b.x - p.x) * (v.b.x - p.x)) + ((v.b.y - p.y) * (v.b.y - p.y))) <= lineThickness);
     }
+  }
+
+  intersection(v: Vector): Point | undefined {
     const c2x = v.a.x - v.b.x; // (x3 - x4)
     const c3x = this.a.x - this.b.x; // (x1 - x2)
     const c2y = v.a.y - v.b.y; // (y3 - y4)
@@ -127,7 +129,7 @@ class Vector implements Drawable {
     const px = (u1 * c2x - c3x * u4) / d;
     const py = (u1 * c2y - c3y * u4) / d;
     const p = new Point(px, py)
-    if (calcIsInsideThickLineSegment(v, p) && calcIsInsideThickLineSegment(this, p)) {
+    if (this.containsPoint(v, p) && this.containsPoint(this, p)) {
       return new Point(px, py);
     }
   }
@@ -163,24 +165,36 @@ class Rectangle implements Drawable {
   readonly d: Point
   readonly vecs: Vector[]
 
-  constructor(a: Point, width: number, height: number) {
+  constructor(a: Point, c: Point)
+  constructor(a: Point, width: number, height: number)
+  constructor(a: Point, arg: number | Point, height?: number) {
+    let w: number
+    let h: number
+    if (typeof arg === 'number') {
+      w = arg
+      h = height as number
+    } else {
+      const c = arg
+      w = Math.abs(c.x - a.x)
+      h = Math.abs(c.y - a.y)
+      a = new Point(Math.min(c.x, a.x), Math.min(c.y, a.y))
+    }
     this.a = a
-    this.b = new Point(a.x, a.y + height)
-    this.c = new Point(a.x + width, a.y + height)
-    this.d = new Point(a.x + width, a.y)
+    this.b = new Point(a.x, a.y + h)
+    this.c = new Point(a.x + w, a.y + h)
+    this.d = new Point(a.x + w, a.y)
     this.vecs = [new Vector(this.a, this.b),
     new Vector(this.b, this.c),
     new Vector(this.c, this.d),
     new Vector(this.d, this.a)]
-    this.width = width
-    this.height = height
+    this.width = w
+    this.height = h
   }
 
   draw(ctx: CanvasRenderingContext2D): void {
-    for (const e of this.vecs) { e.draw(ctx) }
-    // ctx.beginPath()
-    // ctx.rect(this.a.x, this.a.y, this.height, this.width)
-    // ctx.stroke()
+    ctx.beginPath()
+    ctx.rect(this.a.x, this.a.y, this.height, this.width)
+    ctx.stroke()
   }
 
   static isRectangle = (arg: any): arg is Rectangle => arg.constructor.name === 'Rectangle'
@@ -251,7 +265,6 @@ class Circle implements Drawable {
 
   circleCollision = (c: Circle): boolean =>
     this.center.calculateDistance(c.center) <= this.radius + c.radius
-
 
   pointCollision = (p: Point): boolean =>
     this.center.calculateDistance(p) <= this.radius

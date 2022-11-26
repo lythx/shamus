@@ -10,10 +10,7 @@ interface EnemyOptions {
   projectile: {
     speed: number
     size: number
-  }
-  models: {
-    dir: string
-    back: string[]
+    modelPath: string
   }
 }
 
@@ -22,10 +19,11 @@ export abstract class Enemy extends Fighter {
   protected readonly angles = [0, 90, 180, 270] as const
   static enemies: Enemy[] = []
   target: Rays
-  static groups: Enemy[][] = []
 
   constructor(options: EnemyOptions) {
-    super({ ...options, side: 'enemy' })
+    const projectileImg = new Image()
+    projectileImg.src = `./assets/${options.projectile.modelPath}.png`
+    super({ ...options, side: 'enemy', projectile: { ...options.projectile, image: projectileImg } })
     Enemy.enemies.push(this)
     this.target = new Rays(options.pos, options.size)
   }

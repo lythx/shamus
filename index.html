@@ -12,10 +12,21 @@
 
 <body>
   <div id="wrapper">
-    <canvas id="debugCanvas" class="canvas" width="1200" height="800"></canvas>
-    <canvas id="canvas" class="canvas" width="1200" height="800"></canvas>
-    <canvas id="backgroundDebugCanvas" class="canvas" width="1200" height="800"></canvas>
-    <canvas id="backgroundCanvas" class="canvas" width="1200" height="800"></canvas>
+    <div id="content">
+      <div id="scoreTop" class="score"></div>
+      <div id="scoreBottom" class="score"></div>
+      <div id="lifes"></div>
+      <div id="bottom">
+        <div class="text">ROOM: </div>
+        <div id="room" class="text"></div>
+        <div class="text">LEVEL: </div>
+        <div id="level" class="text"> </div>
+      </div>
+      <canvas id="debugCanvas" class="canvas" width="1400" height="800"></canvas>
+      <canvas id="canvas" class="canvas" width="1400" height="800"></canvas>
+      <canvas id="backgroundDebugCanvas" class="canvas" width="1400" height="800"></canvas>
+      <canvas id="backgroundCanvas" class="canvas" width="1400" height="800"></canvas>
+    </div>
   </div>
 </body>
 

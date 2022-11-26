@@ -11,7 +11,7 @@ export interface UnitOptions {
 
 export abstract class Unit implements Drawable {
 
-  pos: Point
+  private _pos: Point
   readonly size: number
   readonly speed: number
   protected tween: LinearTween
@@ -21,22 +21,31 @@ export abstract class Unit implements Drawable {
   _debug: Drawable[] = []
 
   constructor(options: UnitOptions) {
-    this.pos = options.pos
+    this._pos = options.pos
     this.size = options.size
     this.speed = options.speed
     this.side = options.side
-    this.hitbox = new Circle(this.pos, this.size)
-    this.tween = new LinearTween(this.pos, this.pos, this.speed)
+    this.hitbox = new Circle(this._pos, this.size)
+    this.tween = new LinearTween(this._pos, this._pos, this.speed)
   }
 
   protected _move(v: Vector) {
     this._angle = v.angle
     const destination = v.b
-    this.tween.reset(this.pos, destination, this.speed)
-    this.tween.onUpdate = (pos) => {
-      this.pos = pos
-      this.hitbox.center = pos
+    this.tween.reset(this._pos, destination, this.speed)
+    this.tween.onUpdate = (_pos) => {
+      this._pos = _pos
+      this.hitbox.center = _pos
     }
+  }
+
+  get pos(): Point {
+    return this._pos
+  }
+
+  set pos(pos: Point) {
+    this.hitbox.center = pos
+    this._pos = pos
   }
 
   abstract draw(ctx: CanvasRenderingContext2D): void;
@@ -47,7 +56,7 @@ export abstract class Unit implements Drawable {
    * @param length Vector length
    */
   move(angle: number, length: number) {
-    const destination = new Vector(this.pos, angle, length)
+    const destination = new Vector(this._pos, angle, length)
     this._move(destination)
   }
 
@@ -60,7 +69,7 @@ export abstract class Unit implements Drawable {
     return this._debug
   }
 
-  abstract update(playerPos: Point): void
+  abstract update(player_pos: Point): void
 
   /**
    * Stops listeners
@@ -75,17 +84,17 @@ export abstract class Unit implements Drawable {
   }
 
   /**
-   * Current x axis position
+   * Current x axis _position
    */
   get x(): number {
-    return this.pos.x
+    return this._pos.x
   }
 
   /**
-   * Current y axis position
+   * Current y axis _position
    */
   get y(): number {
-    return this.pos.y
+    return this._pos.y
   }
 
   /**

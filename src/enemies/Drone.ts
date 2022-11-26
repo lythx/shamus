@@ -1,5 +1,6 @@
 import { config } from '../config.js'
 import { Enemy } from '../Enemy.js'
+import { models } from '../models.js'
 import { room } from '../Room.js'
 import { Point, Rectangle, Vector } from '../utils/Geometry.js'
 import { Rays } from '../utils/Rays.js'
@@ -9,6 +10,10 @@ export class Drone extends Enemy {
   private nextAiUpdate = 0
   private nextShot = 0
   private nextCollisionCheck = 0
+  private readonly models: HTMLImageElement[]
+  private modelChange = 0
+  private modelIndex = 0
+  private readonly modelChangeInterval = config.drone.modelUpdateInterval
   private readonly aiRange = config.drone.ai.range
   private readonly aiUpdateInterval = config.drone.ai.updateInterval
   private readonly aiUpdateOffset = config.drone.ai.updateIntervalOffset
@@ -20,16 +25,18 @@ export class Drone extends Enemy {
   constructor(pos: Point, colour: 'blue' | 'purple') {
     super({
       ...config.drone,
-      pos,
-      models: {
-        dir: '',
-        back: []
-      }
+      pos
+    })
+    this.models = models.drone[colour].map(a => {
+      const img = new Image()
+      img.src = `./assets/drone/${a}.png`
+      return img
     })
   }
 
   update(playerPos: Point): void {
     this.collisionAi()
+    this.updateModel()
     if (Date.now() < this.nextAiUpdate) { return }
     this.movementAi(playerPos)
     const randOffset = Math.random() * this.aiUpdateOffset
@@ -41,11 +48,11 @@ export class Drone extends Enemy {
     if (Date.now() < this.nextCollisionCheck) { return }
     this.nextCollisionCheck = Date.now() + config.aiCollisionCheckInterval
     this.target.pos = this.pos
-    const vecs = this.target.get()
-    this.debug.length = 0
-    for (const e of vecs) {
-      this.registerDebug(e)
-      if ((room.vectorCollision(e)?.calculateDistance(this.pos) ?? Infinity) < this.size * 2) {
+    const rays = this.target.get()
+    //this.debug.length = 0
+    for (let i = 0; i < rays.length; i++) {
+      // this.registerDebug(rays[i])
+      if ((room.vectorCollision(rays[i])?.calculateDistance(this.pos) ?? Infinity) < this.size * 2) {
         this.stop()
       }
     }
@@ -76,10 +83,6 @@ export class Drone extends Enemy {
       this.target.setTarget(new Vector(this.pos, v.angle, v.length).b, v.length)
       this.move(v.angle, length)
     }
-  }
-
-  draw(ctx: CanvasRenderingContext2D): void {
-    //todo
   }
 
   private targetedMove(p: Point) {
@@ -138,9 +141,14 @@ export class Drone extends Enemy {
     let minCollision: number | undefined
     const rays = this.target.get()
     const uRays = unit.target.get()
+    for (let i = 0; i < uRays.length; i++) {
+      this.registerDebug(uRays[i])
+    }
     for (let i = 0; i < rays.length; i++) {
+      this.registerDebug(rays[i])
       if (unit.hitbox.vectorCollision(rays[i])) {
-        return 0
+        let dist = unit.pos.calculateDistance(this.pos)
+        minCollision = dist
       }
       for (let j = 0; j < uRays.length; j++) {
         const p = rays[i].intersection(uRays[j])
@@ -153,6 +161,18 @@ export class Drone extends Enemy {
         }
       }
     }
+    return minCollision
+  }
+
+  private updateModel() {
+    if (this.modelChange > Date.now()) { return }
+    this.modelChange = Date.now() + this.modelChangeInterval
+    this.modelIndex++
+    this.modelIndex %= this.models.length
+  }
+
+  draw(ctx: CanvasRenderingContext2D): void {
+    ctx.drawImage(this.models[this.modelIndex], this.x - this.size, this.y - this.size, this.size * 2, this.size * 2)
   }
 
   // update(playerPos: Point): void {

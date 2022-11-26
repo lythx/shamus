@@ -1,6 +1,9 @@
 import { config } from "./config.js";
+import { Enemy } from "./Enemy.js";
 import { Fighter } from "./Fighter.js";
 import { models } from "./models.js";
+import { Projectile } from "./Projectile.js";
+import { room } from "./Room.js";
 import { Point, Vector } from "./utils/Geometry.js";
 
 type Direction = 'right' | 'downright' | 'down' | 'downleft' | 'left' | 'upleft' | 'up' | 'upright'
@@ -10,8 +13,9 @@ export class Player extends Fighter {
 
   projectileSpeed: number
   projectileSize: number
-  readonly dir = models.player.dir
+  nextShot: number = 0
   nextModelUpdate: number = 0
+  onRoomChange: ((pos: Point, room: number) => void) | undefined
   readonly directions: { [key: number]: Direction } = {
     0: 'right',
     45: 'downright',
@@ -32,23 +36,30 @@ export class Player extends Fighter {
     up: [],
     upright: []
   }
+  readonly shotInterval = config.player.shotInterval
   currentDirection: typeof this.directions[keyof typeof this.directions] | undefined
   modelIndex = 0
 
   constructor(pos: Point) {
+    const projectileImg = new Image()
+    projectileImg.src = `./assets/player/${models.playerProjectile}.png`
     super({
       ...config.player,
       pos,
-      side: 'player'
+      side: 'player',
+      projectile: {
+        ...config.player.projectile,
+        image: projectileImg
+      }
     })
     this.projectileSpeed = config.player.projectile.speed
     this.projectileSize = config.player.projectile.size
     for (const key in this.models) {
       this.models[key as keyof typeof this.models] =
-        (models.player[key as keyof typeof models.player] as string[])
+        models.player[key as keyof typeof models.player]
           .map(a => {
             const img = new Image()
-            img.src = `./assets/${models.player.dir}/${a}.png`
+            img.src = `./assets/player/${a}.png`
             return img
           })
     }
@@ -57,11 +68,16 @@ export class Player extends Fighter {
   draw(ctx: CanvasRenderingContext2D): void {
     const model = this.currentDirection !== undefined ?
       this.models[this.currentDirection][this.modelIndex] : this.models.up[0]
-    console.log(model, this.modelIndex)
     ctx.drawImage(model, this.x - this.size, this.y - this.size, this.size * 2, this.size * 2)
   }
 
   update(): void {
+    const entrance = room.checkIfOnEntrance(this.hitbox)
+    if (entrance !== false) {
+      this.onRoomChange?.(entrance.pos, entrance.room)
+      return
+    }
+    this.checkCollision()
     if (Date.now() < this.nextModelUpdate) { return }
     this.nextModelUpdate = Date.now() + config.player.modelUpdateInterval
     this.modelIndex++
@@ -69,7 +85,24 @@ export class Player extends Fighter {
       this.modelIndex % this.models[this.currentDirection].length : 0
   }
 
+  checkCollision(): void {
+    if (room.circleCollision(this.hitbox)) {
+      this.destroy()
+    }
+    for (let i = 0; i < Projectile.enemyProjectiles.length; i++) {
+      if (Projectile.enemyProjectiles[i].hitbox.circleCollision(this.hitbox)) {
+        this.destroy()
+      }
+    }
+    for (let i = 0; i < Enemy.enemies.length; i++) {
+      if (Enemy.enemies[i].hitbox.circleCollision(this.hitbox)) {
+        this.destroy()
+      }
+    }
+  }
+
   destroy(): void {
+    console.log('d')
     // todo
   }
 
@@ -80,6 +113,8 @@ export class Player extends Fighter {
   }
 
   shoot(): void {
+    if (this.nextShot > Date.now()) { return }
+    this.nextShot = Date.now() + this.shotInterval
     this._shoot(this._angle)
   }
 
