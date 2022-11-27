@@ -1,3 +1,5 @@
+import { config } from "../config.js"
+
 const math = {
   sin: (x: number) => Math.sin(Number(x.toFixed(4))),
   cos: (x: number) => Math.cos(Number(x.toFixed(4))),
@@ -192,12 +194,15 @@ class Rectangle implements Drawable {
   }
 
   draw(ctx: CanvasRenderingContext2D): void {
+    ctx.strokeStyle = config.debugColor
     ctx.beginPath()
     ctx.rect(this.a.x, this.a.y, this.width, this.height)
     ctx.stroke()
   }
 
   static isRectangle = (arg: any): arg is Rectangle => arg.constructor.name === 'Rectangle'
+
+  get area(): number { return this.width * this.height }
 
   pointCollision = (p: Point): boolean =>
     (p.x >= this.a.x && p.x <= this.c.x) &&

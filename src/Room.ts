@@ -1,4 +1,4 @@
-import { Circle, Point, Rectangle, Vector } from "./utils/Geometry.js";
+import { Circle, Point, Vector } from "./utils/Geometry.js";
 import { rooms } from './rooms.js'
 import { WallEdge } from "./WallEdge.js";
 import { WallInside } from './WallInside.js'
@@ -13,8 +13,7 @@ const loadRoom = (key: number) => {
   if (data === undefined) { throw new Error(`Room ${key} doesn't exist`) }
   edges = data.edges.map(a => new WallEdge(new Point(a[0], a[1]), new Point(a[2], a[3])))
   insides = data.insides.map(a => new WallInside(new Point(a[0], a[1]), new Point(a[2], a[3]), data.theme))
-  entrances = data.entrances.map(a => new RoomEntrance(new Point(a.rect[0], a.rect[1]),
-    new Point(a.rect[2], a.rect[3]), key, a.room))
+  entrances = data.entrances.map(a => new RoomEntrance(a.pos as any, a.nextRoom))
 }
 
 const circleCollision = (c: Circle) => {

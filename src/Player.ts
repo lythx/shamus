@@ -63,11 +63,12 @@ export class Player extends Fighter {
             return img
           })
     }
+    this.tween.onEnd = () => this.currentDirection = undefined
   }
 
   draw(ctx: CanvasRenderingContext2D): void {
     const model = this.currentDirection !== undefined ?
-      this.models[this.currentDirection][this.modelIndex] : this.models.up[0]
+      this.models[this.currentDirection][this.modelIndex] : this.models.down[0]
     ctx.drawImage(model, this.x - this.size, this.y - this.size, this.size * 2, this.size * 2)
   }
 

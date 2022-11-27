@@ -44,7 +44,6 @@ events.onAction('debug', () => {
 })
 events.onAction('editor', () => {
   if (!editor.isEnabled()) {
-    const helpers = editor.enable()
     Projectile.playerProjectiles.length = 0
     Projectile.enemyProjectiles.length = 0
     Enemy.enemies.length = 0
@@ -55,7 +54,8 @@ events.onAction('editor', () => {
     renderRoom([])
     renderRoomDebug([])
     renderDebug([])
-    renderUnits(helpers)
+    renderUnits([])
+    editor.enable() 
   }
 })
 
