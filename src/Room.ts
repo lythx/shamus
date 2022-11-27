@@ -1,4 +1,4 @@
-import { Circle, Point, Vector } from "./utils/Geometry.js";
+import { Circle, Point, Rectangle, Vector } from "./utils/Geometry.js";
 import { rooms } from './rooms.js'
 import { WallEdge } from "./WallEdge.js";
 import { WallInside } from './WallInside.js'
@@ -7,6 +7,8 @@ import { RoomEntrance } from './RoomEntrance.js'
 let edges: WallEdge[] = []
 let insides: WallInside[] = []
 let entrances: RoomEntrance[] = []
+let units: { drone?: number, jumper?: number }
+let spawnAreas: Rectangle[] = []
 
 const loadRoom = (key: number) => {
   const data = rooms[key as keyof typeof rooms]
@@ -14,6 +16,8 @@ const loadRoom = (key: number) => {
   edges = data.edges.map(a => new WallEdge(new Point(a[0], a[1]), new Point(a[2], a[3])))
   insides = data.insides.map(a => new WallInside(new Point(a[0], a[1]), new Point(a[2], a[3]), data.theme))
   entrances = data.entrances.map(a => new RoomEntrance(a.pos as any, a.nextRoom))
+  units = data.units
+  spawnAreas = data.spawnAreas.map(a => new Rectangle(new Point(a[0], a[1]), new Point(a[2], a[3])))
 }
 
 const circleCollision = (c: Circle) => {
@@ -62,7 +66,8 @@ const checkIfOnEntrance = (playerHitbox: Circle): { pos: Point; room: number; } 
 }
 
 const getEdges = (): WallEdge[] => edges
-
+const getUnits = () => units
 const getInsides = (): WallInside[] => insides
+const getSpawnAreas = (): Rectangle[] => spawnAreas
 
-export const room = { circleCollision, vectorCollision, checkIfOnEntrance, loadRoom, getEdges, getInsides }
+export const room = { circleCollision, vectorCollision, checkIfOnEntrance, loadRoom, getEdges, getInsides, getUnits, getSpawnAreas }

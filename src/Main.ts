@@ -2,7 +2,7 @@ import { Enemy } from "./Enemy.js";
 import { Player } from "./Player.js";
 import { Projectile } from "./Projectile.js";
 import { events } from './Events.js'
-import { Drawable, Point } from "./utils/Geometry.js";
+import { Circle, Drawable, Point, Rectangle } from "./utils/Geometry.js";
 import { room } from './Room.js'
 import { renderDebug, renderRoom, renderRoomDebug, renderUi, renderUnits } from "./Renderer.js";
 import { Drone } from './enemies/Drone.js'
@@ -24,6 +24,48 @@ renderUi({
   room: 0,
   level: 'black'
 })
+
+const unitClasses = {
+  drone: Drone,
+  jumper: Jumper
+}
+
+const spawnEnemies = (units: { drone?: number, jumper?: number }, spawnAreas: Rectangle[]) => {
+  const wallDistance = 35
+  const canvasW = 1400
+  const canvasH = 800
+  let iterations = 0
+  for (const [name, count] of Object.entries(units)) {
+    const UnitClass = unitClasses[name as keyof typeof unitClasses]
+    for (let i = 0; i < count; i++) {
+      if (iterations > 1000) { break }
+      iterations++
+      const randX = ~~(Math.random() * canvasW)
+      const randY = ~~(Math.random() * canvasH)
+      const pos = new Point(randX, randY)
+      if (!spawnAreas.some(a => a.pointCollision(pos))) {
+        i--
+        continue
+      }
+      const c = new Circle(pos, wallDistance)
+      let isColliding = false
+      if (room.circleCollision(c)) {
+        i--
+        continue
+      }
+      for (let j = 0; j < Enemy.enemies.length; j++) {
+        if (iterations > 1000) { break }
+        if (Enemy.enemies[j].hitbox.circleCollision(c)) {
+          i--
+          isColliding = true
+          break
+        }
+      }
+      if (isColliding) { continue }
+      new UnitClass(c.center, 'blue')
+    }
+  }
+}
 
 events.onMovementChange((isMoving, angle) => {
   if (!isMoving) {
@@ -55,7 +97,7 @@ events.onAction('editor', () => {
     renderRoomDebug([])
     renderDebug([])
     renderUnits([])
-    editor.enable() 
+    editor.enable()
   }
 })
 
@@ -78,6 +120,7 @@ player.onRoomChange = (pos: Point, roomNumber: number) => {
     room: roomNumber,
     level: 'black'
   })
+  spawnEnemies(room.getUnits(), room.getSpawnAreas())
   if (debug) {
     renderRoomDebug(roomEdges.flatMap(a => a.vecs))
   }

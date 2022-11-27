@@ -4,20 +4,26 @@ import { Point, Rectangle, Vector } from "./utils/Geometry.js"
 import { WallEdge } from "./WallEdge.js"
 import { WallInside } from "./WallInside.js"
 
+const defaultRoom = 2
 const content = document.getElementById('content') as HTMLCanvasElement
 const wrapper = document.getElementById('wrapper') as HTMLElement
 let isEnabled = false
 let startPoint: Point | undefined
-let mode: 'edge' | 'inside'
+let mode: 'edge' | 'inside' | 'spawn' | 'spawnPoint'
 let topPlacement = true
 let updateListener: (() => void) | undefined
 const edgeWidth = 40
-let edges = rooms[2].edges.map(a => new WallEdge(new Point(a[0], a[1]), new Point(a[2], a[3])))
-let insides = rooms[2].insides.map(a => new WallInside(new Point(a[0], a[1]), new Point(a[2], a[3]), 'yellowCircle'))
+let edges = rooms[defaultRoom].edges.map(a => new WallEdge(new Point(a[0], a[1]), new Point(a[2], a[3])))
+let insides = rooms[defaultRoom].insides.map(a => new WallInside(new Point(a[0], a[1]), new Point(a[2], a[3]), 'yellowCircle'))
+let spawns = rooms[defaultRoom].spawnAreas.map(a => new Rectangle(new Point(a[0], a[1]), new Point(a[2], a[3])))
+const entrances = rooms[defaultRoom].entrances
+let spawnPoint = new Point(rooms[defaultRoom].spawnPoint[0], rooms[defaultRoom].spawnPoint[1])
 
 const modeKeys = {
   '1': 'edge',
-  '2': 'inside'
+  '2': 'inside',
+  '3': 'spawn',
+  '4': 'spawnPoint'
 } as const
 const helpers: Rectangle[] = [
   new Rectangle(new Point(1395, 280), new Point(1400, 505)),
@@ -35,10 +41,16 @@ const helperPoints: Point[] = [
 
 const save = () => {
   document.write(JSON.stringify({
+    units: {
+      drone: 0,
+      jumper: 0
+    },
+    entrances,
     theme: 'yellowCircle',
     edges: edges.map(e => [e.a.x, e.a.y, e.c.x, e.c.y]),
     insides: insides.map(e => [e.a.x, e.a.y, e.c.x, e.c.y]),
-    entrances: []
+    spawnAreas: spawns.map(e => [e.a.x, e.a.y, e.c.x, e.c.y]),
+    spawnPoint: [spawnPoint.x, spawnPoint.y]
   }, null, 2))
 }
 
@@ -47,18 +59,17 @@ document.addEventListener('keydown', (e) => {
     const m = modeKeys[e.key as keyof typeof modeKeys]
     if (m !== undefined) {
       mode = m
-    }
-    if (e.key === 's') {
+    } else if (e.key === 's') {
       save()
-    }
-    if (e.key === 'q') {
+    } else if (e.key === 'q') {
       topPlacement = !topPlacement
-    }
-    if (e.key === 'z') {
+    } else if (e.key === 'z') {
       if (mode === 'edge') {
         edges.pop()
       } else if (mode === 'inside') {
         insides.pop()
+      } else if (mode === 'spawn') {
+        spawns.pop()
       }
       updateListener?.()
     }
@@ -80,6 +91,13 @@ content.addEventListener('contextmenu', (e) => {
   for (const e of insides) {
     if (e.pointCollision(p)) {
       insides = insides.filter(a => a !== e)
+      updateListener?.()
+      return
+    }
+  }
+  for (const e of spawns) {
+    if (e.pointCollision(p)) {
+      spawns = spawns.filter(a => a !== e)
       updateListener?.()
       return
     }
@@ -115,10 +133,6 @@ const getPoint = (x: number, y: number): Point => {
 }
 
 const adjustEdge = (w: WallEdge): WallEdge => {
-  console.table(w.a)
-  console.table(w.b)
-  console.table(w.c)
-  console.table(w.d)
   let minDiff = Infinity
   let closest = w.a
   let target = w.a
@@ -133,20 +147,14 @@ const adjustEdge = (w: WallEdge): WallEdge => {
       }
     }
     if (closest === w.a) {
-      console.log('a')
       w = new WallEdge(target, new Point(target.x + edgeWidth, getPoint(target.x + edgeWidth, w.c.y).y))
     } else if (closest === w.b) {
-      console.log('b')
       w = new WallEdge(new Point(target.x - edgeWidth, target.y), new Point(target.x, getPoint(target.x, w.c.y).y))
     } else if (closest === w.c) {
-      console.log('c')
       w = new WallEdge(new Point(target.x - edgeWidth, getPoint(target.x - edgeWidth, w.a.y).y), new Point(target.x, target.y))
     } else if (closest === w.d) {
-      console.log('d')
-      console.log(target, w.d)
       w = new WallEdge(new Point(target.x, getPoint(target.x, w.a.y).y), new Point(target.x + edgeWidth, target.y))
     }
-    console.log(w)
     return w
   } else {
     return w
@@ -169,8 +177,6 @@ content.addEventListener('mouseup', (e) => {
   const edge = new WallEdge(startPoint, p)
   if (mode === 'edge') {
     let w: WallEdge
-    console.table(startPoint)
-    console.log('start')
     if (edge.orientation === 'vertical') {
       w = adjustEdge(new WallEdge(edge.a, new Point(edge.a.x + edgeWidth, edge.c.y)))
     } else {
@@ -184,6 +190,14 @@ content.addEventListener('mouseup', (e) => {
     startPoint = undefined
     if (w.area < 300) { return }
     insides.push(w)
+  } else if (mode === 'spawn') {
+    const r = new Rectangle(startPoint, p)
+    startPoint = undefined
+    if (r.area < 300) { return }
+    spawns.push(r)
+  } else if (mode === 'spawnPoint') {
+    spawnPoint = new Point(~~(e.clientX - rect.left), ~~(e.clientY - rect.top))
+    startPoint = undefined
   }
   updateListener?.()
 })
@@ -195,7 +209,7 @@ const enable = (): void => {
   updateListener?.()
 }
 const disable = () => { isEnabled = false }
-const getObjects = () => [...insides, ...edges, ...helpers]
+const getObjects = () => [spawnPoint, ...spawns, ...insides, ...edges, ...helpers]
 
 export const editor = {
   onUpdate: (callback: () => void) => {
