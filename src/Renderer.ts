@@ -22,6 +22,7 @@ const bgDebugCanvas = document.getElementById('backgroundDebugCanvas') as HTMLCa
 const bgDebugCtx = bgDebugCanvas.getContext('2d') as CanvasRenderingContext2D
 debugCtx.strokeStyle = config.debugColor
 bgDebugCtx.strokeStyle = config.debugColor
+ctx.strokeStyle = config.debugColor
 
 const renderUi = (data: UiData) => {
   scoreTop.innerHTML = data.score.toString()

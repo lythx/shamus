@@ -1,5 +1,5 @@
 type Direction = 'up' | 'down' | 'left' | 'right'
-type Action = 'shoot' | 'debug'
+type Action = 'shoot' | 'debug' | 'editor'
 const movementListeners: ((isMoving: boolean, angle?: number) => void)[] = []
 const directionKeys: { [direction in Direction]: string[] } = {
   up: ['w', 'W', 'ArrowUp'],
@@ -9,7 +9,8 @@ const directionKeys: { [direction in Direction]: string[] } = {
 }
 const actionKeys: { [action in Action]: string[] } = {
   shoot: [' '],
-  debug: ['r']
+  debug: ['r'],
+  editor: ['p']
 }
 const actionListeners: { action: Action, callback: () => void }[] = []
 const pressedKeys: Direction[] = []

@@ -193,7 +193,7 @@ class Rectangle implements Drawable {
 
   draw(ctx: CanvasRenderingContext2D): void {
     ctx.beginPath()
-    ctx.rect(this.a.x, this.a.y, this.height, this.width)
+    ctx.rect(this.a.x, this.a.y, this.width, this.height)
     ctx.stroke()
   }
 
@@ -201,11 +201,11 @@ class Rectangle implements Drawable {
 
   pointCollision = (p: Point): boolean =>
     (p.x >= this.a.x && p.x <= this.c.x) &&
-    (p.y <= this.a.y && p.y >= this.c.y)
+    (p.y >= this.a.y && p.y <= this.c.y)
 
   rectangleCollision = (r: Rectangle): boolean =>
     (r.c.x >= this.a.x || r.a.x <= this.c.x) &&
-    (r.c.y <= this.a.y || r.a.y >= this.c.y)
+    (r.c.y >= this.a.y || r.a.y <= this.c.y)
 
   circleCollision(circle: Circle): boolean {
     const c = circle.center

@@ -8,7 +8,9 @@ import { renderDebug, renderRoom, renderRoomDebug, renderUi, renderUnits } from 
 import { Drone } from './enemies/Drone.js'
 import { Jumper } from './enemies/Jumper.js'
 import { Shadow } from './enemies/Shadow.js'
+import { editor } from "./editor.js";
 
+let isRunning = true
 const infinity = 10000000
 const player = new Player(new Point(100, 400))
 room.loadRoom(0)
@@ -40,6 +42,24 @@ events.onAction('debug', () => {
     renderRoomDebug(roomEdges.flatMap(a => a.vecs))
   }
 })
+events.onAction('editor', () => {
+  if (!editor.isEnabled()) {
+    const helpers = editor.enable()
+    Projectile.playerProjectiles.length = 0
+    Projectile.enemyProjectiles.length = 0
+    Enemy.enemies.length = 0
+    player.stop()
+    isRunning = false
+    roomEdges = []
+    roomInsides = []
+    renderRoom([])
+    renderRoomDebug([])
+    renderDebug([])
+    renderUnits(helpers)
+  }
+})
+
+editor.onUpdate(() => renderRoom(editor.getObjects()))
 
 player.onRoomChange = (pos: Point, roomNumber: number) => {
   Projectile.playerProjectiles.length = 0
@@ -64,6 +84,7 @@ player.onRoomChange = (pos: Point, roomNumber: number) => {
 }
 
 const gameLoop = () => {
+  if (!isRunning) { return }
   player.update()
   for (let i = 0; i < Projectile.playerProjectiles.length; i++) {
     Projectile.playerProjectiles[i].update()
