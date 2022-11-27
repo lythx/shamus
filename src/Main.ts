@@ -35,6 +35,7 @@ const spawnEnemies = (units: { drone?: number, jumper?: number }, spawnAreas: Re
   const canvasW = 1400
   const canvasH = 800
   let iterations = 0
+  let blue = true
   for (const [name, count] of Object.entries(units)) {
     const UnitClass = unitClasses[name as keyof typeof unitClasses]
     for (let i = 0; i < count; i++) {
@@ -62,7 +63,8 @@ const spawnEnemies = (units: { drone?: number, jumper?: number }, spawnAreas: Re
         }
       }
       if (isColliding) { continue }
-      new UnitClass(c.center, 'blue')
+      new UnitClass(c.center, blue ? 'blue' : 'purple')
+      blue = !blue
     }
   }
 }
