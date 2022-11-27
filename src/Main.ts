@@ -7,6 +7,7 @@ import { room } from './Room.js'
 import { renderDebug, renderRoom, renderRoomDebug, renderUi, renderUnits } from "./Renderer.js";
 import { Drone } from './enemies/Drone.js'
 import { Jumper } from './enemies/Jumper.js'
+import { Shadow } from './enemies/Shadow.js'
 
 const infinity = 10000000
 const player = new Player(new Point(100, 400))
@@ -57,12 +58,18 @@ player.onRoomChange = (pos: Point, roomNumber: number) => {
     room: roomNumber,
     level: 'black'
   })
+  if (debug) {
+    renderRoomDebug(roomEdges.flatMap(a => a.vecs))
+  }
 }
 
 const gameLoop = () => {
   player.update()
   for (let i = 0; i < Projectile.playerProjectiles.length; i++) {
     Projectile.playerProjectiles[i].update()
+  }
+  for (let i = 0; i < Projectile.enemyProjectiles.length; i++) {
+    Projectile.enemyProjectiles[i].update()
   }
   for (let i = 0; i < Enemy.enemies.length; i++) {
     Enemy.enemies[i].update(player.pos)
@@ -104,6 +111,7 @@ const gameLoop = () => {
 
 requestAnimationFrame(gameLoop)
 
-new Drone(new Point(400, 400), 'blue')
-new Jumper(new Point(300, 300))
+new Shadow(new Point(350, 350))
+// new Drone(new Point(400, 400), 'blue')
+// new Jumper(new Point(350, 300))
 Enemy.enemies.sort(a => player.pos.calculateDistance(a.pos))

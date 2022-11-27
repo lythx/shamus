@@ -1,7 +1,7 @@
 import { Enemy } from "./Enemy.js";
 import { room } from "./Room.js";
 import { Unit } from "./Unit.js";
-import { Circle, math, Point, Vector } from "./utils/Geometry.js";
+import { math, Point, Vector } from "./utils/Geometry.js";
 const infinty = 10000000
 
 interface ProjectileOptions {
@@ -18,14 +18,16 @@ export class Projectile extends Unit {
   static playerProjectiles: Projectile[] = []
   static enemyProjectiles: Projectile[] = []
   private readonly image: HTMLImageElement
+  private readonly shooter: Unit
 
-  constructor(options: ProjectileOptions) {
+  constructor(options: ProjectileOptions, shooter: Unit) {
     super(options)
     this.pos = new Vector(this.pos, this.angle, this.size * 2).b
     this.move(options.angle, infinty)
     this.side === 'player' ? Projectile.playerProjectiles.push(this)
       : Projectile.enemyProjectiles.push(this)
     this.image = options.image
+    this.shooter = shooter
   }
 
   update(): void {
@@ -44,6 +46,7 @@ export class Projectile extends Unit {
       }
     }
     for (let i = 0; i < Enemy.enemies.length; i++) {
+      if (Enemy.enemies[i] === this.shooter) { continue }
       if (Enemy.enemies[i].hitbox.circleCollision(this.hitbox)) {
         Enemy.enemies[i].destroy()
         this.destroy()

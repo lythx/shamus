@@ -2,8 +2,6 @@ import { models } from './models.js'
 
 export const config = {
   speedMultiplier: 20,
-  wallBorderWidth: 100,
-  aiMovementOffset: 100,
   wallUpdateInterval: 100,
   aiShotFriendDetectionWidth: 100,
   aiMaxShotAngleOffset: 30,
@@ -26,13 +24,14 @@ export const config = {
 
   },
   drone: {
+    movementOffset: 100,
     modelUpdateInterval: 150,
     size: 25,
     speed: 100,
     projectile: {
       speed: 300,
       size: 5,
-      modelPath: 'player/projectile'
+      modelPath: 'drone/projectile'
     },
     ai: {
       range: 300,
@@ -49,15 +48,35 @@ export const config = {
     jumpLength: 100,
     jumpLengthOffset: 50,
     speed: 0,
+    jumpTime: 30,
     projectile: {
       speed: 0,
       size: 0,
-      modelPath: ''
+      modelPath: 'drone/projectile'
     },
     ai: {
       range: 500,
-      updateInterval: 800,
-      updateIntervalOffset: 600
+      updateInterval: 200,
+      updateIntervalOffset: 100
+    }
+  },
+  shadow: {
+    modelUpdateInterval: 500,
+    movementOffset: 30,
+    size: 25,
+    speed: 200,
+    projectile: {
+      speed: 0,
+      size: 0,
+      modelPath: 'drone/projectile'
+    },
+    ai: {
+      range: 300,
+      shotInterval: 500,
+      shotIntervalOffset: 1000,
+      /** msec */
+      updateInterval: 500,
+      updateIntervalOffset: 150
     }
   },
   debugColor: "#FFFFFF",

@@ -23,6 +23,7 @@ export const models = {
   },
   jumper: {
     normal: 'normal',
-    jump: 'normal'
-  }
+    jump: 'jump'
+  },
+  shadow: ['shadow1', 'shadow2']
 }

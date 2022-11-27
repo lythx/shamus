@@ -20,7 +20,7 @@ export class Drone extends Enemy {
   private readonly shotInterval = config.drone.ai.shotInterval
   private readonly shotIntervalOffset = config.drone.ai.shotIntervalOffset
   private readonly friendDetectionWidth = config.aiShotFriendDetectionWidth
-  private group: number | undefined
+  private readonly movementOffset = config.drone.movementOffset
 
   constructor(pos: Point, colour: 'blue' | 'purple') {
     super({
@@ -38,6 +38,7 @@ export class Drone extends Enemy {
     this.collisionAi()
     this.updateModel()
     if (Date.now() < this.nextAiUpdate) { return }
+    this.shotAi(playerPos)
     this.movementAi(playerPos)
     const randOffset = Math.random() * this.aiUpdateOffset
     this.nextAiUpdate = Date.now() +
@@ -49,9 +50,7 @@ export class Drone extends Enemy {
     this.nextCollisionCheck = Date.now() + config.aiCollisionCheckInterval
     this.target.pos = this.pos
     const rays = this.target.get()
-    //this.debug.length = 0
     for (let i = 0; i < rays.length; i++) {
-      // this.registerDebug(rays[i])
       if ((room.vectorCollision(rays[i])?.calculateDistance(this.pos) ?? Infinity) < this.size * 2) {
         this.stop()
       }
@@ -92,7 +91,7 @@ export class Drone extends Enemy {
     let v: Vector
     do {
       const rand = this.randomizeTarget(p)
-      v = Vector.from(new Vector(this.pos, rand), config.aiNoTargetMoveLength)
+      v = Vector.from(new Vector(this.pos, rand), config.aiTargetMoveLength)
       cDistance = this.checkCollision(v)
       tries++
     } while ((cDistance ?? Infinity) < this.size * 4 && tries < maxTries)
@@ -105,11 +104,11 @@ export class Drone extends Enemy {
   }
 
   private randomizeTarget(target: Point): Point {
-    const randX = Math.random() * config.aiMovementOffset
-    const randY = Math.random() * config.aiMovementOffset
+    const randX = Math.random() * this.movementOffset
+    const randY = Math.random() * this.movementOffset
     return new Point(
-      target.x + randX - (config.aiMovementOffset / 2),
-      target.y + randY - (config.aiMovementOffset / 2)
+      target.x + randX - (this.movementOffset / 2),
+      target.y + randY - (this.movementOffset / 2)
     )
   }
 
@@ -175,6 +174,44 @@ export class Drone extends Enemy {
     ctx.drawImage(this.models[this.modelIndex], this.x - this.size, this.y - this.size, this.size * 2, this.size * 2)
   }
 
+  private shotAi(playerPos: Point) {
+    if (Date.now() < this.nextShot) { return }
+    const { angle } = new Vector(this.pos, playerPos)
+    let minDiff = Infinity
+    let direction: typeof this.angles[number] = 0
+    for (const e of this.angles) {
+      const diff = Math.abs(angle - e)
+      if (diff < minDiff) {
+        minDiff = diff
+        direction = e
+      }
+    }
+    if (minDiff > config.aiMaxShotAngleOffset) { return }
+    const v = new Vector(this.pos, direction, playerPos.calculateDistance(this.pos))
+    let a: Point
+    let width: number
+    let height: number
+    if (direction === 180 || direction === 0) {
+      a = new Point(Math.min(v.a.x, v.b.x), v.a.y - this.friendDetectionWidth / 2)
+      width = v.length
+      height = this.friendDetectionWidth
+    } else {
+      a = new Point(v.a.x - this.friendDetectionWidth / 2, Math.min(v.a.y, v.b.y))
+      width = this.friendDetectionWidth
+      height = v.length
+    }
+    const r = new Rectangle(a, width, height)
+    for (let i = 0; i < Drone.enemies.length; i++) {
+      if (Drone.enemies[i] !== this) {
+        if (r.circleCollision(Drone.enemies[i].hitbox)) { return }
+      }
+    }
+    const randOffset = Math.random() * this.shotIntervalOffset
+    this.nextShot = Date.now() +
+      this.shotInterval + randOffset - (this.shotIntervalOffset / 2)
+    this._shoot(direction)
+  }
+
   // update(playerPos: Point): void {
   //   if (Date.now() < this.nextAiUpdate) { return }
   //   if (this.group !== undefined) { this.leaderUpdate(playerPos, this.group) }
@@ -194,44 +231,6 @@ export class Drone extends Enemy {
 
   // groupUpdate(angle: number): void {
   //   this.move(angle, 10000)
-  // }
-
-  // private shotAi(playerPos: Point) {
-  //   if (Date.now() < this.nextShot) { return }
-  //   const { angle } = new Vector(this.pos, playerPos)
-  //   let minDiff = Infinity
-  //   let direction: typeof this.angles[number] = 0
-  //   for (const e of this.angles) {
-  //     const diff = Math.abs(angle - e)
-  //     if (diff < minDiff) {
-  //       minDiff = diff
-  //       direction = e
-  //     }
-  //   }
-  //   if (minDiff > config.aiMaxShotAngleOffset) { return }
-  //   const v = new Vector(this.pos, direction, playerPos.calculateDistance(this.pos))
-  //   let a: Point
-  //   let width: number
-  //   let height: number
-  //   if (direction === 180 || direction === 0) {
-  //     a = new Point(Math.min(v.a.x, v.b.x), v.a.y - this.friendDetectionWidth / 2)
-  //     width = v.length
-  //     height = this.friendDetectionWidth
-  //   } else {
-  //     a = new Point(v.a.x - this.friendDetectionWidth / 2, Math.min(v.a.y, v.b.y))
-  //     width = this.friendDetectionWidth
-  //     height = v.length
-  //   }
-  //   const r = new Rectangle(a, width, height)
-  //   for (let i = 0; i < Drone.enemies.length; i++) {
-  //     if (Drone.enemies[i] !== this) {
-  //       if (r.circleCollision(Drone.enemies[i].hitbox)) { return }
-  //     }
-  //   }
-  //   const randOffset = Math.random() * this.shotIntervalOffset
-  //   this.nextShot = Date.now() +
-  //     this.shotInterval + randOffset - (this.shotIntervalOffset / 2)
-  //   this._shoot(direction)
   // }
 
   // private getTargetVectors(target: Point, length: number): Vector[] {

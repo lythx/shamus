@@ -39,7 +39,7 @@ export abstract class Fighter extends Unit {
       size: this.projectileSize,
       side: this.side,
       image: this.projectileImage
-    })
+    }, this)
   }
 
 }

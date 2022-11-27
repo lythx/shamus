@@ -9,10 +9,12 @@ export class Jumper extends Enemy {
   private nextAiUpdate = 0
   private readonly model: HTMLImageElement
   private readonly jumpModel: HTMLImageElement
+  private readonly jumpTime = config.jumper.jumpTime
   private currentModel: HTMLImageElement
   private readonly aiRange = config.jumper.ai.range
   private readonly aiUpdateInterval = config.jumper.ai.updateInterval
   private readonly aiUpdateOffset = config.jumper.ai.updateIntervalOffset
+  private isJumping = false
 
   constructor(pos: Point) {
     super({
@@ -24,9 +26,11 @@ export class Jumper extends Enemy {
     this.jumpModel = new Image()
     this.jumpModel.src = `./assets/jumper/${models.jumper.jump}.png`
     this.currentModel = this.model
+    this.target.disable()
   }
 
   update(playerPos: Point): void {
+    if (this.isJumping) { return }
     if (Date.now() < this.nextAiUpdate) { return }
     this.movementAi(playerPos)
     const randOffset = Math.random() * this.aiUpdateOffset
@@ -48,11 +52,20 @@ export class Jumper extends Enemy {
     let p: Point
     do {
       const rand = this.randomizeTarget(this.pos)
-      p = Vector.from(new Vector(this.pos, rand), config.aiNoTargetMoveLength).b
+      p = Vector.from(new Vector(this.pos, rand), config.jumper.jumpLengthOffset).b
       this.isColliding(p)
       tries++
     } while (this.isColliding(p) && tries < maxTries)
-    if (tries !== maxTries) { this.pos = p }
+    if (tries !== maxTries) { this.jump(p) }
+  }
+
+  private async jump(p: Point) {
+    this.isJumping = true
+    this.currentModel = this.jumpModel
+    await new Promise((resolve) => setTimeout(resolve, this.jumpTime))
+    this.isJumping = false
+    this.currentModel = this.model
+    this.pos = p
   }
 
   private targetedMove(target: Point) {
@@ -61,22 +74,22 @@ export class Jumper extends Enemy {
     let p: Point
     do {
       const rand = this.randomizeTarget(target)
-      p = Vector.from(new Vector(this.pos, rand), config.aiNoTargetMoveLength).b
+      p = Vector.from(new Vector(this.pos, rand), config.jumper.jumpLengthOffset).b
       if (this.isBehindWall(p)) {
         this.untargetedMove()
         return
       }
       tries++
     } while (this.isColliding(p) && tries < maxTries)
-    if (tries !== maxTries) { this.pos = p }
+    if (tries !== maxTries) { this.jump(p) }
   }
 
   private randomizeTarget(target: Point): Point {
-    const randX = Math.random() * config.aiMovementOffset
-    const randY = Math.random() * config.aiMovementOffset
+    const randX = Math.random() * config.jumper.jumpLengthOffset
+    const randY = Math.random() * config.jumper.jumpLengthOffset
     return new Point(
-      target.x + randX - (config.aiMovementOffset / 2),
-      target.y + randY - (config.aiMovementOffset / 2)
+      target.x + randX - (config.jumper.jumpLengthOffset / 2),
+      target.y + randY - (config.jumper.jumpLengthOffset / 2)
     )
   }
 
@@ -97,7 +110,7 @@ export class Jumper extends Enemy {
   }
 
   draw(ctx: CanvasRenderingContext2D): void {
-    ctx.drawImage(this.model, this.x - this.size, this.y - this.size, this.size * 2, this.size * 2)
+    ctx.drawImage(this.currentModel, this.x - this.size, this.y - this.size, this.size * 2, this.size * 2)
   }
 
 }

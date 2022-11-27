@@ -7,11 +7,16 @@ export class Rays {
   private _pos: Point
   private sideTargets: [Point, Point, Point, Point]
   private midTarget: Point
+  private isDisabled = false
 
   constructor(pos: Point, size: number) {
     this.size = size
     this._pos = this.midTarget = pos
     this.sideTargets = [pos, pos, pos, pos]
+  }
+
+  disable() {
+    this.isDisabled = true
   }
 
   setTarget(target: Point, length: number): void {
@@ -42,6 +47,7 @@ export class Rays {
   }
 
   get(): Vector[] {
+    if (this.isDisabled) { return [] }
     const sidePoints = this.getSidePoints()
     return [new Vector(this._pos, this.midTarget),
     new Vector(this._pos, this.sideTargets[2]),
