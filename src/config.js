@@ -1,4 +1,5 @@
 export const config = {
+  startingRoom: 0,
   speedMultiplier: 20,
   wallUpdateInterval: 100,
   explosionRadius: 25,
@@ -6,6 +7,8 @@ export const config = {
   aiShotFriendDetectionWidth: 100,
   lifesAtStart: 4,
   lifesLimit: 12,
+  killScore: 5,
+  clearRoomScore: 200,
   aiMaxShotAngleOffset: 30,
   aiNoTargetMoveLength: 150,
   shotTimeoutOnRoomLoad: 1500,

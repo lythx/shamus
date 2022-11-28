@@ -19,6 +19,7 @@ interface EnemyOptions {
 export abstract class Enemy extends Fighter {
 
   protected readonly angles = [0, 90, 180, 270] as const
+  static onKill: (wasLastEnemy: boolean) => void = () => undefined
   static enemies: Enemy[] = []
   target: Rays
 
@@ -39,6 +40,7 @@ export abstract class Enemy extends Fighter {
       const index = Enemy.enemies.indexOf(this)
       if (index === -1) { throw new Error(`Enemy ${this.constructor.name} not in enemy list on delete`) }
       Enemy.enemies.splice(index, 1)
+      Enemy.onKill(Enemy.enemies.length === 0)
       new Explosion(this.pos)
     }
   }

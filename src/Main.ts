@@ -17,6 +17,10 @@ import { config } from "./config.js";
 let debug = false
 let isRunning = true
 const infinity = 10000000
+let score = 0
+let lifes = config.lifesAtStart
+let roomNumber = config.startingRoom
+let lastKill = 1000000000000
 let roomEdges: WallEdge[]
 let roomInsides: WallInside[]
 const unitClasses = {
@@ -63,7 +67,8 @@ const spawnEnemies = (units: { drone?: number, jumper?: number }, spawnAreas: Re
   }
 }
 
-const onRoomChange = (roomNumber: number, pos?: Point) => {
+const onRoomChange = (roomNum: number, pos?: Point) => {
+  roomNumber = roomNum
   Projectile.playerProjectiles.length = 0
   Projectile.enemyProjectiles.length = 0
   Enemy.enemies.length = 0
@@ -75,8 +80,8 @@ const onRoomChange = (roomNumber: number, pos?: Point) => {
   roomInsides = room.insides
   renderRoom(roomInsides)
   renderUi({
-    score: 123456789,
-    lifes: config.lifesAtStart,
+    score,
+    lifes,
     room: roomNumber,
     level: 'black'
   })
@@ -126,7 +131,16 @@ events.onAction('editor', () => {
 })
 
 editor.onUpdate(() => renderRoom(editor.getObjects()))
-
+Enemy.onKill = (wasLastEnemy: boolean) => {
+  score += config.killScore
+  if (wasLastEnemy) { score += config.clearRoomScore }
+  renderUi({
+    score,
+    lifes,
+    room: roomNumber,
+    level: 'black'
+  })
+}
 
 player.onRoomChange = onRoomChange
 
