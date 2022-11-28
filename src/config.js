@@ -16,10 +16,10 @@ export const config = {
     modelUpdateInterval: 50,
     size: 25,
     shotInterval: 200,
-    speed: 500,
+    speed: 100,
     projectile: {
       speed: 700,
-      size: 10
+      size: 40
     }
   },
   droid: {
