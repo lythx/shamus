@@ -1,4 +1,5 @@
 import { config } from "./config.js";
+import { Explosion } from "./Explosion.js";
 import { Fighter } from "./Fighter.js";
 import { Point, Vector } from "./utils/Geometry.js";
 import { Rays } from "./utils/Rays.js";
@@ -37,6 +38,7 @@ export abstract class Enemy extends Fighter {
       const index = Enemy.enemies.indexOf(this)
       if (index === -1) { throw new Error(`Enemy ${this.constructor.name} not in enemy list on delete`) }
       Enemy.enemies.splice(index, 1)
+      new Explosion(this.pos)
     }
   }
 

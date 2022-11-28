@@ -9,22 +9,15 @@ import { Drone } from './enemies/Drone.js'
 import { Jumper } from './enemies/Jumper.js'
 import { Shadow } from './enemies/Shadow.js'
 import { editor } from "./editor.js";
+import { WallEdge } from "./WallEdge.js";
+import { WallInside } from "./WallInside.js";
+import { Explosion } from "./Explosion.js";
 
+let debug = false
 let isRunning = true
 const infinity = 10000000
-const player = new Player(new Point(100, 400))
-room.loadRoom(0)
-let debug = false
-let roomEdges = room.getEdges()
-let roomInsides = room.getInsides()
-renderRoom(roomInsides)
-renderUi({
-  score: 123456789,
-  lifes: 3,
-  room: 0,
-  level: 'black'
-})
-
+let roomEdges: WallEdge[]
+let roomInsides: WallInside[]
 const unitClasses = {
   drone: Drone,
   jumper: Jumper
@@ -50,7 +43,7 @@ const spawnEnemies = (units: { drone?: number, jumper?: number }, spawnAreas: Re
       }
       const c = new Circle(pos, wallDistance)
       let isColliding = false
-      if (room.circleCollision(c)) {
+      if (room.circleCollision(c, true)) {
         i--
         continue
       }
@@ -68,6 +61,33 @@ const spawnEnemies = (units: { drone?: number, jumper?: number }, spawnAreas: Re
     }
   }
 }
+
+const onRoomChange = (roomNumber: number, pos?: Point) => {
+  Projectile.playerProjectiles.length = 0
+  Projectile.enemyProjectiles.length = 0
+  Enemy.enemies.length = 0
+  player.stop()
+  player.pos = new Point(-1, -1)
+  room.loadRoom(roomNumber)
+  player.pos = pos ?? room.spawnPoint
+  roomEdges = room.edges
+  roomInsides = room.insides
+  renderRoom(roomInsides)
+  renderUi({
+    score: 123456789,
+    lifes: 3,
+    room: roomNumber,
+    level: 'black'
+  })
+  spawnEnemies(room.units, room.spawnAreas)
+  if (debug) {
+    renderRoomDebug(roomEdges.flatMap(a => a.vecs))
+  }
+}
+
+const player = new Player(new Point(-100, -100))
+room.loadRoom(0)
+onRoomChange(0)
 
 events.onMovementChange((isMoving, angle) => {
   if (!isMoving) {
@@ -105,28 +125,8 @@ events.onAction('editor', () => {
 
 editor.onUpdate(() => renderRoom(editor.getObjects()))
 
-player.onRoomChange = (pos: Point, roomNumber: number) => {
-  Projectile.playerProjectiles.length = 0
-  Projectile.enemyProjectiles.length = 0
-  Enemy.enemies.length = 0
-  player.stop()
-  player.pos = new Point(-1, -1)
-  room.loadRoom(roomNumber)
-  player.pos = pos
-  roomEdges = room.getEdges()
-  roomInsides = room.getInsides()
-  renderRoom(roomInsides)
-  renderUi({
-    score: 123456789,
-    lifes: 3,
-    room: roomNumber,
-    level: 'black'
-  })
-  spawnEnemies(room.getUnits(), room.getSpawnAreas())
-  if (debug) {
-    renderRoomDebug(roomEdges.flatMap(a => a.vecs))
-  }
-}
+
+player.onRoomChange = onRoomChange
 
 const gameLoop = () => {
   if (!isRunning) { return }
@@ -153,6 +153,9 @@ const gameLoop = () => {
   }
   for (let i = 0; i < roomEdges.length; i++) {
     objects[index++] = roomEdges[i]
+  }
+  for (let i = 0; i < Explosion.explosions.length; i++) {
+    objects[index++] = Explosion.explosions[i]
   }
   renderUnits(objects)
   renderRoom(roomInsides)

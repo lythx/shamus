@@ -6,6 +6,7 @@ export const models = {
       yellowCircle: 'yellow_circle'
     }
   },
+  explosion: ['explosion1', 'explosion1', 'explosion1'],
   playerProjectile: 'projectile',
   player: {
     right: ['back1', 'back2', 'back3', 'back2', 'back1', 'back4', 'back5', 'back4'],

@@ -9,6 +9,7 @@ let insides: WallInside[] = []
 let entrances: RoomEntrance[] = []
 let units: { drone?: number, jumper?: number }
 let spawnAreas: Rectangle[] = []
+let spawnPoint: Point
 
 const loadRoom = (key: number) => {
   const data = rooms[key as keyof typeof rooms]
@@ -18,14 +19,20 @@ const loadRoom = (key: number) => {
   entrances = data.entrances.map(a => new RoomEntrance(a.pos as any, a.nextRoom))
   units = data.units
   spawnAreas = data.spawnAreas.map(a => new Rectangle(new Point(a[0], a[1]), new Point(a[2], a[3])))
+  spawnPoint = new Point(data.spawnPoint[0], data.spawnPoint[1])
 }
 
-const circleCollision = (c: Circle) => {
+const circleCollision = (c: Circle, checkInsides?: true) => {
   for (let i = 0; i < edges.length; i++) {
     if (edges[i].circleCollision(c)) { return true }
   }
   for (let i = 0; i < entrances.length; i++) {
     if (entrances[i].circleCollision(c)) { return true }
+  }
+  if (checkInsides === true) {
+    for (let i = 0; i < entrances.length; i++) {
+      if (insides[i].circleCollision(c)) { return true }
+    }
   }
   return false
 }
@@ -65,9 +72,21 @@ const checkIfOnEntrance = (playerHitbox: Circle): { pos: Point; room: number; } 
   return false
 }
 
-const getEdges = (): WallEdge[] => edges
-const getUnits = () => units
-const getInsides = (): WallInside[] => insides
-const getSpawnAreas = (): Rectangle[] => spawnAreas
-
-export const room = { circleCollision, vectorCollision, checkIfOnEntrance, loadRoom, getEdges, getInsides, getUnits, getSpawnAreas }
+export const room = {
+  circleCollision, vectorCollision, checkIfOnEntrance, loadRoom,
+  get edges() {
+    return edges
+  },
+  get insides(){
+    return insides
+  },
+  get units() {
+    return units
+  },
+  get spawnAreas() {
+    return spawnAreas
+  },
+  get spawnPoint() {
+    return spawnPoint
+  }
+}

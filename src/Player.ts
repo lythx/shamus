@@ -15,7 +15,7 @@ export class Player extends Fighter {
   projectileSize: number
   nextShot: number = 0
   nextModelUpdate: number = 0
-  onRoomChange: ((pos: Point, room: number) => void) | undefined
+  onRoomChange: (( room: number, pos: Point) => void) | undefined
   readonly directions: { [key: number]: Direction } = {
     0: 'right',
     45: 'downright',
@@ -75,7 +75,7 @@ export class Player extends Fighter {
   update(): void {
     const entrance = room.checkIfOnEntrance(this.hitbox)
     if (entrance !== false) {
-      this.onRoomChange?.(entrance.pos, entrance.room)
+      this.onRoomChange?.(entrance.room, entrance.pos)
       return
     }
     this.checkCollision()

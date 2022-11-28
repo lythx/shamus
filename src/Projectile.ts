@@ -72,11 +72,11 @@ export class Projectile extends Unit {
     this.tween?.stop()
     if (this.side === 'enemy') {
       const index = Projectile.enemyProjectiles.indexOf(this)
-      if (index === -1) { throw new Error(`Enemy projectile ${this.constructor.name} not in list on delete`) }
+      if (index === -1) { return }//throw new Error(`Enemy projectile ${this.constructor.name} not in list on delete`) } TODO
       Projectile.enemyProjectiles.splice(index, 1)
     } else {
       const index = Projectile.playerProjectiles.indexOf(this)
-      if (index === -1) { throw new Error(`Player projectile ${this.constructor.name} not in list on delete`) }
+      if (index === -1) { return } // throw new Error(`Player projectile ${this.constructor.name} not in list on delete`) }
       Projectile.playerProjectiles.splice(index, 1)
     }
   }

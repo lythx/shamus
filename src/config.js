@@ -3,6 +3,8 @@ import { models } from './models.js'
 export const config = {
   speedMultiplier: 20,
   wallUpdateInterval: 100,
+  explosionRadius: 25,
+  explosionModelChange: 100,
   aiShotFriendDetectionWidth: 100,
   aiMaxShotAngleOffset: 30,
   aiNoTargetMoveLength: 150,
