@@ -8,7 +8,7 @@ import { Rays } from '../utils/Rays.js'
 export class Drone extends Enemy {
 
   private nextAiUpdate = 0
-  private nextShot = 0
+  private nextShot = Date.now() + config.shotTimeoutOnRoomLoad
   private nextCollisionCheck = 0
   private readonly models: HTMLImageElement[]
   private modelChange = 0

@@ -12,6 +12,7 @@ interface EnemyOptions {
     speed: number
     size: number
     modelPath: string
+    explosionRadius: number
   }
 }
 

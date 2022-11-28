@@ -12,6 +12,7 @@ import { editor } from "./editor.js";
 import { WallEdge } from "./WallEdge.js";
 import { WallInside } from "./WallInside.js";
 import { Explosion } from "./Explosion.js";
+import { config } from "./config.js";
 
 let debug = false
 let isRunning = true
@@ -75,7 +76,7 @@ const onRoomChange = (roomNumber: number, pos?: Point) => {
   renderRoom(roomInsides)
   renderUi({
     score: 123456789,
-    lifes: 3,
+    lifes: config.lifesAtStart,
     room: roomNumber,
     level: 'black'
   })
@@ -165,6 +166,9 @@ const gameLoop = () => {
     let index = 1
     for (let i = 0; i < Projectile.playerProjectiles.length; i++) {
       objects[index++] = Projectile.playerProjectiles[i].hitbox
+      for (let j = 0; j < Projectile.playerProjectiles[i].debug.length; j++) {
+        objects[index++] = Projectile.playerProjectiles[i].debug[j]
+      }
     }
     for (let i = 0; i < Projectile.enemyProjectiles.length; i++) {
       objects[index++] = Projectile.enemyProjectiles[i].hitbox
@@ -181,7 +185,7 @@ const gameLoop = () => {
 
 requestAnimationFrame(gameLoop)
 
-new Shadow(new Point(350, 350))
+//new Shadow(new Point(350, 350))
 // new Drone(new Point(400, 400), 'blue')
 // new Jumper(new Point(350, 300))
 Enemy.enemies.sort(a => player.pos.calculateDistance(a.pos))

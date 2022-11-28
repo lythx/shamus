@@ -1,7 +1,7 @@
 import { Enemy } from "./Enemy.js";
 import { room } from "./Room.js";
 import { Unit } from "./Unit.js";
-import { math, Point, Vector } from "./utils/Geometry.js";
+import { Circle, math, Point, Vector } from "./utils/Geometry.js";
 const infinty = 10000000
 
 interface ProjectileOptions {
@@ -11,6 +11,7 @@ interface ProjectileOptions {
   size: number
   image: HTMLImageElement
   side: 'player' | 'enemy'
+  explosionRadius: number
 }
 
 export class Projectile extends Unit {
@@ -19,15 +20,17 @@ export class Projectile extends Unit {
   static enemyProjectiles: Projectile[] = []
   private readonly image: HTMLImageElement
   private readonly shooter: Unit
+  private readonly explosionRadius: number
 
   constructor(options: ProjectileOptions, shooter: Unit) {
     super(options)
-    this.pos = new Vector(this.pos, this.angle, this.size * 2).b
+    //this.pos = new Vector(this.pos, this.angle, this.size * 2).b
     this.move(options.angle, infinty)
     this.side === 'player' ? Projectile.playerProjectiles.push(this)
       : Projectile.enemyProjectiles.push(this)
     this.image = options.image
     this.shooter = shooter
+    this.explosionRadius = options.explosionRadius
   }
 
   update(): void {
@@ -48,12 +51,11 @@ export class Projectile extends Unit {
     for (let i = 0; i < Enemy.enemies.length; i++) {
       if (Enemy.enemies[i] === this.shooter) { continue }
       if (Enemy.enemies[i].hitbox.circleCollision(this.hitbox)) {
-        Enemy.enemies[i].destroy()
-        this.destroy()
+        this.explode()
       }
     }
     if (room.circleCollision(this.hitbox)) {
-      this.destroy()
+      this.explode()
     }
   }
 
@@ -63,6 +65,19 @@ export class Projectile extends Unit {
     ctx.rotate(math.degToRad(this.angle))
     ctx.drawImage(this.image, -this.size * 3, -this.size * 0.75, this.size * 6, this.size * 1.5)
     ctx.restore()
+  }
+
+  explode() {
+    const impact = new Circle(this.pos, this.explosionRadius)
+    this.registerDebug(impact)
+    for (let i = 0; i < Enemy.enemies.length; i++) {
+      if (Enemy.enemies[i] === this.shooter) { continue }
+      if (Enemy.enemies[i].hitbox.circleCollision(impact)) {
+        Enemy.enemies[i].destroy()
+        this.explode()
+      }
+    }
+    this.destroy()
   }
 
   /**

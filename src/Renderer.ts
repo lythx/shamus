@@ -26,7 +26,11 @@ bgDebugCtx.strokeStyle = config.debugColor
 const renderUi = (data: UiData) => {
   scoreTop.innerHTML = data.score.toString()
   scoreBottom.innerHTML = data.score.toString()
-  lifes.innerHTML = data.lifes.toString()
+  lifes.innerHTML = ''
+  for (let i = 0; i < data.lifes; i++) {
+    const div = document.createElement('div')
+    lifes.appendChild(div)
+  }
   room.innerHTML = data.room.toString()
   level.innerHTML = data.level
 }

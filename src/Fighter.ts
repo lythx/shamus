@@ -10,6 +10,7 @@ interface FighterOptions {
     speed: number
     size: number
     image: HTMLImageElement
+    explosionRadius: number
   }
   side: 'player' | 'enemy'
 }
@@ -19,6 +20,7 @@ export abstract class Fighter extends Unit {
   readonly projectileSpeed: number
   readonly projectileSize: number
   readonly projectileImage: HTMLImageElement
+  readonly projectileExplosion: number
   lastModel: number = 0
 
   constructor(options: FighterOptions) {
@@ -26,6 +28,7 @@ export abstract class Fighter extends Unit {
     this.projectileSpeed = options.projectile.speed
     this.projectileSize = options.projectile.size
     this.projectileImage = options.projectile.image
+    this.projectileExplosion = options.projectile.explosionRadius
   }
 
   /**
@@ -38,7 +41,8 @@ export abstract class Fighter extends Unit {
       speed: this.projectileSpeed,
       size: this.projectileSize,
       side: this.side,
-      image: this.projectileImage
+      image: this.projectileImage,
+      explosionRadius: this.projectileExplosion
     }, this)
   }
 

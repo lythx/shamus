@@ -63,7 +63,6 @@ export class Player extends Fighter {
             return img
           })
     }
-    this.tween.onEnd = () => this.currentDirection = undefined
   }
 
   draw(ctx: CanvasRenderingContext2D): void {
@@ -105,6 +104,14 @@ export class Player extends Fighter {
   destroy(): void {
     console.log('d')
     // todo
+  }
+
+  /**
+   * Stops unit movement
+   */
+  stop() {
+    this.currentDirection = undefined
+    this.tween?.stop()
   }
 
   move(angle: number, length: number): void {

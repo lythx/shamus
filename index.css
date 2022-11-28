@@ -66,6 +66,27 @@
 }
 
 #lifes {
+  right: 0px;
+  top: 0px;
+  display: grid;
+  place-items: center;
+  grid-template-columns: repeat(3, 1fr);
+  width: 240px;
+  background-color: var(--black);
+  z-index: 10;
+  height: fit-content;
+}
+
+#lifes>div {
+  height: 32px;
+  margin: 5px;
+  width: 64px;
+  background-color: var(--black);
+  background-image: url('./assets/life.png');
+  background-size: cover;
+}
+
+#lifes {
   position: absolute;
 }
 

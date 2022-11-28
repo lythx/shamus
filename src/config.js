@@ -1,13 +1,14 @@
-import { models } from './models.js'
-
 export const config = {
   speedMultiplier: 20,
   wallUpdateInterval: 100,
   explosionRadius: 25,
   explosionModelChange: 100,
   aiShotFriendDetectionWidth: 100,
+  lifesAtStart: 4,
+  lifesLimit: 12,
   aiMaxShotAngleOffset: 30,
   aiNoTargetMoveLength: 150,
+  shotTimeoutOnRoomLoad: 1500,
   aiTargetMoveLength: 300,
   aiCollisionCheckInterval: 100,
   aiMinMovement: 50,
@@ -16,10 +17,11 @@ export const config = {
     modelUpdateInterval: 50,
     size: 25,
     shotInterval: 200,
-    speed: 100,
+    speed: 190,
     projectile: {
       speed: 700,
-      size: 40
+      size: 15,
+      explosionRadius: 50
     }
   },
   droid: {
@@ -33,12 +35,13 @@ export const config = {
     projectile: {
       speed: 300,
       size: 5,
-      modelPath: 'drone/projectile'
+      modelPath: 'drone/projectile',
+      explosionRadius: 5
     },
     ai: {
       range: 300,
-      shotInterval: 500,
-      shotIntervalOffset: 1000,
+      shotInterval: 5000,
+      shotIntervalOffset: 2000,
       /** msec */
       updateInterval: 500,
       updateIntervalOffset: 150
@@ -54,7 +57,8 @@ export const config = {
     projectile: {
       speed: 0,
       size: 0,
-      modelPath: 'drone/projectile'
+      modelPath: 'drone/projectile',
+      explosionRadius: 0
     },
     ai: {
       range: 500,
@@ -70,7 +74,8 @@ export const config = {
     projectile: {
       speed: 0,
       size: 0,
-      modelPath: 'drone/projectile'
+      modelPath: 'drone/projectile',
+      explosionRadius: 0
     },
     ai: {
       range: 300,
