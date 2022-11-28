@@ -1,10 +1,9 @@
-import { RoomEntrance } from "./RoomEntrance.js"
 import { rooms } from "./rooms.js"
-import { Point, Rectangle, Vector } from "./utils/Geometry.js"
+import { Point, Rectangle } from "./utils/Geometry.js"
 import { WallEdge } from "./WallEdge.js"
 import { WallInside } from "./WallInside.js"
 
-const defaultRoom = 2
+const defaultRoom = 28
 const content = document.getElementById('content') as HTMLCanvasElement
 const wrapper = document.getElementById('wrapper') as HTMLElement
 let isEnabled = false
@@ -18,6 +17,7 @@ let insides = rooms[defaultRoom].insides.map(a => new WallInside(new Point(a[0],
 let spawns = rooms[defaultRoom].spawnAreas.map(a => new Rectangle(new Point(a[0], a[1]), new Point(a[2], a[3])))
 const entrances = rooms[defaultRoom].entrances
 let spawnPoint = new Point(rooms[defaultRoom].spawnPoint[0], rooms[defaultRoom].spawnPoint[1])
+
 
 const modeKeys = {
   '1': 'edge',

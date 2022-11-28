@@ -85,9 +85,10 @@ const onRoomChange = (roomNumber: number, pos?: Point) => {
   }
 }
 
+const startRoom = 0
 const player = new Player(new Point(-100, -100))
-room.loadRoom(0)
-onRoomChange(0)
+room.loadRoom(startRoom)
+onRoomChange(startRoom)
 
 events.onMovementChange((isMoving, angle) => {
   if (!isMoving) {
