@@ -22,6 +22,12 @@ export const models = {
     purple: ['purple1', 'purple2'],
     blue: ['blue1', 'blue2']
   },
+  droid: {
+    up: ['back1', 'back2', 'back3', 'back4', 'back3', 'back2'],
+    down: ['back1', 'back2', 'back3', 'back4', 'back3', 'back2'],
+    left: ['left1', 'left2', 'left3'],
+    right: ['left1', 'left2', 'left3']
+  },
   jumper: {
     normal: 'normal',
     jump: 'jump'

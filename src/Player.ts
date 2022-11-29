@@ -16,6 +16,7 @@ export class Player extends Fighter {
   nextShot: number = 0
   nextModelUpdate: number = 0
   onRoomChange: ((room: number, pos: Point) => void) | undefined
+  onDeath: () => void = () => undefined
   readonly directions: { [key: number]: Direction } = {
     0: 'right',
     45: 'downright',
@@ -102,6 +103,7 @@ export class Player extends Fighter {
   }
 
   destroy(): void {
+    this.onDeath()
     console.log('d')
     // todo
   }

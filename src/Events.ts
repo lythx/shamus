@@ -1,3 +1,5 @@
+import { Point, Vector } from "./utils/Geometry.js"
+
 type Direction = 'up' | 'down' | 'left' | 'right'
 type Action = 'shoot' | 'debug' | 'editor'
 const movementListeners: ((isMoving: boolean, angle?: number) => void)[] = []
@@ -72,6 +74,40 @@ document.addEventListener('keyup', (e) => {
     }
   }
 })
+
+
+
+let gamepad: Gamepad | undefined
+
+window.addEventListener("gamepadconnected", (e) => {
+  gamepad = navigator.getGamepads()[0] ?? undefined
+});
+
+const padAngles = [0, 45, 90, 135, 180, 225, 270, 315, 360]
+let lastAngle: number | undefined
+const padPoll = () => {
+  requestAnimationFrame(padPoll)
+  if (gamepad === undefined) { return }
+  if (Math.abs(gamepad.axes[0]) < 0.1 && Math.abs(gamepad.axes[1]) < 0.1) {
+    for (const e of movementListeners) { e(false) }
+  } else {
+    console.log(gamepad.axes[1], gamepad.axes[0], new Vector(new Point(0, 0), new Point(gamepad.axes[0], gamepad.axes[1])).angle)
+    const angle = new Vector(new Point(0, 0), new Point(gamepad.axes[0], gamepad.axes[1])).angle
+    let trimmedAngle = 0
+    for (let i = 0; i < padAngles.length; i++) {
+      if (Math.abs(padAngles[i] - angle) <= 22.5) {
+        trimmedAngle = padAngles[i]
+      }
+    }
+    if (lastAngle !== trimmedAngle) {
+      lastAngle = trimmedAngle  
+      for (const e of movementListeners) { e(true, trimmedAngle) }
+    }
+  }
+}
+
+requestAnimationFrame(padPoll)
+
 
 export const events = {
   onMovementChange(callback: (isMoving: boolean, angle?: number) => void) {

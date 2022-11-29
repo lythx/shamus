@@ -142,9 +142,25 @@ Enemy.onKill = (wasLastEnemy: boolean) => {
   })
 }
 
+const lose = () => {
+  console.log('game over')
+}
+
 player.onRoomChange = onRoomChange
+player.onDeath = async () => {
+  lifes--
+  if (lifes === 0) {
+    lose()
+    return
+  }
+  isRunning = false
+  await new Promise(resolve => setTimeout(resolve, 1000))
+  isRunning = true
+  onRoomChange(roomNumber)
+}
 
 const gameLoop = () => {
+  requestAnimationFrame(gameLoop)
   if (!isRunning) { return }
   player.update()
   for (let i = 0; i < Projectile.playerProjectiles.length; i++) {
@@ -194,7 +210,6 @@ const gameLoop = () => {
     }
     renderDebug(objects)
   }
-  requestAnimationFrame(gameLoop)
 }
 
 requestAnimationFrame(gameLoop)

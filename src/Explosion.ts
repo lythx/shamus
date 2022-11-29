@@ -15,7 +15,6 @@ export class Explosion extends Circle {
   private readonly modelChangeInterval = config.explosionModelChange
 
   constructor(pos: Point) {
-    console.log(pos)
     super(pos, config.explosionRadius)
     Explosion.explosions.push(this)
     this.nextModelChange = Date.now() + this.modelChangeInterval

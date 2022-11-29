@@ -127,6 +127,7 @@ export class Drone extends Enemy {
       }
     }
     for (let i = 0; i < Enemy.enemies.length; i++) {
+      if (Enemy.enemies[i] === this) { continue }
       const dist = this.rayCollision(Enemy.enemies[i])
       if (dist !== undefined && (minCollision ?? -1) < dist) {
         minCollision = dist
