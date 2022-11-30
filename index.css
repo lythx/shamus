@@ -75,6 +75,7 @@
   background-color: var(--black);
   z-index: 10;
   height: fit-content;
+  position: absolute;
 }
 
 #lifes>div {
@@ -86,8 +87,25 @@
   background-size: cover;
 }
 
-#lifes {
+#keys {
   position: absolute;
+  right: 0px;
+  top: 750px;
+  display: grid;
+  place-items: center;
+  grid-template-columns: repeat(3, 1fr);
+  width: 240px;
+  background-color: var(--black);
+  z-index: 10;
+  height: fit-content;
+}
+
+#keys>div {
+  height: 50px;
+  margin: 5px;
+  width: 64px;
+  background-color: var(--black);
+  background-size: cover;
 }
 
 #bottom {

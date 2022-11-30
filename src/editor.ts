@@ -3,12 +3,12 @@ import { Point, Rectangle } from "./utils/Geometry.js"
 import { WallEdge } from "./WallEdge.js"
 import { WallInside } from "./WallInside.js"
 
-const defaultRoom = 28
+const defaultRoom = 37
 const content = document.getElementById('content') as HTMLCanvasElement
 const wrapper = document.getElementById('wrapper') as HTMLElement
 let isEnabled = false
 let startPoint: Point | undefined
-let mode: 'edge' | 'inside' | 'spawn' | 'spawnPoint'
+let mode: 'edge' | 'inside' | 'spawn' | 'spawnPoint' | 'item'
 let topPlacement = true
 let updateListener: (() => void) | undefined
 const edgeWidth = 40
@@ -17,13 +17,20 @@ let insides = rooms[defaultRoom].insides.map(a => new WallInside(new Point(a[0],
 let spawns = rooms[defaultRoom].spawnAreas.map(a => new Rectangle(new Point(a[0], a[1]), new Point(a[2], a[3])))
 const entrances = rooms[defaultRoom].entrances
 let spawnPoint = new Point(rooms[defaultRoom].spawnPoint[0], rooms[defaultRoom].spawnPoint[1])
+const defaultItem: {
+  type: string,
+  position: [number, number],
+  color: string
+} | undefined = (rooms[defaultRoom] as any).item
+let itemPos = defaultItem === undefined ? undefined : new Point(defaultItem.position[0], defaultItem.position[1])
 
 
 const modeKeys = {
   '1': 'edge',
   '2': 'inside',
   '3': 'spawn',
-  '4': 'spawnPoint'
+  '4': 'spawnPoint',
+  '5': 'item'
 } as const
 const helpers: Rectangle[] = [
   new Rectangle(new Point(1395, 280), new Point(1400, 505)),
@@ -41,9 +48,15 @@ const helperPoints: Point[] = [
 
 const save = () => {
   document.write(JSON.stringify({
+    item: {
+      type: 'key',
+      position: itemPos === undefined ? [] : [itemPos.x, itemPos.y],
+      color: 'purple'
+    },
     units: {
       drone: 0,
-      jumper: 0
+      jumper: 0,
+      droid: 0
     },
     entrances,
     theme: 'yellowCircle',
@@ -198,6 +211,9 @@ content.addEventListener('mouseup', (e) => {
   } else if (mode === 'spawnPoint') {
     spawnPoint = new Point(~~(e.clientX - rect.left), ~~(e.clientY - rect.top))
     startPoint = undefined
+  } else if (mode === 'item') {
+    itemPos = new Point(~~(e.clientX - rect.left), ~~(e.clientY - rect.top))
+    startPoint = undefined
   }
   updateListener?.()
 })
@@ -209,7 +225,7 @@ const enable = (): void => {
   updateListener?.()
 }
 const disable = () => { isEnabled = false }
-const getObjects = () => [spawnPoint, ...spawns, ...insides, ...edges, ...helpers]
+const getObjects = () => [spawnPoint, (itemPos ?? new Point(-1, -1)), ...spawns, ...insides, ...edges, ...helpers]
 
 export const editor = {
   onUpdate: (callback: () => void) => {

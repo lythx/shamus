@@ -6,7 +6,9 @@ interface UiData {
   lifes: number
   room: number
   level: string
+  keys: string[]
 }
+const keys = document.getElementById('keys') as HTMLElement
 const scoreTop = document.getElementById('scoreTop') as HTMLDivElement
 const scoreBottom = document.getElementById('scoreBottom') as HTMLDivElement
 const lifes = document.getElementById('lifes') as HTMLDivElement
@@ -33,6 +35,12 @@ const renderUi = (data: UiData) => {
   }
   room.innerHTML = data.room.toString()
   level.innerHTML = data.level
+  keys.innerHTML = ''
+  for (let i = 0; i < data.keys.length; i++) {
+    const div = document.createElement('div')
+    div.style.backgroundImage = `url('./assets/items/${config.gameKey.images[data.keys[i] as keyof typeof config.gameKey.images]}.png')`
+    keys.appendChild(div)
+  }
 }
 
 const renderRoom = (objects: Drawable[]): void => {

@@ -44,21 +44,39 @@ ExtraLife.onCollect = () => {
     score,
     lifes,
     room: roomNumber,
-    level: 'black'
+    level: 'black',
+    keys
   })
   item = undefined
 }
 
 GameKey.onCollect = (type) => {
   keys.push(type)
+  room.itemCollected('key', type)
   item = undefined
+  renderUi({
+    score,
+    lifes,
+    room: roomNumber,
+    level: 'black',
+    keys
+  })
 }
 
 KeyHole.onCollect = (type) => {
   if (!keys.includes(type)) { return }
   item = undefined
+  room.itemCollected('keyhole', type)
   keys = keys.filter(a => a !== type)
-  // todo
+  room.deleteEdge(type)
+  roomEdges = room.edges
+  renderUi({
+    score,
+    lifes,
+    room: roomNumber,
+    level: 'black',
+    keys
+  })
 }
 
 MysteryItem.onCollect = (action, amount) => {
@@ -72,7 +90,8 @@ MysteryItem.onCollect = (action, amount) => {
     score,
     lifes,
     room: roomNumber,
-    level: 'black'
+    level: 'black',
+    keys
   })
 }
 
@@ -132,7 +151,8 @@ const onRoomChange = (roomNum: number, pos?: Point) => {
     score,
     lifes,
     room: roomNumber,
-    level: 'black'
+    level: 'black',
+    keys
   })
   spawnEnemies(room.units, room.spawnAreas)
   shadowSpawned = false
@@ -190,7 +210,8 @@ Enemy.onKill = (wasLastEnemy: boolean) => {
     score,
     lifes,
     room: roomNumber,
-    level: 'black'
+    level: 'black',
+    keys
   })
 }
 

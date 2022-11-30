@@ -16,6 +16,12 @@ let units: { drone?: number, jumper?: number }
 let spawnAreas: Rectangle[] = []
 let spawnPoint: Point
 let item: GameItem | undefined
+const collectedItems: { type: string, color: string }[] = []
+const edgesToDelete = {
+  yellow: [0, 279, 40, 504],
+  blue: [1360, 280, 1400, 505],
+  purple: [0, 282, 40, 502]
+}
 
 const loadRoom = (key: number) => {
   const data = rooms[key as keyof typeof rooms]
@@ -26,8 +32,8 @@ const loadRoom = (key: number) => {
   units = data.units
   spawnAreas = data.spawnAreas.map(a => new Rectangle(new Point(a[0], a[1]), new Point(a[2], a[3])))
   spawnPoint = new Point(data.spawnPoint[0], data.spawnPoint[1])
-  const itemObj: { type: string, position: [number, number], colour: string } | undefined = (data as any).item
-  if (itemObj === undefined) {
+  const itemObj: { type: string, position: [number, number], color: string } | undefined = (data as any).item
+  if (itemObj === undefined || collectedItems.some(a => a.type === itemObj.type && a.color === itemObj.color)) {
     item = undefined
   } else {
     const p = new Point(itemObj.position[0], itemObj.position[1])
@@ -36,9 +42,9 @@ const loadRoom = (key: number) => {
     } else if (itemObj.type === 'extra life') {
       item = new ExtraLife(p)
     } else if (itemObj.type === 'key') {
-      item = new GameKey(p, itemObj.colour as any)
+      item = new GameKey(p, itemObj.color as any)
     } else if (itemObj.type === 'keyhole') {
-      item = new KeyHole(p, itemObj.colour as any)
+      item = new KeyHole(p, itemObj.color as any)
     }
   }
 }
@@ -95,6 +101,14 @@ const checkIfOnEntrance = (playerHitbox: Circle): { pos: Point; room: number; } 
 
 export const room = {
   circleCollision, vectorCollision, checkIfOnEntrance, loadRoom,
+  itemCollected(type: string, color: string) {
+    collectedItems.push({ type, color })
+    item = undefined
+  },
+  deleteEdge(keyholeType: string) {
+    const e = edgesToDelete[keyholeType as keyof typeof edgesToDelete]
+    edges = edges.filter(a => !(a.a.x === e[0] && a.a.y === e[1] && a.c.x === e[2] && a.c.y === e[3]))
+  },
   get edges() {
     return edges
   },

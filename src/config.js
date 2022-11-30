@@ -21,7 +21,7 @@ export const config = {
     speed: 190,
     projectile: {
       speed: 700,
-      size: 15,
+      size: 10,
       explosionRadius: 50
     }
   },
@@ -119,15 +119,17 @@ export const config = {
   gameKey: {
     size: 30,
     images: {
-      purple: 'purple_key',
-      blue: 'blue_key'
+      purple: 'key_purple',
+      blue: 'key_blue',
+      yellow: 'key_yellow'
     }
   },
   keyHole: {
     size: 30,
     images: {
-      purple: 'purple_keyhole',
-      blue: 'blue_keyhole'
+      purple: 'keyhole_purple',
+      blue: 'keyhole_blue',
+      yellow: 'keyhole_yellow'
     }
   },
   debugColor: "#FFFFFF",
