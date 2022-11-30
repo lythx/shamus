@@ -115,6 +115,7 @@ const padPoll = () => {
     padShot(gamepad.axes[shotXAxis], gamepad.axes[shotYAxis])
   }
   if (Math.abs(gamepad.axes[movementXAxis]) < 0.1 && Math.abs(gamepad.axes[movementYAxis]) < 0.1) {
+    lastAngle = undefined
     for (let i = 0; i < movementListeners.length; i++) { movementListeners[i](false) }
   } else {
     const angle = new Vector(new Point(0, 0), new Point(gamepad.axes[movementXAxis], gamepad.axes[movementYAxis])).angle
@@ -125,7 +126,6 @@ const padPoll = () => {
       }
     }
     if (lastAngle !== trimmedAngle) {
-      console.log(gamepad.buttons.map(a => a.pressed))
       lastAngle = trimmedAngle
       for (let i = 0; i < movementListeners.length; i++) { movementListeners[i](true, trimmedAngle) }
     }

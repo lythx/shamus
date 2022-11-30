@@ -18,16 +18,21 @@ interface EnemyOptions {
 
 export abstract class Enemy extends Fighter {
 
-  protected readonly angles = [0, 90, 180, 270] as const
   static onKill: (wasLastEnemy: boolean) => void = () => undefined
   static enemies: Enemy[] = []
   target: Rays
+  protected readonly moveAngles: number[] = [0, 90, 180, 270]
+  protected readonly maxAngleOffset: number
 
-  constructor(options: EnemyOptions) {
+  constructor(options: EnemyOptions, moveAngles?: number[]) {
     const projectileImg = new Image()
     projectileImg.src = `./assets/${options.projectile.modelPath}.png`
     super({ ...options, side: 'enemy', projectile: { ...options.projectile, image: projectileImg } })
     Enemy.enemies.push(this)
+    if (moveAngles !== undefined) {
+      this.moveAngles = moveAngles
+    }
+    this.maxAngleOffset = Math.abs(this.moveAngles[1] - this.moveAngles[0]) / 2
     this.target = new Rays(options.pos, options.size)
   }
 
@@ -46,7 +51,14 @@ export abstract class Enemy extends Fighter {
   }
 
   move(angle: number, length: number): void {
-    const v = new Vector(this.pos, angle, length)
+    let trimmedAngle = 0
+    for (const e of this.moveAngles) {
+      if (Math.abs(e - angle) <= this.maxAngleOffset) {
+        trimmedAngle = e
+        break
+      }
+    }
+    const v = new Vector(this.pos, trimmedAngle, length)
     this.target.setTarget(v.b, v.length + this.size)
     this._move(v)
   }

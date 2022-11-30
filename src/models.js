@@ -32,5 +32,8 @@ export const models = {
     normal: 'normal',
     jump: 'jump'
   },
-  shadow: ['shadow1', 'shadow2']
+  shadow: {
+    alive: ['shadow1', 'shadow2'],
+    dead: ['shadow_dead1', 'shadow_dead2'],
+  }
 }

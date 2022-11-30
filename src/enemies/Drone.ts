@@ -21,6 +21,7 @@ export class Drone extends Enemy {
   private readonly shotIntervalOffset = config.drone.ai.shotIntervalOffset
   private readonly friendDetectionWidth = config.aiShotFriendDetectionWidth
   private readonly movementOffset = config.drone.movementOffset
+  private readonly angles = [0, 90, 180, 270] as const
 
   constructor(pos: Point, colour: 'blue' | 'purple') {
     super({
@@ -93,6 +94,10 @@ export class Drone extends Enemy {
       const rand = this.randomizeTarget(p)
       v = Vector.from(new Vector(this.pos, rand), config.aiTargetMoveLength)
       cDistance = this.checkCollision(v)
+      if (cDistance === 0) {
+        this.untargetedMove()
+        return
+      }
       tries++
     } while ((cDistance ?? Infinity) < this.size * 4 && tries < maxTries)
     const length = Math.min(v.length, (cDistance ?? Infinity)) - this.size
@@ -126,13 +131,14 @@ export class Drone extends Enemy {
         }
       }
     }
-    for (let i = 0; i < Enemy.enemies.length; i++) {
-      if (Enemy.enemies[i] === this) { continue }
-      const dist = this.rayCollision(Enemy.enemies[i])
-      if (dist !== undefined && (minCollision ?? -1) < dist) {
-        minCollision = dist
-      }
-    }
+    // for (let i = 0; i < Enemy.enemies.length; i++) {
+    //   if (Enemy.enemies[i] === this) { continue }
+    //   if (Enemy.enemies[i].hitbox.circleCollision(this.hitbox)) { return 0 }
+    //   const dist = this.rayCollision(Enemy.enemies[i])
+    //   if (dist !== undefined && (minCollision ?? -1) < dist) {
+    //     minCollision = dist
+    //   }
+    // }
     return minCollision
   }
 
@@ -187,7 +193,7 @@ export class Drone extends Enemy {
         direction = e
       }
     }
-    if (minDiff > config.aiMaxShotAngleOffset) { return }
+    if (minDiff > config.drone.maxShotAngleOffset) { return }
     const v = new Vector(this.pos, direction, playerPos.calculateDistance(this.pos))
     let a: Point
     let width: number

@@ -61,7 +61,8 @@
     "resolveJsonModule": true
   },
   "include": [
-    "src/*"
+    "src/*",
+    "src/items/GameItem.ts"
   ],
   "exclude": [
     "node_modules"

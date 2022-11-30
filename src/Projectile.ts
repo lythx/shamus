@@ -74,7 +74,6 @@ export class Projectile extends Unit {
       if (Enemy.enemies[i] === this.shooter) { continue }
       if (Enemy.enemies[i].hitbox.circleCollision(impact)) {
         Enemy.enemies[i].destroy()
-        this.explode()
       }
     }
     this.destroy()

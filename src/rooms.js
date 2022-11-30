@@ -10,7 +10,12 @@ export const rooms = {
     "spawnAreas": [[290, 0, 1110, 280], [560, 280, 1110, 760], [290, 545, 561, 760]],
     "spawnPoint": [131, 394],
     units: {
-      drone: 3
+      drone: 3,
+      droid: 2
+    },
+    item: {
+      type: 'mystery',
+      position: [600, 100]
     }
   },
   1: {

@@ -104,7 +104,6 @@ export class Player extends Fighter {
 
   destroy(): void {
     this.onDeath()
-    console.log('d')
     // todo
   }
 

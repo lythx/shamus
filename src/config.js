@@ -1,4 +1,5 @@
 export const config = {
+  shadowSpawnTimeout: 10000,
   startingRoom: 0,
   speedMultiplier: 20,
   wallUpdateInterval: 100,
@@ -9,13 +10,10 @@ export const config = {
   lifesLimit: 12,
   killScore: 5,
   clearRoomScore: 200,
-  aiMaxShotAngleOffset: 30,
   aiNoTargetMoveLength: 150,
-  shotTimeoutOnRoomLoad: 1500,
+  shotTimeoutOnRoomLoad: 3000,
   aiTargetMoveLength: 300,
   aiCollisionCheckInterval: 100,
-  aiMinMovement: 50,
-  aiMovementTargetDivisor: 2,
   player: {
     modelUpdateInterval: 50,
     size: 25,
@@ -28,23 +26,42 @@ export const config = {
     }
   },
   droid: {
-
+    movementOffset: 100,
+    modelUpdateInterval: 150,
+    size: 25,
+    speed: 100,
+    maxShotAngleOffset: 20,
+    projectile: {
+      speed: 300,
+      size: 5,
+      modelPath: 'droid/projectile',
+      explosionRadius: 5
+    },
+    ai: {
+      range: 100,
+      shotInterval: 3000,
+      shotIntervalOffset: 2000,
+      /** msec */
+      updateInterval: 500,
+      updateIntervalOffset: 150
+    }
   },
   drone: {
     movementOffset: 100,
     modelUpdateInterval: 150,
     size: 25,
     speed: 100,
+    maxShotAngleOffset: 30,
     projectile: {
-      speed: 300,
+      speed: 250,
       size: 5,
       modelPath: 'drone/projectile',
       explosionRadius: 5
     },
     ai: {
       range: 300,
-      shotInterval: 5000,
-      shotIntervalOffset: 2000,
+      shotInterval: 8000,
+      shotIntervalOffset: 4000,
       /** msec */
       updateInterval: 500,
       updateIntervalOffset: 150
@@ -73,13 +90,14 @@ export const config = {
     modelUpdateInterval: 500,
     movementOffset: 30,
     size: 25,
-    speed: 200,
+    speed: 180,
     projectile: {
       speed: 0,
       size: 0,
       modelPath: 'drone/projectile',
       explosionRadius: 0
     },
+    reviveTimout: 5000,
     ai: {
       range: 300,
       shotInterval: 500,
@@ -87,6 +105,29 @@ export const config = {
       /** msec */
       updateInterval: 500,
       updateIntervalOffset: 150
+    }
+  },
+  extraLife: {
+    size: 30,
+    image: 'extra_life'
+  },
+  mysteryItem: {
+    size: 30,
+    maxPoints: 5,
+    image: 'mystery_item'
+  },
+  gameKey: {
+    size: 30,
+    images: {
+      purple: 'purple_key',
+      blue: 'blue_key'
+    }
+  },
+  keyHole: {
+    size: 30,
+    images: {
+      purple: 'purple_keyhole',
+      blue: 'blue_keyhole'
     }
   },
   debugColor: "#FFFFFF",

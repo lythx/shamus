@@ -6,9 +6,13 @@ import { Point, Vector } from '../utils/Geometry.js'
 export class Shadow extends Enemy {
 
   private nextAiUpdate = 0
-  private readonly models: HTMLImageElement[]
+  private models: HTMLImageElement[]
+  private readonly aliveModels: HTMLImageElement[]
+  private readonly deadModels: HTMLImageElement[]
   private modelIndex: number = 0
   private modelChange = 0
+  private dead = false
+  private reviveTimestamp = 0
   private readonly movementOffset = config.shadow.movementOffset
   private readonly modelChangeInterval = config.shadow.modelUpdateInterval
   private readonly aiUpdateInterval = config.shadow.ai.updateInterval
@@ -18,8 +22,14 @@ export class Shadow extends Enemy {
     super({
       ...config.shadow,
       pos
+    }, [0, 45, 90, 135, 180, 225, 270, 315])
+    this.aliveModels = models.shadow.alive.map(a => {
+      const img = new Image()
+      img.src = `./assets/shadow/${a}.png`
+      return img
     })
-    this.models = models.shadow.map(a => {
+    this.models = this.aliveModels
+    this.deadModels = models.shadow.dead.map(a => {
       const img = new Image()
       img.src = `./assets/shadow/${a}.png`
       return img
@@ -28,6 +38,11 @@ export class Shadow extends Enemy {
   }
 
   update(playerPos: Point): void {
+    if (this.dead) {
+      if (this.reviveTimestamp > Date.now()) { return }
+      this.dead = false
+      this.models = this.aliveModels
+    }
     this.updateModel()
     if (Date.now() < this.nextAiUpdate) { return }
     this.targetedMove(playerPos)
@@ -43,11 +58,11 @@ export class Shadow extends Enemy {
   }
 
   private randomizeTarget(target: Point): Point {
-    const randX = Math.random() *  this.movementOffset
+    const randX = Math.random() * this.movementOffset
     const randY = Math.random() * this.movementOffset
     return new Point(
-      target.x + randX - ( this.movementOffset / 2),
-      target.y + randY - ( this.movementOffset / 2)
+      target.x + randX - (this.movementOffset / 2),
+      target.y + randY - (this.movementOffset / 2)
     )
   }
 
@@ -56,6 +71,14 @@ export class Shadow extends Enemy {
     this.modelChange = Date.now() + this.modelChangeInterval
     this.modelIndex++
     this.modelIndex %= this.models.length
+  }
+
+  destroy(): void {
+    if (this.dead) { return }
+    this.stop()
+    this.dead = true
+    this.models = this.deadModels
+    this.reviveTimestamp = Date.now() + config.shadow.reviveTimout
   }
 
   draw(ctx: CanvasRenderingContext2D): void {

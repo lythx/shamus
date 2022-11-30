@@ -3,6 +3,11 @@ import { rooms } from './rooms.js'
 import { WallEdge } from "./WallEdge.js";
 import { WallInside } from './WallInside.js'
 import { RoomEntrance } from './RoomEntrance.js'
+import { GameItem } from "./items/GameItem.js";
+import { MysteryItem } from "./items/MysteryItem.js";
+import { ExtraLife } from "./items/ExtraLife.js";
+import { GameKey } from "./items/GameKey.js";
+import { KeyHole } from "./items/KeyHole.js";
 
 let edges: WallEdge[] = []
 let insides: WallInside[] = []
@@ -10,6 +15,7 @@ let entrances: RoomEntrance[] = []
 let units: { drone?: number, jumper?: number }
 let spawnAreas: Rectangle[] = []
 let spawnPoint: Point
+let item: GameItem | undefined
 
 const loadRoom = (key: number) => {
   const data = rooms[key as keyof typeof rooms]
@@ -20,6 +26,21 @@ const loadRoom = (key: number) => {
   units = data.units
   spawnAreas = data.spawnAreas.map(a => new Rectangle(new Point(a[0], a[1]), new Point(a[2], a[3])))
   spawnPoint = new Point(data.spawnPoint[0], data.spawnPoint[1])
+  const itemObj: { type: string, position: [number, number], colour: string } | undefined = (data as any).item
+  if (itemObj === undefined) {
+    item = undefined
+  } else {
+    const p = new Point(itemObj.position[0], itemObj.position[1])
+    if (itemObj.type === 'mystery') {
+      item = new MysteryItem(p)
+    } else if (itemObj.type === 'extra life') {
+      item = new ExtraLife(p)
+    } else if (itemObj.type === 'key') {
+      item = new GameKey(p, itemObj.colour as any)
+    } else if (itemObj.type === 'keyhole') {
+      item = new KeyHole(p, itemObj.colour as any)
+    }
+  }
 }
 
 const circleCollision = (c: Circle, checkInsides?: true) => {
@@ -77,7 +98,7 @@ export const room = {
   get edges() {
     return edges
   },
-  get insides(){
+  get insides() {
     return insides
   },
   get units() {
@@ -88,5 +109,8 @@ export const room = {
   },
   get spawnPoint() {
     return spawnPoint
+  },
+  get item() {
+    return item
   }
 }
