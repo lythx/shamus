@@ -103,7 +103,6 @@ events.onMovementChange((isMoving, angle) => {
     player.move(angle ?? 0, infinity)
   }
 })
-events.onAction('shoot', () => player.shoot())
 events.onAction('debug', () => {
   debug = !debug
   if (!debug) {
@@ -129,6 +128,7 @@ events.onAction('editor', () => {
     editor.enable()
   }
 })
+events.onShot((angle) => player.shoot(angle))
 
 editor.onUpdate(() => renderRoom(editor.getObjects()))
 Enemy.onKill = (wasLastEnemy: boolean) => {

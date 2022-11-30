@@ -122,10 +122,10 @@ export class Player extends Fighter {
     this._move(new Vector(this.pos, angle, infinity))
   }
 
-  shoot(): void {
+  shoot(angle: number): void {
     if (this.nextShot > Date.now()) { return }
     this.nextShot = Date.now() + this.shotInterval
-    this._shoot(this._angle)
+    this._shoot(angle)
   }
 
 }
