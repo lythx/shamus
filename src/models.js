@@ -1,7 +1,7 @@
 export const models = {
   wall: {
-    horizontal: ['wall_horizontal1'],// 'wall_horizontal2', 'wall_horizontal3', 'wall_horizontal4'],
-    vertical: ['wall_vertical1'],// 'wall_vertical2', 'wall_vertical3', 'wall_vertical4'],
+    horizontal: ['wall_horizontal1', 'wall_horizontal2', 'wall_horizontal3', 'wall_horizontal4'],
+    vertical: ['wall_vertical1', 'wall_vertical2', 'wall_vertical3', 'wall_vertical4'],
     inside: {
       yellowCircle: 'yellow_circle'
     }

@@ -1,11 +1,14 @@
 export class Timer {
 
   readonly startTimestamp: number
-  readonly endTimestamp: number
+  endTimestamp: number
   readonly totalDuration: number
+  private savedRemainingTime: number = 0
+  isPaused = false
   private isStopped: boolean = false
   onEnd: ((wasInterrupted: boolean) => unknown) | undefined
   onUpdate: (() => unknown) | undefined
+  static timers: Timer[] = []
 
   /**
    * @param duration time in msec
@@ -15,9 +18,34 @@ export class Timer {
     this.endTimestamp = this.startTimestamp + duration
     this.totalDuration = duration
     this.cycle()
+    Timer.timers.push(this) // handle memory leak todo
+  }
+
+  static pause(): void {
+    for (let i = 0; i < this.timers.length; i++) {
+      this.timers[i].pause()
+    }
+  }
+
+  static resume(): void {
+    for (let i = 0; i < this.timers.length; i++) {
+      this.timers[i].resume()
+    }
+  }
+
+  pause() {
+    console.log('sus')
+    this.savedRemainingTime = this.remainingTime
+    this.isPaused = true
+  }
+
+  resume() {
+    this.endTimestamp = Date.now() + this.savedRemainingTime
+    this.isPaused = false
   }
 
   stop() {
+    
     this.isStopped = true
   }
 
@@ -41,6 +69,7 @@ export class Timer {
 
   private cycle() {
     const callback = () => {
+      if (this.isPaused) { return }
       if (Date.now() > this.endTimestamp || this.isStopped) {
         this.onUpdate?.()
         this.onEnd?.(this.isStopped)

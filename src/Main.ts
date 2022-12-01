@@ -4,7 +4,7 @@ import { Projectile } from "./Projectile.js";
 import { events } from './Events.js'
 import { Circle, Drawable, Point, Rectangle } from "./utils/Geometry.js";
 import { room } from './Room.js'
-import { renderDebug, renderRoom, renderRoomDebug, renderUi, renderUnits } from "./Renderer.js";
+import { renderDebug, renderRoom, renderRoomDebug, renderUi, renderUnits, UiData } from "./Renderer.js";
 import { Drone } from './enemies/Drone.js'
 import { Jumper } from './enemies/Jumper.js'
 import { Shadow } from './enemies/Shadow.js'
@@ -19,18 +19,23 @@ import { GameKey } from './items/GameKey.js'
 import { KeyHole } from './items/KeyHole.js'
 import { MysteryItem } from './items/MysteryItem.js'
 import { GameItem } from "./items/GameItem.js";
+import { Timer } from './Timer.js'
+
 
 let debug = false
 let isRunning = true
 let shadowSpawned = false
 const infinity = 10000000
-let score = 0
-let lifes = config.lifesAtStart
-let roomNumber = config.startingRoom
+const state: UiData = {
+  score: 0,
+  lifes: config.lifesAtStart,
+  room: config.startingRoom,
+  level: 'black',
+  keys: []
+}
 let lastKillOrRoomChange = 0
 let roomEdges: WallEdge[]
 let roomInsides: WallInside[]
-let keys: string[] = []
 let item: GameItem | undefined
 const unitClasses = {
   drone: Drone,
@@ -39,60 +44,36 @@ const unitClasses = {
 }
 
 ExtraLife.onCollect = () => {
-  lifes++
-  renderUi({
-    score,
-    lifes,
-    room: roomNumber,
-    level: 'black',
-    keys
-  })
+  state.lifes++
+  renderUi(state)
   item = undefined
 }
 
 GameKey.onCollect = (type) => {
-  keys.push(type)
+  state.keys.push(type)
   room.itemCollected('key', type)
   item = undefined
-  renderUi({
-    score,
-    lifes,
-    room: roomNumber,
-    level: 'black',
-    keys
-  })
+  renderUi(state)
 }
 
 KeyHole.onCollect = (type) => {
-  if (!keys.includes(type)) { return }
+  if (!state.keys.includes(type)) { return }
   item = undefined
   room.itemCollected('keyhole', type)
-  keys = keys.filter(a => a !== type)
+  state.keys = state.keys.filter(a => a !== type)
   room.deleteEdge(type)
   roomEdges = room.edges
-  renderUi({
-    score,
-    lifes,
-    room: roomNumber,
-    level: 'black',
-    keys
-  })
+  renderUi(state)
 }
 
 MysteryItem.onCollect = (action, amount) => {
   if (action === 'life') {
-    lifes += amount
+    state.lifes += amount
   } else if (action === 'points') {
-    score += amount
+    state.score += amount
   }
   item = undefined
-  renderUi({
-    score,
-    lifes,
-    room: roomNumber,
-    level: 'black',
-    keys
-  })
+  renderUi(state)
 }
 
 const spawnEnemies = (units: { drone?: number, jumper?: number }, spawnAreas: Rectangle[]) => {
@@ -135,25 +116,19 @@ const spawnEnemies = (units: { drone?: number, jumper?: number }, spawnAreas: Re
 }
 
 const onRoomChange = (roomNum: number, pos?: Point) => {
-  roomNumber = roomNum
+  state.room = roomNum
   Projectile.playerProjectiles.length = 0
   Projectile.enemyProjectiles.length = 0
   Enemy.enemies.length = 0
   player.stop()
   player.pos = new Point(-1, -1)
-  room.loadRoom(roomNumber)
+  room.loadRoom(state.room)
   player.pos = pos ?? room.spawnPoint
   roomEdges = room.edges
   roomInsides = room.insides
   item = room.item
   renderRoom(roomInsides)
-  renderUi({
-    score,
-    lifes,
-    room: roomNumber,
-    level: 'black',
-    keys
-  })
+  renderUi(state)
   spawnEnemies(room.units, room.spawnAreas)
   shadowSpawned = false
   lastKillOrRoomChange = Date.now()
@@ -162,10 +137,9 @@ const onRoomChange = (roomNum: number, pos?: Point) => {
   }
 }
 
-const startRoom = 0
 const player = new Player(new Point(-100, -100))
-room.loadRoom(startRoom)
-onRoomChange(startRoom)
+room.loadRoom(state.room)
+onRoomChange(state.room)
 
 events.onMovementChange((isMoving, angle) => {
   if (!isMoving) {
@@ -199,20 +173,20 @@ events.onAction('editor', () => {
     editor.enable()
   }
 })
+events.onAction('pause', () => {
+  console.log('pause')
+  //isRunning = false
+  Timer.pause()
+  setTimeout(() => isRunning = true, 1000)
+})
 events.onShot((angle) => player.shoot(angle))
 
 editor.onUpdate(() => renderRoom(editor.getObjects()))
 Enemy.onKill = (wasLastEnemy: boolean) => {
   lastKillOrRoomChange = Date.now()
-  score += config.killScore
-  if (wasLastEnemy) { score += config.clearRoomScore }
-  renderUi({
-    score,
-    lifes,
-    room: roomNumber,
-    level: 'black',
-    keys
-  })
+  state.score += config.killScore
+  if (wasLastEnemy) { state.score += config.clearRoomScore }
+  renderUi(state)
 }
 
 const lose = () => {
@@ -221,15 +195,15 @@ const lose = () => {
 
 player.onRoomChange = onRoomChange
 player.onDeath = async () => {
-  lifes--
-  if (lifes === 0) {
+  state.lifes--
+  if (state.lifes === 0) {
     lose()
     return
   }
   isRunning = false
   await new Promise(resolve => setTimeout(resolve, 1000))
   isRunning = true
-  onRoomChange(roomNumber)
+  onRoomChange(state.room)
 }
 
 const shadowPositions = [[0, 0], [1400, 0], [0, 800], [1400, 800]] as const

@@ -1,7 +1,7 @@
 import { Drawable } from "./utils/Geometry.js"
 import { config } from "./config.js"
 
-interface UiData {
+export interface UiData {
   score: number
   lifes: number
   room: number

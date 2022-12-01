@@ -1,7 +1,7 @@
 import { Point, Vector } from "./utils/Geometry.js"
 
 type Direction = 'up' | 'down' | 'left' | 'right'
-type Action = 'debug' | 'editor'
+type Action = 'debug' | 'editor' | 'pause'
 const movementListeners: ((isMoving: boolean, angle?: number) => void)[] = []
 const shotListeners: ((angle: number) => void)[] = []
 const directionKeys: { [direction in Direction]: string[] } = {
@@ -14,7 +14,8 @@ let lastMoveAngle = 0
 const shotKey = ' '
 const actionKeys: { [action in Action]: string[] } = {
   debug: ['r'],
-  editor: ['p']
+  editor: ['p'],
+  pause: ['Escape']
 }
 const actionListeners: { action: Action, callback: () => void }[] = []
 const pressedKeys: Direction[] = []
