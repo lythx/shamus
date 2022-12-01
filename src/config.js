@@ -48,14 +48,14 @@ export const config = {
   },
   drone: {
     movementOffset: 100,
-    modelUpdateInterval: 150,
+    modelUpdateInterval: 40,
     size: 25,
     speed: 100,
     maxShotAngleOffset: 30,
     projectile: {
       speed: 250,
       size: 5,
-      modelPath: 'drone/projectile',
+      modelPath: 'drone/projectile_blue',
       explosionRadius: 5
     },
     ai: {

@@ -19,8 +19,8 @@ export const models = {
     upright: ['right1', 'right1', 'right2', 'right2'],
   },
   drone: {
-    purple: ['purple1', 'purple2'],
-    blue: ['blue1', 'blue2']
+    purple: ['purple1', 'purple2', 'purple3', 'purple4'],
+    blue: ['blue1', 'blue2', 'blue3', 'blue4']
   },
   droid: {
     up: ['back1', 'back2', 'back3', 'back4', 'back3', 'back2'],

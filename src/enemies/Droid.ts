@@ -159,7 +159,7 @@ export class Droid extends Enemy {
 
   private updateModel() {
     if (Date.now() < this.modelChange) { return }
-    this.modelChange = Date.now() + config.droid.modelUpdateInterval
+    this.modelChange = Date.now() + this
     this.modelIndex++
     this.modelIndex = this.currentDirection ?
       this.modelIndex % this.models[this.currentDirection].length : 0
