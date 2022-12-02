@@ -1,6 +1,6 @@
-import { config } from "./config.js";
-import { models } from "./models.js";
-import { Drawable, Point, Rectangle } from "./utils/Geometry.js";
+import { config } from "../config.js";
+import { models } from "../models.js";
+import { Drawable, Point, Rectangle } from "../utils/Geometry.js";
 
 export class WallEdge extends Rectangle implements Drawable {
 

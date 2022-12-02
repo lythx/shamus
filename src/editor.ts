@@ -1,8 +1,9 @@
 import { rooms } from "./rooms.js"
 import { Point, Rectangle } from "./utils/Geometry.js"
-import { WallEdge } from "./WallEdge.js"
-import { WallInside } from "./WallInside.js"
+import { WallEdge } from "./room/WallEdge.js"
+import { WallInside } from "./room/WallInside.js"
 
+let placementCorrection = true
 const defaultRoom = 37
 const content = document.getElementById('content') as HTMLCanvasElement
 const wrapper = document.getElementById('wrapper') as HTMLElement
@@ -72,6 +73,8 @@ document.addEventListener('keydown', (e) => {
     const m = modeKeys[e.key as keyof typeof modeKeys]
     if (m !== undefined) {
       mode = m
+    } else if (e.key === 't') {
+      placementCorrection = !placementCorrection
     } else if (e.key === 's') {
       save()
     } else if (e.key === 'q') {
@@ -118,6 +121,7 @@ content.addEventListener('contextmenu', (e) => {
 })
 
 const getPoint = (x: number, y: number): Point => {
+  if (!placementCorrection) { return new Point(x, y) }
   if (x < 50) { x = 0 }
   if (y < 50) { y = 0 }
   if (x > 1350) { x = topPlacement ? 1360 : 1400 }

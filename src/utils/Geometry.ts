@@ -1,9 +1,12 @@
 import { config } from "../config.js"
 
+const debugCfg = config.debug
+
 const math = {
-  sin: (x: number) => Math.sin(Number(x.toFixed(4))),
-  cos: (x: number) => Math.cos(Number(x.toFixed(4))),
+  fixedSin: (x: number) => Math.sin(Number(x.toFixed(4))),
+  fixedCos: (x: number) => Math.cos(Number(x.toFixed(4))),
   degToRad: (deg: number) => deg * (Math.PI / 180),
+  radToDeg: (rad: number) => rad * (180 / Math.PI)
 }
 
 interface Drawable {
@@ -21,12 +24,12 @@ class Point implements Drawable {
   }
 
   draw(ctx: CanvasRenderingContext2D): void {
-    ctx.strokeStyle = '#FF0000'
+    const initialFillStyle = ctx.fillStyle
+    ctx.fillStyle = debugCfg.colours.point
     ctx.beginPath()
     ctx.arc(this.x, this.y, 5, 0, 2 * Math.PI)
-    ctx.fillStyle = '#FF0000'
     ctx.fill()
-    ctx.strokeStyle = '#FFFFFF'
+    ctx.fillStyle = initialFillStyle
   }
 
   static isPoint = (arg: any): arg is Point => arg.constructor.name === 'Point'
@@ -61,9 +64,9 @@ class Vector implements Drawable {
         throw new Error('Length is undefined or not a number in vector')
       }
       this.a = a
-      const radians = arg * Math.PI / 180
-      this.b = new Point(length * math.cos(radians) + a.x,
-        length * math.sin(radians) + a.y)
+      const radians = math.degToRad(arg)
+      this.b = new Point(length * math.fixedCos(radians) + a.x,
+        length * math.fixedSin(radians) + a.y)
     } else {
       this.a = a
       this.b = arg
@@ -71,10 +74,13 @@ class Vector implements Drawable {
   }
 
   draw(ctx: CanvasRenderingContext2D): void {
+    const initialStrokeStyle = ctx.strokeStyle
+    ctx.strokeStyle = debugCfg.colours.vector
     ctx.beginPath()
     ctx.moveTo(this.a.x, this.a.y)
     ctx.lineTo(this.b.x, this.b.y)
     ctx.stroke()
+    ctx.strokeStyle = initialStrokeStyle
   }
 
   static isVector = (arg: any): arg is Vector => arg.constructor.name === 'Vector'
@@ -94,42 +100,35 @@ class Vector implements Drawable {
 
   get angle(): number {
     const angle = Math.atan2(this.b.y - this.a.y, this.b.x - this.a.x)
-    const degrees = 180 * angle / Math.PI;
+    const degrees = math.radToDeg(angle)
     return (360 + Math.round(degrees)) % 360
   }
 
-  containsPoint(v: Vector, p: Point, lineThickness = 1) {
-    const L2 = (((v.b.x - v.a.x) * (v.b.x - v.a.x)) + ((v.b.y - v.a.y) * (v.b.y - v.a.y)));
-    if (L2 == 0) return false;
-    const r = (((p.x - v.a.x) * (v.b.x - v.a.x)) + ((p.y - v.a.y) * (v.b.y - v.a.y))) / L2;
-    //Assume line thickness is circular
+  containsPoint(v: Vector, p: Point, vectorThickness: number = 1): boolean {
+    const d2 = (v.b.x - v.a.x) * (v.b.x - v.a.x) + (v.b.y - v.a.y) * (v.b.y - v.a.y)
+    if (d2 === 0) { return false }
+    const r = (((p.x - v.a.x) * (v.b.x - v.a.x)) + ((p.y - v.a.y) * (v.b.y - v.a.y))) / d2
     if (r < 0) {
-      //Outside v.a
-      return (Math.sqrt(((v.a.x - p.x) * (v.a.x - p.x)) + ((v.a.y - p.y) * (v.a.y - p.y))) <= lineThickness);
+      return (Math.sqrt(((v.a.x - p.x) * (v.a.x - p.x)) + ((v.a.y - p.y) * (v.a.y - p.y))) <= vectorThickness)
     } else if ((0 <= r) && (r <= 1)) {
-      //On the line segment
-      const s = (((v.a.y - p.y) * (v.b.x - v.a.x)) - ((v.a.x - p.x) * (v.b.y - v.a.y))) / L2;
-      return (Math.abs(s) * Math.sqrt(L2) <= lineThickness);
+      const s = (((v.a.y - p.y) * (v.b.x - v.a.x)) - ((v.a.x - p.x) * (v.b.y - v.a.y))) / d2
+      return (Math.abs(s) * Math.sqrt(d2) <= vectorThickness)
     } else {
-      //Outside v.b
-      return (Math.sqrt(((v.b.x - p.x) * (v.b.x - p.x)) + ((v.b.y - p.y) * (v.b.y - p.y))) <= lineThickness);
+      return (Math.sqrt(((v.b.x - p.x) * (v.b.x - p.x)) + ((v.b.y - p.y) * (v.b.y - p.y))) <= vectorThickness)
     }
   }
 
   intersection(v: Vector): Point | undefined {
-    const c2x = v.a.x - v.b.x; // (x3 - x4)
-    const c3x = this.a.x - this.b.x; // (x1 - x2)
-    const c2y = v.a.y - v.b.y; // (y3 - y4)
-    const c3y = this.a.y - this.b.y; // (y1 - y2)
-    // down part of intersection point formula
+    const c2x = v.a.x - v.b.x
+    const c3x = this.a.x - this.b.x
+    const c2y = v.a.y - v.b.y
+    const c3y = this.a.y - this.b.y
     const d = c3x * c2y - c3y * c2x;
     if (d === 0) { return }
-    // upper part of intersection point formula
-    const u1 = this.a.x * this.b.y - this.a.y * this.b.x; // (x1 * y2 - y1 * x2)
-    const u4 = v.a.x * v.b.y - v.a.y * v.b.x; // (x3 * y4 - y3 * x4)
-    // intersection point formula
-    const px = (u1 * c2x - c3x * u4) / d;
-    const py = (u1 * c2y - c3y * u4) / d;
+    const u1 = this.a.x * this.b.y - this.a.y * this.b.x
+    const u4 = v.a.x * v.b.y - v.a.y * v.b.x
+    const px = (u1 * c2x - c3x * u4) / d
+    const py = (u1 * c2y - c3y * u4) / d
     const p = new Point(px, py)
     if (this.containsPoint(v, p) && this.containsPoint(this, p)) {
       return new Point(px, py);
@@ -194,10 +193,12 @@ class Rectangle implements Drawable {
   }
 
   draw(ctx: CanvasRenderingContext2D): void {
-    ctx.strokeStyle = config.debugColor
+    const initialStrokeStyle = ctx.strokeStyle
+    ctx.strokeStyle = debugCfg.colours.rectangle
     ctx.beginPath()
     ctx.rect(this.a.x, this.a.y, this.width, this.height)
     ctx.stroke()
+    ctx.strokeStyle = initialStrokeStyle
   }
 
   static isRectangle = (arg: any): arg is Rectangle => arg.constructor.name === 'Rectangle'
@@ -223,13 +224,6 @@ class Rectangle implements Drawable {
     const dx = distX - this.width / 2
     const dy = distY - this.height / 2
     return dx ** 2 + dy ** 2 <= circle.radius ** 2;
-  }
-
-  vectorCollision(v: Vector): boolean {
-    for (let i = 0; i < this.vecs.length; i++) {
-      if (this.vecs[i].intersection(v) !== undefined) { return true }
-    }
-    return false
   }
 
   vectorIntersection(v: Vector): undefined | Point {
@@ -261,9 +255,12 @@ class Circle implements Drawable {
   }
 
   draw(ctx: CanvasRenderingContext2D): void {
+    const initialStrokeStyle = ctx.strokeStyle
+    ctx.strokeStyle = debugCfg.colours.circle
     ctx.beginPath()
     ctx.arc(this.center.x, this.center.y, this.radius, 0, 2 * Math.PI)
     ctx.stroke()
+    ctx.strokeStyle = initialStrokeStyle
   }
 
   static isCircle = (arg: any): arg is Circle => arg.constructor.name === 'Circle'

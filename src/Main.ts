@@ -3,15 +3,15 @@ import { Player } from "./Player.js";
 import { Projectile } from "./Projectile.js";
 import { events } from './Events.js'
 import { Circle, Drawable, Point, Rectangle } from "./utils/Geometry.js";
-import { room } from './Room.js'
+import { room } from './room/Room.js'
 import { renderDebug, renderRoom, renderRoomDebug, renderUi, renderUnits, UiData } from "./Renderer.js";
 import { Drone } from './enemies/Drone.js'
 import { Jumper } from './enemies/Jumper.js'
 import { Shadow } from './enemies/Shadow.js'
 import { Droid } from './enemies/Droid.js'
 import { editor } from "./editor.js";
-import { WallEdge } from "./WallEdge.js";
-import { WallInside } from "./WallInside.js";
+import { WallEdge } from "./room/WallEdge.js";
+import { WallInside } from "./room/WallInside.js";
 import { Explosion } from "./Explosion.js";
 import { config } from "./config.js";
 import { ExtraLife } from './items/ExtraLife.js'
@@ -19,7 +19,7 @@ import { GameKey } from './items/GameKey.js'
 import { KeyHole } from './items/KeyHole.js'
 import { MysteryItem } from './items/MysteryItem.js'
 import { GameItem } from "./items/GameItem.js";
-import { Timer } from './Timer.js'
+import { Timer } from './utils/Timer.js'
 
 
 let debug = false
@@ -34,9 +34,11 @@ const state: UiData = {
   keys: []
 }
 let lastKillOrRoomChange = 0
-let roomEdges: WallEdge[]
-let roomInsides: WallInside[]
-let item: GameItem | undefined
+const currentRoom: {
+  edges: WallEdge[],
+  insides: WallInside[],
+  item: GameItem | undefined
+} = { edges: [], insides: [], item: undefined }
 const unitClasses = {
   drone: Drone,
   jumper: Jumper,
@@ -46,23 +48,23 @@ const unitClasses = {
 ExtraLife.onCollect = () => {
   state.lifes++
   renderUi(state)
-  item = undefined
+  currentRoom.item = undefined
 }
 
 GameKey.onCollect = (type) => {
   state.keys.push(type)
   room.itemCollected('key', type)
-  item = undefined
+  currentRoom.item = undefined
   renderUi(state)
 }
 
 KeyHole.onCollect = (type) => {
   if (!state.keys.includes(type)) { return }
-  item = undefined
+  currentRoom.item = undefined
   room.itemCollected('keyhole', type)
   state.keys = state.keys.filter(a => a !== type)
   room.deleteEdge(type)
-  roomEdges = room.edges
+  currentRoom.edges = room.edges
   renderUi(state)
 }
 
@@ -72,7 +74,7 @@ MysteryItem.onCollect = (action, amount) => {
   } else if (action === 'points') {
     state.score += amount
   }
-  item = undefined
+  currentRoom.item = undefined
   renderUi(state)
 }
 
@@ -124,16 +126,16 @@ const onRoomChange = (roomNum: number, pos?: Point) => {
   player.pos = new Point(-1, -1)
   room.loadRoom(state.room)
   player.pos = pos ?? room.spawnPoint
-  roomEdges = room.edges
-  roomInsides = room.insides
-  item = room.item
-  renderRoom(roomInsides)
+  currentRoom.edges = room.edges
+  currentRoom.insides = room.insides
+  currentRoom.item = room.item
+  renderRoom(currentRoom.insides)
   renderUi(state)
   spawnEnemies(room.units, room.spawnAreas)
   shadowSpawned = false
   lastKillOrRoomChange = Date.now()
   if (debug) {
-    renderRoomDebug(roomEdges.flatMap(a => a.vecs))
+    renderRoomDebug(currentRoom.edges.flatMap(a => a.vecs))
   }
 }
 
@@ -154,7 +156,7 @@ events.onAction('debug', () => {
     renderDebug([])
     renderRoomDebug([])
   } else {
-    renderRoomDebug(roomEdges.flatMap(a => a.vecs))
+    renderRoomDebug(currentRoom.edges.flatMap(a => a.vecs))
   }
 })
 events.onAction('editor', () => {
@@ -164,8 +166,8 @@ events.onAction('editor', () => {
     Enemy.enemies.length = 0
     player.stop()
     isRunning = false
-    roomEdges = []
-    roomInsides = []
+    currentRoom.edges = []
+    currentRoom.insides = []
     renderRoom([])
     renderRoomDebug([])
     renderDebug([])
@@ -220,7 +222,7 @@ const spawnShadow = () => {
 const gameLoop = () => {
   requestAnimationFrame(gameLoop)
   if (!isRunning) { return }
-  if (shadowSpawned === false && lastKillOrRoomChange + config.shadowSpawnTimeout < Date.now()) {
+  if (shadowSpawned === false && lastKillOrRoomChange + config.shadow.spawnTimeout < Date.now()) {
     spawnShadow()
   }
   player.update()
@@ -233,8 +235,8 @@ const gameLoop = () => {
   for (let i = 0; i < Enemy.enemies.length; i++) {
     Enemy.enemies[i].update(player.pos)
   }
-  if (item !== undefined) {
-    item.checkCollision(player)
+  if (currentRoom.item !== undefined) {
+    currentRoom.item.checkCollision(player)
   }
   const objects: Drawable[] = [player]
   let index = 1
@@ -247,17 +249,17 @@ const gameLoop = () => {
   for (let i = 0; i < Enemy.enemies.length; i++) {
     objects[index++] = Enemy.enemies[i]
   }
-  for (let i = 0; i < roomEdges.length; i++) {
-    objects[index++] = roomEdges[i]
+  for (let i = 0; i < currentRoom.edges.length; i++) {
+    objects[index++] = currentRoom.edges[i]
   }
   for (let i = 0; i < Explosion.explosions.length; i++) {
     objects[index++] = Explosion.explosions[i]
   }
-  if (item !== undefined) {
-    objects[index++] = item
+  if (currentRoom.item !== undefined) {
+    objects[index++] = currentRoom.item
   }
   renderUnits(objects)
-  renderRoom(roomInsides)
+  renderRoom(currentRoom.insides)
   if (debug) {
     const objects: Drawable[] = [player.hitbox]
     let index = 1

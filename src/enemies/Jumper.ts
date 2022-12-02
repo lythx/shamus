@@ -1,7 +1,7 @@
 import { config } from '../config.js'
 import { Enemy } from '../Enemy.js'
 import { models } from '../models.js'
-import { room } from '../Room.js'
+import { room } from '../room/Room.js'
 import { Circle, Point, Vector } from '../utils/Geometry.js'
 
 export class Jumper extends Enemy {

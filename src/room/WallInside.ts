@@ -1,5 +1,5 @@
-import { models } from "./models.js";
-import { Drawable, Point, Rectangle } from "./utils/Geometry.js";
+import { models } from "../models.js";
+import { Drawable, Point, Rectangle } from "../utils/Geometry.js";
 
 export class WallInside extends Rectangle implements Drawable {
 

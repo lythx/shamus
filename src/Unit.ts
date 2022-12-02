@@ -1,5 +1,5 @@
 import { config } from "./config.js";
-import { LinearTween } from "./Tweens.js";
+import { Tween } from "./utils/Tween.js";
 import { Circle, Drawable, Point, Rectangle, Vector } from "./utils/Geometry.js";
 
 export interface UnitOptions {
@@ -14,7 +14,7 @@ export abstract class Unit implements Drawable {
   private _pos: Point
   readonly size: number
   readonly speed: number
-  protected tween: LinearTween
+  protected tween: Tween
   readonly side: 'player' | 'enemy'
   protected _angle: number = 0
   readonly hitbox: Circle
@@ -26,7 +26,7 @@ export abstract class Unit implements Drawable {
     this.speed = options.speed
     this.side = options.side
     this.hitbox = new Circle(this._pos, this.size)
-    this.tween = new LinearTween(this._pos, this._pos, this.speed)
+    this.tween = new Tween(this._pos, this._pos, this.speed)
   }
 
   protected _move(v: Vector) {

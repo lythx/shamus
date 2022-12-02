@@ -1,13 +1,13 @@
-import { Circle, Point, Rectangle, Vector } from "./utils/Geometry.js";
-import { rooms } from './rooms.js'
+import { Circle, Point, Rectangle, Vector } from "../utils/Geometry.js";
+import { rooms } from '../rooms.js'
 import { WallEdge } from "./WallEdge.js";
 import { WallInside } from './WallInside.js'
 import { RoomEntrance } from './RoomEntrance.js'
-import { GameItem } from "./items/GameItem.js";
-import { MysteryItem } from "./items/MysteryItem.js";
-import { ExtraLife } from "./items/ExtraLife.js";
-import { GameKey } from "./items/GameKey.js";
-import { KeyHole } from "./items/KeyHole.js";
+import { GameItem } from "../items/GameItem.js";
+import { MysteryItem } from "../items/MysteryItem.js";
+import { ExtraLife } from "../items/ExtraLife.js";
+import { GameKey } from "../items/GameKey.js";
+import { KeyHole } from "../items/KeyHole.js";
 
 let edges: WallEdge[] = []
 let insides: WallInside[] = []

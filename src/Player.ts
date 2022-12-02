@@ -3,7 +3,7 @@ import { Enemy } from "./Enemy.js";
 import { Fighter } from "./Fighter.js";
 import { models } from "./models.js";
 import { Projectile } from "./Projectile.js";
-import { room } from "./Room.js";
+import { room } from "./room/Room.js";
 import { Point, Vector } from "./utils/Geometry.js";
 
 type Direction = 'right' | 'downright' | 'down' | 'downleft' | 'left' | 'upleft' | 'up' | 'upright'

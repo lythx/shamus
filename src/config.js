@@ -1,5 +1,21 @@
 export const config = {
-  shadowSpawnTimeout: 10000,
+  debug: {
+    colours: {
+      point: '#FF0000',
+      rectangle: '#FFFFFF',
+      circle: '#FFFFFF',
+      vector: '#FFFFFF'
+    }
+  },
+
+
+
+
+
+
+
+
+
   startingRoom: 0,
   speedMultiplier: 20,
   wallUpdateInterval: 100,
@@ -87,6 +103,7 @@ export const config = {
     }
   },
   shadow: {
+    spawnTimeout: 10000,
     modelUpdateInterval: 500,
     movementOffset: 30,
     size: 25,
