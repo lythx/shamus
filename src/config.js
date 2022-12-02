@@ -7,6 +7,29 @@ export const config = {
       vector: '#FFFFFF'
     }
   },
+  controls: {
+    keyboard: {
+      movement: {
+        up: ['w', 'W', 'ArrowUp'],
+        down: ['s', 'S', 'ArrowDown'],
+        left: ['a', 'A', 'ArrowLeft'],
+        right: ['d', 'D', 'ArrowRight']
+      },
+      actions: {
+        shoot: [' '],
+        menu: ['Escape'],
+        debug: ['Control'], // TODO check if works
+        editor: ['p']
+      }
+    },
+    gamepad: {
+      movementAxis: -1, // todo
+      shoot: -1,
+      menu: -1,
+      debug: -1,
+      editor: -1
+    }
+  },
 
 
 
@@ -37,7 +60,7 @@ export const config = {
     speed: 190,
     projectile: {
       speed: 700,
-      size: 10,
+      size: 15,
       explosionRadius: 50
     }
   },

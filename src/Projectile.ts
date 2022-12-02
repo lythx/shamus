@@ -1,7 +1,7 @@
 import { Enemy } from "./Enemy.js";
 import { room } from "./room/Room.js";
 import { Unit } from "./Unit.js";
-import { Circle, math, Point, Vector } from "./utils/Geometry.js";
+import { Circle, math, Point } from "./utils/Geometry.js";
 const infinty = 10000000
 
 interface ProjectileOptions {
@@ -24,7 +24,6 @@ export class Projectile extends Unit {
 
   constructor(options: ProjectileOptions, shooter: Unit) {
     super(options)
-    //this.pos = new Vector(this.pos, this.angle, this.size * 2).b
     this.move(options.angle, infinty)
     this.side === 'player' ? Projectile.playerProjectiles.push(this)
       : Projectile.enemyProjectiles.push(this)
@@ -63,7 +62,7 @@ export class Projectile extends Unit {
     ctx.save()
     ctx.translate(this.x, this.y)
     ctx.rotate(math.degToRad(this.angle))
-    ctx.drawImage(this.image, -this.size * 3, -this.size * 0.75, this.size * 6, this.size * 1.5)
+    ctx.drawImage(this.image, -this.size * 3, -this.size * 0.75, this.size * 6, this.size * 1.5) // TODO maybe config?
     ctx.restore()
   }
 
@@ -86,11 +85,11 @@ export class Projectile extends Unit {
     this.tween?.stop()
     if (this.side === 'enemy') {
       const index = Projectile.enemyProjectiles.indexOf(this)
-      if (index === -1) { return }//throw new Error(`Enemy projectile ${this.constructor.name} not in list on delete`) } TODO
+      if (index === -1) { return }
       Projectile.enemyProjectiles.splice(index, 1)
     } else {
       const index = Projectile.playerProjectiles.indexOf(this)
-      if (index === -1) { return } // throw new Error(`Player projectile ${this.constructor.name} not in list on delete`) }
+      if (index === -1) { return }
       Projectile.playerProjectiles.splice(index, 1)
     }
   }

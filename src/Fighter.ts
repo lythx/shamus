@@ -5,8 +5,8 @@ import { Unit } from "./Unit.js"
 interface FighterOptions {
   pos: Point
   size: number
-  speed: number
-  projectile: {
+  speed?: number
+  projectile?: {
     speed: number
     size: number
     image: HTMLImageElement
@@ -25,10 +25,10 @@ export abstract class Fighter extends Unit {
 
   constructor(options: FighterOptions) {
     super(options)
-    this.projectileSpeed = options.projectile.speed
-    this.projectileSize = options.projectile.size
-    this.projectileImage = options.projectile.image
-    this.projectileExplosion = options.projectile.explosionRadius
+    this.projectileSpeed = options.projectile?.speed ?? -1
+    this.projectileSize = options.projectile?.size ?? -1
+    this.projectileImage = options.projectile?.image ?? new Image()
+    this.projectileExplosion = options.projectile?.explosionRadius ?? -1
   }
 
   /**

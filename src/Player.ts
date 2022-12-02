@@ -5,8 +5,8 @@ import { models } from "./models.js";
 import { Projectile } from "./Projectile.js";
 import { room } from "./room/Room.js";
 import { Point, Vector } from "./utils/Geometry.js";
+import { Direction8, angle8Directions } from './utils/Directions.js'
 
-type Direction = 'right' | 'downright' | 'down' | 'downleft' | 'left' | 'upleft' | 'up' | 'upright'
 const infinity = 1000000
 
 export class Player extends Fighter {
@@ -17,17 +17,8 @@ export class Player extends Fighter {
   nextModelUpdate: number = 0
   onRoomChange: ((room: number, pos: Point) => void) | undefined
   onDeath: () => void = () => undefined
-  readonly directions: { [key: number]: Direction } = {
-    0: 'right',
-    45: 'downright',
-    90: 'down',
-    135: 'downleft',
-    180: 'left',
-    225: 'upleft',
-    270: 'up',
-    315: 'upright'
-  }
-  readonly models: { [direction in Direction]: HTMLImageElement[] } = {
+  readonly directions = angle8Directions
+  readonly models: { [direction in Direction8]: HTMLImageElement[] } = {
     right: [],
     downright: [],
     down: [],
@@ -38,7 +29,7 @@ export class Player extends Fighter {
     upright: []
   }
   readonly shotInterval = config.player.shotInterval
-  currentDirection: typeof this.directions[keyof typeof this.directions] | undefined
+  currentDirection: Direction8 | undefined
   modelIndex = 0
 
   constructor(pos: Point) {
@@ -56,8 +47,8 @@ export class Player extends Fighter {
     this.projectileSpeed = config.player.projectile.speed
     this.projectileSize = config.player.projectile.size
     for (const key in this.models) {
-      this.models[key as keyof typeof this.models] =
-        models.player[key as keyof typeof models.player]
+      this.models[key as Direction8] =
+        models.player[key as Direction8]
           .map(a => {
             const img = new Image()
             img.src = `./assets/player/${a}.png`
@@ -115,16 +106,16 @@ export class Player extends Fighter {
     this.tween?.stop()
   }
 
-  move(angle: number, length: number): void {
+  move(angle: number): void {
     this.currentDirection = this.directions[angle]
     this.modelIndex = 0
     this._move(new Vector(this.pos, angle, infinity))
   }
 
-  shoot(angle: number): void {
+  shoot(): void {
     if (this.nextShot > Date.now()) { return }
     this.nextShot = Date.now() + this.shotInterval
-    this._shoot(angle)
+    this._shoot(this._angle)
   }
 
 }

@@ -1,11 +1,11 @@
 import { config } from "./config.js";
 import { Tween } from "./utils/Tween.js";
-import { Circle, Drawable, Point, Rectangle, Vector } from "./utils/Geometry.js";
+import { Circle, Drawable, Point, Vector } from "./utils/Geometry.js";
 
 export interface UnitOptions {
   pos: Point
   size: number
-  speed: number
+  speed?: number
   side: 'player' | 'enemy'
 }
 
@@ -23,7 +23,7 @@ export abstract class Unit implements Drawable {
   constructor(options: UnitOptions) {
     this._pos = options.pos
     this.size = options.size
-    this.speed = options.speed
+    this.speed = options.speed ?? -1
     this.side = options.side
     this.hitbox = new Circle(this._pos, this.size)
     this.tween = new Tween(this._pos, this._pos, this.speed)

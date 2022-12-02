@@ -25,7 +25,6 @@ import { Timer } from './utils/Timer.js'
 let debug = false
 let isRunning = true
 let shadowSpawned = false
-const infinity = 10000000
 const state: UiData = {
   score: 0,
   lifes: config.lifesAtStart,
@@ -147,9 +146,10 @@ events.onMovementChange((isMoving, angle) => {
   if (!isMoving) {
     player.stop()
   } else {
-    player.move(angle ?? 0, infinity)
+    player.move(angle ?? 0)
   }
 })
+events.onAction('shoot', () => player.shoot())
 events.onAction('debug', () => {
   debug = !debug
   if (!debug) {
@@ -175,8 +175,8 @@ events.onAction('editor', () => {
     editor.enable()
   }
 })
-events.onAction('pause', () => {
-  console.log('pause')
+events.onAction('menu', () => {
+  console.log('pause') // todo
   isRunning = false
   Timer.pause()
   setTimeout(() => {
@@ -184,7 +184,6 @@ events.onAction('pause', () => {
     Timer.resume()
   }, 1000)
 })
-events.onShot((angle) => player.shoot(angle))
 
 editor.onUpdate(() => renderRoom(editor.getObjects()))
 Enemy.onKill = (wasLastEnemy: boolean) => {

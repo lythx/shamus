@@ -1,12 +1,13 @@
 export class Timer {
 
-  startTimestamp: number = 0
-  endTimestamp: number = 0
+  startTimestamp: number = -1
+  endTimestamp: number = -1
   static isStopped = false
-  totalDuration: number = 0
-  private savedRemainingTime: number = 0
+  totalDuration: number = -1
+  isStarted = false
+  private savedRemainingTime: number = -1
   isPaused = false
-  private isStopped: boolean = false
+  isStopped: boolean = false
   onEnd: ((wasInterrupted: boolean) => unknown) | undefined
   onUpdate: (() => unknown) | undefined
   static timers: Timer[] = []
@@ -34,16 +35,19 @@ export class Timer {
     this.endTimestamp = this.startTimestamp + duration
     this.totalDuration = duration
     this.cycle()
+    this.isStarted = true
     if (Timer.isStopped) { this.pause() }
     return this
   }
 
   pause() {
+    if (!this.isStarted) { return }
     this.savedRemainingTime = this.remainingTime
     this.isPaused = true
   }
 
   resume() {
+    if (!this.isStarted) { return }
     this.endTimestamp = Date.now() + this.savedRemainingTime
     this.isPaused = false
     this.cycle()

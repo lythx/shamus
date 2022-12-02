@@ -1,4 +1,3 @@
-import { config } from "./config.js";
 import { Explosion } from "./Explosion.js";
 import { Fighter } from "./Fighter.js";
 import { Point, Vector } from "./utils/Geometry.js";
@@ -8,7 +7,7 @@ interface EnemyOptions {
   pos: Point
   size: number
   speed: number
-  projectile: {
+  projectile?: {
     speed: number
     size: number
     modelPath: string
@@ -25,9 +24,13 @@ export abstract class Enemy extends Fighter {
   protected readonly maxAngleOffset: number
 
   constructor(options: EnemyOptions, moveAngles?: number[]) {
-    const projectileImg = new Image()
-    projectileImg.src = `./assets/${options.projectile.modelPath}.png`
-    super({ ...options, side: 'enemy', projectile: { ...options.projectile, image: projectileImg } })
+    if (options.projectile !== undefined) {
+      const projectileImg = new Image()
+      projectileImg.src = `./assets/${options.projectile.modelPath}.png`
+      super({ ...options, side: 'enemy', projectile: { ...options.projectile, image: projectileImg } })
+    } else {
+      super({ pos: options.pos, size: options.size, speed: options.speed, side: 'enemy' })
+    }
     Enemy.enemies.push(this)
     if (moveAngles !== undefined) {
       this.moveAngles = moveAngles
@@ -43,7 +46,7 @@ export abstract class Enemy extends Fighter {
     this.tween?.stop()
     if (this.side === 'enemy') {
       const index = Enemy.enemies.indexOf(this)
-      if (index === -1) { throw new Error(`Enemy ${this.constructor.name} not in enemy list on delete`) }
+      if (index === -1) { return }
       Enemy.enemies.splice(index, 1)
       Enemy.onKill(Enemy.enemies.length === 0)
       new Explosion(this.pos)
@@ -52,9 +55,9 @@ export abstract class Enemy extends Fighter {
 
   move(angle: number, length: number): void {
     let trimmedAngle = 0
-    for (const e of this.moveAngles) {
-      if (Math.abs(e - angle) <= this.maxAngleOffset) {
-        trimmedAngle = e
+    for (let i = 0; i < this.moveAngles.length; i++) {
+      if (Math.abs(this.moveAngles[i] - angle) <= this.maxAngleOffset) {
+        trimmedAngle = this.moveAngles[i]
         break
       }
     }

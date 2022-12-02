@@ -28,7 +28,7 @@ export class Explosion extends Circle {
       this.currentModel++
       if (this.currentModel >= Explosion.models.length) {
         const index = Explosion.explosions.indexOf(this)
-        if (index === -1) { throw new Error(`Explosion not in explosions list on delete`) }
+        if (index === -1) { return }
         Explosion.explosions.splice(index, 1)
       }
     }
