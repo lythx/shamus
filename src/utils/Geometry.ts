@@ -149,7 +149,7 @@ class Vector implements Drawable {
   }
 
   set angle(angle: number) {
-    const radians = angle * Math.PI / 180
+    const radians = math.degToRad(angle)
     this.b = new Point(this.length * Math.cos(radians) + this.a.x,
       this.length * Math.sin(radians) + this.a.y)
   }
