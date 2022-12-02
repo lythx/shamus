@@ -175,9 +175,12 @@ events.onAction('editor', () => {
 })
 events.onAction('pause', () => {
   console.log('pause')
-  //isRunning = false
+  isRunning = false
   Timer.pause()
-  setTimeout(() => isRunning = true, 1000)
+  setTimeout(() => {
+    isRunning = true
+    Timer.resume()
+  }, 1000)
 })
 events.onShot((angle) => player.shoot(angle))
 
@@ -210,7 +213,7 @@ const shadowPositions = [[0, 0], [1400, 0], [0, 800], [1400, 800]] as const
 
 const spawnShadow = () => {
   shadowSpawned = true
-  const coords = shadowPositions[3]//~~(Math.random() * shadowPositions.length)]
+  const coords = shadowPositions[~~(Math.random() * shadowPositions.length)]
   new Shadow(new Point(coords[0], coords[1]))
 }
 

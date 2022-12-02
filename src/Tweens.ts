@@ -13,7 +13,7 @@ export class LinearTween {
 
   constructor(start: Point, end: Point, speed: number) {
     this.vector = new Vector(start, end)
-    this.timer = new Timer((this.vector.length * 10000) / (speed * config.speedMultiplier))
+    this.timer = new Timer().start((this.vector.length * 10000) / (speed * config.speedMultiplier))
     this.currentPosition = start
     this.destination = end
     this.timer.onUpdate = () => {
@@ -30,7 +30,7 @@ export class LinearTween {
   reset(start: Point, end: Point, speed: number) {
     this.stop()
     this.vector = new Vector(start, end)
-    this.timer = new Timer((this.vector.length * 10000) / (speed * config.speedMultiplier))
+    this.timer = new Timer().start((this.vector.length * 10000) / (speed * config.speedMultiplier))
     this.currentPosition = start
     this.destination = end
     this.timer.onUpdate = () => {

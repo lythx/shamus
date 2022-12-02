@@ -33,9 +33,9 @@ export abstract class Unit implements Drawable {
     this._angle = v.angle
     const destination = v.b
     this.tween.reset(this._pos, destination, this.speed)
-    this.tween.onUpdate = (_pos) => {
-      this._pos = _pos
-      this.hitbox.center = _pos
+    this.tween.onUpdate = (pos) => {
+      this._pos = pos
+      this.hitbox.center = pos
     }
   }
 

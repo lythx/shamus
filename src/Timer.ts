@@ -1,8 +1,9 @@
 export class Timer {
 
-  readonly startTimestamp: number
-  endTimestamp: number
-  readonly totalDuration: number
+  startTimestamp: number = 0
+  endTimestamp: number = 0
+  static isStopped = false
+  totalDuration: number = 0
   private savedRemainingTime: number = 0
   isPaused = false
   private isStopped: boolean = false
@@ -10,31 +11,34 @@ export class Timer {
   onUpdate: (() => unknown) | undefined
   static timers: Timer[] = []
 
-  /**
-   * @param duration time in msec
-   */
-  constructor(duration: number) {
-    this.startTimestamp = Date.now()
-    this.endTimestamp = this.startTimestamp + duration
-    this.totalDuration = duration
-    this.cycle()
-    Timer.timers.push(this) // handle memory leak todo
+  constructor() {
+    Timer.timers.push(this)
   }
 
   static pause(): void {
+    Timer.isStopped = true
     for (let i = 0; i < this.timers.length; i++) {
       this.timers[i].pause()
     }
   }
 
   static resume(): void {
+    Timer.isStopped = false
     for (let i = 0; i < this.timers.length; i++) {
       this.timers[i].resume()
     }
   }
 
+  start(duration: number) {
+    this.startTimestamp = Date.now()
+    this.endTimestamp = this.startTimestamp + duration
+    this.totalDuration = duration
+    this.cycle()
+    if (Timer.isStopped) { this.pause() }
+    return this
+  }
+
   pause() {
-    console.log('sus')
     this.savedRemainingTime = this.remainingTime
     this.isPaused = true
   }
@@ -42,10 +46,10 @@ export class Timer {
   resume() {
     this.endTimestamp = Date.now() + this.savedRemainingTime
     this.isPaused = false
+    this.cycle()
   }
 
   stop() {
-    
     this.isStopped = true
   }
 
@@ -55,8 +59,7 @@ export class Timer {
   }
 
   get passedTime(): number {
-    const t = Date.now() - this.startTimestamp
-    return this.endTimestamp > t ? t : this.endTimestamp
+    return this.totalDuration - this.remainingTime
   }
 
   get remainingTimeRatio(): number {
@@ -75,6 +78,10 @@ export class Timer {
         this.onEnd?.(this.isStopped)
         this.onUpdate = undefined
         this.onEnd = undefined
+        const index = Timer.timers.indexOf(this)
+        if (index !== -1) {
+          Timer.timers.splice(index, 1)
+        }
         return
       }
       this.onUpdate?.()
