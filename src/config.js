@@ -7,6 +7,13 @@ export const config = {
       vector: '#FFFFFF'
     }
   },
+  gamepad: {
+    axes: {
+      left: { x: 0, y: 1 },
+      right: { x: 2, y: 3 }
+    },
+    minMovementDetection: 0.1
+  },
   controls: {
     keyboard: {
       movement: {
@@ -23,11 +30,13 @@ export const config = {
       }
     },
     gamepad: {
-      movementAxis: -1, // todo
-      shoot: -1,
-      menu: -1,
-      debug: -1,
-      editor: -1
+      movementAxis: 'left', // left or right
+      actions: {
+        shoot: [-1],
+        menu: [-1],
+        debug: [-1],
+        editor: [-1]
+      }
     }
   },
 

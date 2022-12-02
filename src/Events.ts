@@ -6,13 +6,15 @@ type Action = 'debug' | 'editor' | 'menu' | 'shoot'
 const movementListeners: ((isMoving: boolean, angle?: number) => void)[] = []
 const shotListeners: ((angle: number) => void)[] = []
 const movementKeys: { [direction in Direction4]: string[] } = config.controls.keyboard.movement
-let lastMoveAngle = 0
 const actionKeys: { [action in Action]: string[] } = config.controls.keyboard.actions
 const actionListeners: { action: Action, callback: () => void }[] = []
 const pressedKeys: Direction4[] = []
+let lastAngle: number | undefined
+
 const onMoveChange = () => {
   let angle = direction4Angles[pressedKeys[0]]
   if (angle === undefined) {
+    lastAngle = undefined
     for (const e of movementListeners) { e(false) }
     return
   }
@@ -28,18 +30,21 @@ const onMoveChange = () => {
     }
     angle = (((angle + angle2) / 2) + 360) % 360
   }
-  console.log(angle)
-  lastMoveAngle = angle
+  lastAngle = angle
   for (const e of movementListeners) { e(true, angle) }
+}
+
+const emitActionEvent = (action: Action) => {
+  for (const listener of actionListeners) {
+    if (listener.action === action) {
+      listener.callback()
+    }
+  }
 }
 document.addEventListener('keydown', (e) => {
   for (const action in actionKeys) {
     if (actionKeys[action as Action].includes(e.key)) {
-      for (const listener of actionListeners) {
-        if (listener.action === action) {
-          listener.callback()
-        }
-      }
+      emitActionEvent(action as Action)
     }
   }
   for (const direction in movementKeys) {
@@ -65,18 +70,30 @@ document.addEventListener('keyup', (e) => {
 })
 
 let gamepad: Gamepad | undefined
-window.addEventListener("gamepadconnected", (e) => {
+const padAngles = Object.values(direction4Angles)
+const maxAngleDiff = Math.abs(padAngles[1] - padAngles[0]) / 2 // assume differences are even
+let shotInterval = config.player.shotInterval
+let lastShot = 0
+const movementAxis: { x: number, y: number } =
+  config.gamepad.axes[config.controls.gamepad.movementAxis as keyof typeof config.gamepad.axes]
+const minMovementDetection = config.gamepad.minMovementDetection
+const padActionButtons: { [action in Action]: number[] } = config.controls.gamepad.actions
+
+window.addEventListener("gamepadconnected", () => {
+  if (gamepad === undefined) {
+    gamepad = navigator.getGamepads()[0] ?? undefined
+    requestAnimationFrame(padPoll)
+  }
+});
+
+window.addEventListener("gamepaddisconnected", () => {
   gamepad = navigator.getGamepads()[0] ?? undefined
 });
 
-const padAngles = [0, 45, 90, 135, 180, 225, 270, 315, 360]
-let lastAngle: number | undefined
-let shotInterval = 100
-let lastShot = 0
-const movementXAxis = 0
-const movementYAxis = 1
-const shotXAxis = 2
-const shotYAxis = 3
+
+const buttonState: { [action in Action]: boolean } = Object.fromEntries(
+  Object.keys(padActionButtons).map(a => [a, false])) as any
+
 const padShot = (x: number, y: number) => {
   const date = Date.now()
   if (date < lastShot + shotInterval) { return }
@@ -84,7 +101,7 @@ const padShot = (x: number, y: number) => {
   const angle = new Vector(new Point(0, 0), new Point(x, y)).angle
   let trimmedAngle = 0
   for (let i = 0; i < padAngles.length; i++) {
-    if (Math.abs(padAngles[i] - angle) <= 22.5) {
+    if (Math.abs(padAngles[i] - angle) <= maxAngleDiff) {
       trimmedAngle = padAngles[i]
     }
   }
@@ -92,31 +109,42 @@ const padShot = (x: number, y: number) => {
 }
 
 const padPoll = () => {
-  requestAnimationFrame(padPoll)
   if (gamepad === undefined) { return }
-  if (Math.abs(gamepad.axes[shotXAxis]) > 0.1 || Math.abs(gamepad.axes[shotYAxis]) > 0.1) {
-    padShot(gamepad.axes[shotXAxis], gamepad.axes[shotYAxis])
+  requestAnimationFrame(padPoll)
+  for (const action in padActionButtons) {
+    let isPressed = false
+    for (let i = 0; i < padActionButtons[action as Action].length; i++) {
+      if (gamepad.buttons[padActionButtons[action as Action][i]].pressed === true) {
+        isPressed = true
+        break
+      }
+    }
+    if (buttonState[action as Action] !== isPressed) {
+      buttonState[action as Action] = isPressed
+      emitActionEvent(action as Action)
+    }
   }
-  if (Math.abs(gamepad.axes[movementXAxis]) < 0.1 && Math.abs(gamepad.axes[movementYAxis]) < 0.1) {
+  if (Math.abs(gamepad.axes[movementAxis.x]) < minMovementDetection &&
+    Math.abs(gamepad.axes[movementAxis.y]) < minMovementDetection) {
     lastAngle = undefined
+    pressedKeys.length = 0
     for (let i = 0; i < movementListeners.length; i++) { movementListeners[i](false) }
   } else {
-    const angle = new Vector(new Point(0, 0), new Point(gamepad.axes[movementXAxis], gamepad.axes[movementYAxis])).angle
+    const angle = new Vector(new Point(0, 0),
+      new Point(gamepad.axes[movementAxis.x], gamepad.axes[movementAxis.x])).angle
     let trimmedAngle = 0
     for (let i = 0; i < padAngles.length; i++) {
-      if (Math.abs(padAngles[i] - angle) <= 22.5) {
+      if (Math.abs(padAngles[i] - angle) <= maxAngleDiff) {
         trimmedAngle = padAngles[i]
       }
     }
     if (lastAngle !== trimmedAngle) {
       lastAngle = trimmedAngle
+      pressedKeys.length = 0
       for (let i = 0; i < movementListeners.length; i++) { movementListeners[i](true, trimmedAngle) }
     }
   }
 }
-
-requestAnimationFrame(padPoll)
-
 
 export const events = {
   onMovementChange(callback: (isMoving: boolean, angle?: number) => void) {
