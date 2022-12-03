@@ -2,6 +2,7 @@ import { Drawable } from "./utils/Geometry.js"
 import { config } from "./config.js"
 
 export interface UiData {
+  highScore: number
   score: number
   lifes: number
   room: number
@@ -26,7 +27,7 @@ debugCtx.strokeStyle = config.debugColor
 bgDebugCtx.strokeStyle = config.debugColor
 
 const renderUi = (data: UiData) => {
-  scoreTop.innerHTML = data.score.toString()
+  scoreTop.innerHTML = data.highScore.toString()
   scoreBottom.innerHTML = data.score.toString()
   lifes.innerHTML = ''
   for (let i = 0; i < data.lifes; i++) {

@@ -3,22 +3,27 @@ import { Circle, Drawable, Point } from "../utils/Geometry.js"
 
 export abstract class GameItem implements Drawable {
 
-  readonly hitbox: Circle
+  hitbox: Circle
   readonly image: HTMLImageElement
-  readonly pos: Point
+  _pos: Point
   readonly size: number
   protected abstract readonly _onCollect: Function
   static items: GameItem[]
 
-  constructor(pos: Point, size: number, image: HTMLImageElement) {
-    this.pos = pos
-    this.hitbox = new Circle(pos, size * 2)
+  constructor(size: number, image: HTMLImageElement) {
+    this._pos = new Point(-1, -1)
+    this.hitbox = new Circle(this._pos, size * 2)
     this.image = image
     this.size = size
   }
 
+  set pos(pos: Point) {
+    this._pos = pos
+    this.hitbox = new Circle(this._pos, this.size * 2)
+  }
+
   draw(ctx: CanvasRenderingContext2D): void {
-    ctx.drawImage(this.image, this.pos.x - this.size, this.pos.y - this.size, this.size * 2, this.size * 2)
+    ctx.drawImage(this.image, this._pos.x - this.size, this._pos.y - this.size, this.size * 2, this.size * 2)
   }
 
   checkCollision(player: Player) {

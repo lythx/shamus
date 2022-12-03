@@ -32,4 +32,11 @@ export const direction4Angles: { [direction in Direction4]: number } = {
   left: 180,
   up: 270,
 }
+const swap4Obj = {
+  left: 'right',
+  right: 'left',
+  up: 'down',
+  down: 'up'
+} as const
+export const oppositeDirection4 = (direction: Direction4) => swap4Obj[direction]
 

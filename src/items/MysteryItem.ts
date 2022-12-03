@@ -6,10 +6,10 @@ type MysteryItemAction = 'life' | 'points'
 
 export class MysteryItem extends GameItem {
 
-  constructor(pos: Point) {
+  constructor() {
     const img = new Image()
     img.src = `./assets/items/${config.mysteryItem.image}.png`
-    super(pos, config.mysteryItem.size, img)
+    super( config.mysteryItem.size, img)
   }
 
   readonly actions: MysteryItemAction[] = ['life', 'points']

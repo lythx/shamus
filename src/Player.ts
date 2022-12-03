@@ -3,9 +3,9 @@ import { Enemy } from "./Enemy.js";
 import { Fighter } from "./Fighter.js";
 import { models } from "./models.js";
 import { Projectile } from "./Projectile.js";
-import { room } from "./room/Room.js";
+import { roomManager } from "./room/RoomManager.js";
 import { Point, Vector } from "./utils/Geometry.js";
-import { Direction8, angle8Directions } from './utils/Directions.js'
+import { Direction8, angle8Directions, Direction4 } from './utils/Directions.js'
 
 const infinity = 1000000
 
@@ -15,7 +15,7 @@ export class Player extends Fighter {
   projectileSize: number
   nextShot: number = 0
   nextModelUpdate: number = 0
-  onRoomChange: ((room: number, pos: Point) => void) | undefined
+  onRoomChange: ((room: number, entranceUsed: Direction4, pos: Point) => void) | undefined
   onDeath: () => void = () => undefined
   readonly directions = angle8Directions
   readonly models: { [direction in Direction8]: HTMLImageElement[] } = {
@@ -64,9 +64,9 @@ export class Player extends Fighter {
   }
 
   update(): void {
-    const entrance = room.checkIfOnEntrance(this.hitbox)
+    const entrance = roomManager.checkIfOnEntrance(this.hitbox)
     if (entrance !== false) {
-      this.onRoomChange?.(entrance.room, entrance.pos)
+      this.onRoomChange?.(entrance.room, entrance.side ,entrance.pos)
       return
     }
     this.checkCollision()
@@ -78,7 +78,7 @@ export class Player extends Fighter {
   }
 
   checkCollision(): void {
-    if (room.circleCollision(this.hitbox)) {
+    if (roomManager.circleCollision(this.hitbox)) {
       this.destroy()
     }
     for (let i = 0; i < Projectile.enemyProjectiles.length; i++) {

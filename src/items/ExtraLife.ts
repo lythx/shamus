@@ -4,10 +4,10 @@ import { GameItem } from './GameItem.js'
 
 export class ExtraLife extends GameItem {
 
-  constructor(pos: Point) {
+  constructor() {
     const img = new Image()
     img.src = `./assets/items/${config.extraLife.image}.png`
-    super(pos, config.extraLife.size, img)
+    super(config.extraLife.size, img)
   }
 
   static onCollect: () => void = () => undefined

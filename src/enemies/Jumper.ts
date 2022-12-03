@@ -1,7 +1,7 @@
 import { config } from '../config.js'
 import { Enemy } from '../Enemy.js'
 import { models } from '../models.js'
-import { room } from '../room/Room.js'
+import { roomManager } from '../room/RoomManager.js'
 import { Circle, Point, Vector } from '../utils/Geometry.js'
 
 export class Jumper extends Enemy {
@@ -95,13 +95,13 @@ export class Jumper extends Enemy {
 
   isBehindWall(p: Point): boolean {
     const v = new Vector(this.pos, p)
-    return room.vectorCollision(v) !== undefined
+    return roomManager.vectorCollision(v) !== undefined
   }
 
   isColliding(p: Point): boolean {
     const c = new Circle(p, this.size)
     if (this.isBehindWall(p)) { return true }
-    if (room.circleCollision(c)) { return true }
+    if (roomManager.circleCollision(c)) { return true }
     for (let i = 0; i < Enemy.enemies.length; i++) {
       if (Enemy.enemies[i] === this) { continue }
       if (Enemy.enemies[i].hitbox.circleCollision(c)) { return true }

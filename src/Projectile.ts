@@ -1,5 +1,5 @@
 import { Enemy } from "./Enemy.js";
-import { room } from "./room/Room.js";
+import { roomManager } from "./room/RoomManager.js";
 import { Unit } from "./Unit.js";
 import { Circle, math, Point } from "./utils/Geometry.js";
 const infinty = 10000000
@@ -53,7 +53,7 @@ export class Projectile extends Unit {
         this.explode()
       }
     }
-    if (room.circleCollision(this.hitbox)) {
+    if (roomManager.circleCollision(this.hitbox)) {
       this.explode()
     }
   }

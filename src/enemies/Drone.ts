@@ -1,7 +1,7 @@
 import { config } from '../config.js'
 import { Enemy } from '../Enemy.js'
 import { models } from '../models.js'
-import { room } from '../room/Room.js'
+import { roomManager } from '../room/RoomManager.js'
 import { Point, Rectangle, Vector } from '../utils/Geometry.js'
 import { Rays } from '../utils/Rays.js'
 
@@ -52,7 +52,7 @@ export class Drone extends Enemy {
     this.target.pos = this.pos
     const rays = this.target.get()
     for (let i = 0; i < rays.length; i++) {
-      if ((room.vectorCollision(rays[i])?.calculateDistance(this.pos) ?? Infinity) < this.size * 2) {
+      if ((roomManager.vectorCollision(rays[i])?.calculateDistance(this.pos) ?? Infinity) < this.size * 2) {
         this.stop()
       }
     }
@@ -123,7 +123,7 @@ export class Drone extends Enemy {
     const rays = r.get()
     let minCollision: number | undefined
     for (let i = 0; i < rays.length; i++) {
-      const p = room.vectorCollision(rays[i])
+      const p = roomManager.vectorCollision(rays[i])
       if (p !== undefined) {
         const dist = p.calculateDistance(v.a)
         if ((minCollision ?? -1) < dist) {

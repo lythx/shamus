@@ -8,10 +8,10 @@ export class GameKey extends GameItem {
 
   readonly type: GameKeyType
 
-  constructor(pos: Point, type: GameKeyType) {
+  constructor( type: GameKeyType) {
     const img = new Image()
     img.src = `./assets/items/${config.gameKey.images[type]}.png`
-    super(pos, config.gameKey.size, img)
+    super(config.gameKey.size, img)
     this.type = type
   }
 

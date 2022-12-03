@@ -1,10 +1,10 @@
 import { Point, Vector } from "./utils/Geometry.js"
-import { Direction4, direction4Angles } from './utils/Directions.js'
+import { Direction4, direction4Angles, direction8Angles } from './utils/Directions.js'
 import { config } from "./config.js"
 
 type Action = 'debug' | 'editor' | 'menu' | 'shoot'
+type PadAction = 'debug' | 'menu' | 'shoot'
 const movementListeners: ((isMoving: boolean, angle?: number) => void)[] = []
-const shotListeners: ((angle: number) => void)[] = []
 const movementKeys: { [direction in Direction4]: string[] } = config.controls.keyboard.movement
 const actionKeys: { [action in Action]: string[] } = config.controls.keyboard.actions
 const actionListeners: { action: Action, callback: () => void }[] = []
@@ -70,16 +70,35 @@ document.addEventListener('keyup', (e) => {
 })
 
 let gamepad: Gamepad | undefined
-const padAngles = Object.values(direction4Angles)
+const padAngles = Object.values(direction8Angles)
 const maxAngleDiff = Math.abs(padAngles[1] - padAngles[0]) / 2 // assume differences are even
-let shotInterval = config.player.shotInterval
-let lastShot = 0
 const movementAxis: { x: number, y: number } =
   config.gamepad.axes[config.controls.gamepad.movementAxis as keyof typeof config.gamepad.axes]
 const minMovementDetection = config.gamepad.minMovementDetection
-const padActionButtons: { [action in Action]: number[] } = config.controls.gamepad.actions
+const padActionButtons: { [action in PadAction]: number[] } = config.controls.gamepad.actions
+
+// https://codepedia.info/detect-browser-in-javascript
+const osPadSupport = () => {
+  if (navigator.userAgent.match(/chrome|chromium|crios/i)) {
+    return false
+  }
+  if (navigator.userAgent.match(/firefox|fxios/i)) {
+    return true
+  }
+  if (navigator.userAgent.match(/safari/i)) {
+    return true
+  }
+  if (navigator.userAgent.match(/opr\//i)) {
+    return false
+  }
+  if (navigator.userAgent.match(/edg/i)) {
+    return false
+  }
+  return false
+}
 
 window.addEventListener("gamepadconnected", () => {
+  if (!osPadSupport()) { return }
   if (gamepad === undefined) {
     gamepad = navigator.getGamepads()[0] ?? undefined
     requestAnimationFrame(padPoll)
@@ -87,41 +106,28 @@ window.addEventListener("gamepadconnected", () => {
 });
 
 window.addEventListener("gamepaddisconnected", () => {
+  if (!osPadSupport()) { return }
   gamepad = navigator.getGamepads()[0] ?? undefined
 });
 
 
-const buttonState: { [action in Action]: boolean } = Object.fromEntries(
+const buttonState: { [action in PadAction]: boolean } = Object.fromEntries(
   Object.keys(padActionButtons).map(a => [a, false])) as any
-
-const padShot = (x: number, y: number) => {
-  const date = Date.now()
-  if (date < lastShot + shotInterval) { return }
-  lastShot = date
-  const angle = new Vector(new Point(0, 0), new Point(x, y)).angle
-  let trimmedAngle = 0
-  for (let i = 0; i < padAngles.length; i++) {
-    if (Math.abs(padAngles[i] - angle) <= maxAngleDiff) {
-      trimmedAngle = padAngles[i]
-    }
-  }
-  for (let i = 0; i < shotListeners.length; i++) { shotListeners[i](trimmedAngle) }
-}
 
 const padPoll = () => {
   if (gamepad === undefined) { return }
   requestAnimationFrame(padPoll)
   for (const action in padActionButtons) {
     let isPressed = false
-    for (let i = 0; i < padActionButtons[action as Action].length; i++) {
-      if (gamepad.buttons[padActionButtons[action as Action][i]].pressed === true) {
+    for (let i = 0; i < padActionButtons[action as PadAction].length; i++) {
+      if (gamepad.buttons[padActionButtons[action as PadAction][i]].pressed === true) {
         isPressed = true
         break
       }
     }
-    if (buttonState[action as Action] !== isPressed) {
-      buttonState[action as Action] = isPressed
-      emitActionEvent(action as Action)
+    if (buttonState[action as PadAction] !== isPressed) {
+      buttonState[action as PadAction] = isPressed
+      if (buttonState[action as PadAction]) { emitActionEvent(action as PadAction) }
     }
   }
   if (Math.abs(gamepad.axes[movementAxis.x]) < minMovementDetection &&
@@ -131,7 +137,7 @@ const padPoll = () => {
     for (let i = 0; i < movementListeners.length; i++) { movementListeners[i](false) }
   } else {
     const angle = new Vector(new Point(0, 0),
-      new Point(gamepad.axes[movementAxis.x], gamepad.axes[movementAxis.x])).angle
+      new Point(gamepad.axes[movementAxis.x], gamepad.axes[movementAxis.y])).angle
     let trimmedAngle = 0
     for (let i = 0; i < padAngles.length; i++) {
       if (Math.abs(padAngles[i] - angle) <= maxAngleDiff) {

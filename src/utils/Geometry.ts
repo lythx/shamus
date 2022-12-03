@@ -32,6 +32,8 @@ class Point implements Drawable {
     ctx.fillStyle = initialFillStyle
   }
 
+  equals = (p: Point): boolean => p.x === this._x && p.y === this._y
+
   static isPoint = (arg: any): arg is Point => arg.constructor.name === 'Point'
 
   calculateDistance = (p: Point): number =>
@@ -191,6 +193,8 @@ class Rectangle implements Drawable {
     this.width = w
     this.height = h
   }
+
+  equals = (r: Rectangle) => r.a.equals(this.a) && r.c.equals(this.c)
 
   draw(ctx: CanvasRenderingContext2D): void {
     const initialStrokeStyle = ctx.strokeStyle

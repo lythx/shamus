@@ -32,12 +32,20 @@ export const config = {
     gamepad: {
       movementAxis: 'left', // left or right
       actions: {
-        shoot: [-1],
-        menu: [-1],
-        debug: [-1],
-        editor: [-1]
+        shoot: [0],
+        menu: [4],
+        debug: [5]
       }
     }
+  },
+  room: {
+    start: 0,
+    startSide: 'right',
+    enemyCountOffset: 0.3,
+    randomItemPositions: [[100, 100], [200, 200]] // todo
+  },
+  items: {
+    size: 30
   },
 
 
