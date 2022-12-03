@@ -1,5 +1,5 @@
 import { Point, Rectangle } from "../utils/Geometry.js";
-import { rooms } from "../rooms.js";
+import { rooms } from "./rooms.js";
 import { Direction4 } from "../utils/Directions.js";
 
 export class RoomEntrance extends Rectangle {

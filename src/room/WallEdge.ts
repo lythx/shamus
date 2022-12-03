@@ -9,8 +9,8 @@ export class WallEdge extends Rectangle implements Drawable {
   imageIndex: number = 0
   nextImageUpdate: number = 0
 
-  constructor(a: Point, b: Point) {
-    super(a, b)
+  constructor(a: Point, c: Point) {
+    super(a, c)
     this.orientation = this.width < this.height ? 'vertical' : 'horizontal'
     this.images = models.wall[this.orientation].map(a => {
       const img = new Image()

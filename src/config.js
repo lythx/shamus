@@ -39,10 +39,21 @@ export const config = {
     }
   },
   room: {
-    start: 0,
-    startSide: 'right',
-    enemyCountOffset: 0.3,
-    randomItemPositions: [[100, 100], [200, 200]] // todo
+    start: 18,
+    startSide: 'left',
+    enemyCountOffset: 0.5,
+    randomItemPositions: [
+      [415, 140], [415, 400], [415, 660],
+      [700, 140], [700, 400], [700, 660],
+      [985, 140], [985, 400], [985, 660]
+    ],
+    movingBarrier: {
+      width: 70,
+      gapWidth: 40,
+      speed: 130,
+      color: 'rgb(152, 222, 245)',
+      resetTime: 4000
+    }
   },
   items: {
     size: 30
@@ -74,10 +85,10 @@ export const config = {
     modelUpdateInterval: 50,
     size: 25,
     shotInterval: 200,
-    speed: 190,
+    speed: 190,//190,
     projectile: {
-      speed: 700,
-      size: 15,
+      speed: 1100,
+      size: 10,
       explosionRadius: 50
     }
   },
@@ -178,7 +189,7 @@ export const config = {
     images: {
       purple: 'key_purple',
       blue: 'key_blue',
-      yellow: 'key_yellow'
+      brown: 'key_yellow'
     }
   },
   keyHole: {
@@ -186,7 +197,7 @@ export const config = {
     images: {
       purple: 'keyhole_purple',
       blue: 'keyhole_blue',
-      yellow: 'keyhole_yellow'
+      brown: 'keyhole_yellow'
     }
   },
   debugColor: "#FFFFFF",

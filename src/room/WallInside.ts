@@ -5,8 +5,8 @@ export class WallInside extends Rectangle implements Drawable {
 
   readonly image: HTMLImageElement
 
-  constructor(a: Point, b: Point, style: string) {
-    super(a, b)
+  constructor(a: Point, c: Point, style: string) {
+    super(a, c)
     this.image = new Image()
     this.image.src = `./assets/wall/${models.wall.inside[style as keyof typeof models.wall.inside]}.png`
   }

@@ -1,5 +1,5 @@
 import { Circle, Point, Rectangle, Vector } from "../utils/Geometry.js";
-import { rooms as roomData } from '../rooms.js'
+import { rooms as roomData } from './rooms.js'
 import { WallEdge } from "./WallEdge.js";
 import { WallInside } from './WallInside.js'
 import { RoomEntrance } from './RoomEntrance.js'
@@ -9,6 +9,7 @@ import { ExtraLife } from "../items/ExtraLife.js";
 import { GameKey } from "../items/GameKey.js";
 import { KeyHole } from "../items/KeyHole.js";
 import { Room } from './Room.js'
+import { MovingBarrier } from './MovingBarrier.js'
 import { Direction4 } from "../utils/Directions.js";
 
 const rooms: { [roomNumber: number]: Room } = {}
@@ -16,7 +17,7 @@ let room: Room
 
 const initialize = () => {
   const possibleKeySpawns: { [key: string]: number[] } = {}
-  for (const [roomNumber, roomObj] of Object.entries(rooms)) {
+  for (const [roomNumber, roomObj] of Object.entries(roomData)) {
     const item: { type: string, position: [number, number], color: string } | undefined = (roomObj as any).item
     if (item?.type === 'key') {
       if (Array.isArray(possibleKeySpawns[item.color])) {
@@ -32,6 +33,10 @@ const initialize = () => {
     keySpawns[arr[~~(Math.random() * arr.length)]] = key
   }
   for (const [roomNumberStr, roomObj] of Object.entries(roomData)) {
+    let barriers: MovingBarrier[] | undefined
+    if ((roomObj as any).barrier === true) {
+      barriers = [new MovingBarrier(450, 'left'), new MovingBarrier(950, 'right')]
+    }
     const roomNumber = Number(roomNumberStr)
     const edges = roomObj.edges.map(a => new WallEdge(new Point(a[0], a[1]), new Point(a[2], a[3])))
     const insides = roomObj.insides.map(a => new WallInside(new Point(a[0], a[1]), new Point(a[2], a[3]), roomObj.theme))
@@ -40,29 +45,37 @@ const initialize = () => {
     const spawnAreas = roomObj.spawnAreas.map(a => new Rectangle(new Point(a[0], a[1]), new Point(a[2], a[3])))
     const itemObj: {
       type: string, position: [number, number], color: string,
-      edgeToDelete: [[number, number], [number, number]]
+      edgeToDelete: [number, number, number, number]
     } | undefined = (roomObj as any).item
     let item: { obj: GameItem, pos?: Point } | undefined
     if (itemObj === undefined) {
       item = undefined
     } else {
       const keyType = keySpawns[roomNumber]
-      // if (keyType !== undefined) {
-      //   item = { obj: new GameKey(keyType as any) }
-      // } else if (itemObj.type === 'mystery') {
-      //   item = { obj: new MysteryItem() }
-      // } else if (itemObj.type === 'extra life') {
-      //   item = { obj: new ExtraLife() }
-      // } else if (itemObj.type === 'keyhole') {
-      //   const r = itemObj.edgeToDelete
-      //   // const edgeToDelete = new Rectangle(new Point(r[0][0], r[0][1]), new Point(r[1][0], r[1][1]))
-      //   // item = {
-      //   //   obj: new KeyHole(itemObj.color as any, edgeToDelete),
-      //   //   pos: new Point(itemObj.position[0], itemObj.position[1])
-      //   // }
-      // }
+      const pos = itemObj.position !== undefined ? new Point(itemObj.position[0], itemObj.position[1]) : undefined
+      if (itemObj.type === 'key') {
+        if (keyType !== undefined) {
+          item = { obj: new GameKey(keyType as any), pos }
+        } else {
+          itemObj.type = 'random'
+        }
+      }
+      if (itemObj.type === 'random') {
+        itemObj.type = ['mystery', 'extra life'][~~(Math.random() * 2)]
+      }
+      if (itemObj.type === 'mystery') {
+        item = { obj: new MysteryItem(), pos }
+      } else if (itemObj.type === 'extra life') {
+        item = { obj: new ExtraLife(), pos }
+      } else if (itemObj.type === 'keyhole') {
+        const r = itemObj.edgeToDelete // todo fix purple color
+        const edgeToDelete = new Rectangle(new Point(r[0], r[1]), new Point(r[2], r[3]))
+        item = {
+          obj: new KeyHole(itemObj.color as any, edgeToDelete), pos
+        }
+      }
     }
-    rooms[roomNumber] = new Room(roomNumber, edges, insides, entrances, spawnAreas, units, item)
+    rooms[roomNumber] = new Room(roomNumber, edges, insides, entrances, spawnAreas, units, item, barriers)
   }
 }
 

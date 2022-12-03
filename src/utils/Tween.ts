@@ -28,7 +28,8 @@ export class Tween {
   }
 
   reset(start: Point, end: Point, speed: number) {
-    this.stop()
+    this.destination = this.currentPosition
+    this.timer.stop()
     this.vector = new Vector(start, end)
     this.timer = new Timer().start((this.vector.length * 10000) / (speed * config.speedMultiplier))
     this.currentPosition = start

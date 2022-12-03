@@ -25,7 +25,7 @@ let debug = false
 let isRunning = true
 let shadowSpawned = false
 const state: UiData = {
-  highScore: 0,
+  highScore: 0, // TODO
   score: 0,
   lifes: config.lifesAtStart,
   room: config.room.start,
@@ -94,6 +94,10 @@ const spawnEnemies = (units: { drone?: number, jumper?: number }, spawnAreas: Re
         i--
         continue
       }
+      if (player.hitbox.circleCollision(c)) {
+        i--
+        continue
+      }
       for (let j = 0; j < Enemy.enemies.length; j++) {
         if (iterations > 1000) { break }
         if (Enemy.enemies[j].hitbox.circleCollision(c)) {
@@ -107,6 +111,11 @@ const spawnEnemies = (units: { drone?: number, jumper?: number }, spawnAreas: Re
       blue = !blue
     }
   }
+}
+
+const handleBarrierTrigger = () => {
+  room.barriers.length = 0
+  spawnEnemies(room.enemies, room.spawnAreas)
 }
 
 const onRoomChange = (roomNum: number, sideOrPos: Direction4 | Point) => {
@@ -125,7 +134,9 @@ const onRoomChange = (roomNum: number, sideOrPos: Direction4 | Point) => {
   }
   renderRoom(room.insides)
   renderUi(state)
-  spawnEnemies(room.enemies, room.spawnAreas)
+  if (!room.hasBarriers) {
+    spawnEnemies(room.enemies, room.spawnAreas)
+  }
   shadowSpawned = false
   lastKillOrRoomChange = Date.now()
   if (debug) {
@@ -191,6 +202,7 @@ const lose = () => {
 
 player.onRoomChange = onRoomChange
 player.onDeath = async () => {
+  return
   state.lifes--
   if (state.lifes === 0) {
     lose()
@@ -229,6 +241,13 @@ const gameLoop = () => {
   if (room.item !== undefined) {
     room.item.checkCollision(player)
   }
+  if (room.hasBarriers) {
+    for (let i = 0; i < Projectile.playerProjectiles.length; i++) {
+      if (room.checkIfBarrierTriggered(Projectile.playerProjectiles[i].hitbox)) {
+        handleBarrierTrigger()
+      }
+    }
+  }
   const objects: Drawable[] = [player]
   let index = 1
   for (let i = 0; i < Projectile.playerProjectiles.length; i++) {
@@ -248,6 +267,9 @@ const gameLoop = () => {
   }
   if (room.item !== undefined) {
     objects[index++] = room.item
+  }
+  for (let i = 0; i < room.barriers.length; i++) {
+    objects[index++] = room.barriers[i]
   }
   renderUnits(objects)
   renderRoom(room.insides)

@@ -1,43 +1,60 @@
-import { rooms } from "./rooms.js"
+import { rooms } from "./room/rooms.js"
 import { Point, Rectangle } from "./utils/Geometry.js"
 import { WallEdge } from "./room/WallEdge.js"
 import { WallInside } from "./room/WallInside.js"
 
+const r = (a: number, b: number, c: number, d: number) =>
+  new Rectangle(new Point(a, b), new Point(c, d))
+const possibleEdges: Rectangle[] = [
+  r(0, 240, 290, 280), r(0, 240, 40, 560),
+  r(0, 520, 290, 560),
+  r(250, 0, 580, 40), r(250, 0, 290, 280),
+  r(250, 240, 580, 280), r(250, 240, 290, 560),
+  r(250, 520, 580, 560), r(250, 520, 290, 800),
+  r(250, 760, 580, 800),
+  r(540, 0, 860, 40), r(540, 0, 580, 280),
+  r(540, 240, 860, 280), r(540, 240, 580, 560),
+  r(540, 520, 860, 560), r(540, 520, 580, 800),
+  r(540, 760, 860, 800),
+  r(820, 0, 1150, 40), r(820, 0, 860, 280),
+  r(820, 240, 1150, 280), r(820, 240, 860, 560),
+  r(820, 520, 1150, 560), r(820, 520, 860, 800),
+  r(820, 760, 1150, 800),
+  r(1110, 0, 1150, 280),
+  r(1110, 240, 1400, 280), r(1110, 240, 1150, 560),
+  r(1110, 520, 1400, 560), r(1110, 520, 1150, 800),
+  r(1360, 240, 1400, 560)
+]
+const themes = ['yellowCircle', 'greenBrick', 'purpleHex']
+let themeIndex = 0
+let theme = 'yellowCircle'
 let placementCorrection = true
-const defaultRoom = 37
+const defaultRoom = 0
 const content = document.getElementById('content') as HTMLCanvasElement
 const wrapper = document.getElementById('wrapper') as HTMLElement
 let isEnabled = false
 let startPoint: Point | undefined
-let mode: 'edge' | 'inside' | 'spawn' | 'spawnPoint' | 'item'
+let mode: 'edge' | 'inside' | 'spawn' | 'item' = 'edge'
 let topPlacement = true
 let updateListener: (() => void) | undefined
-const edgeWidth = 40
-let edges = rooms[defaultRoom].edges.map(a => new WallEdge(new Point(a[0], a[1]), new Point(a[2], a[3])))
-let insides = rooms[defaultRoom].insides.map(a => new WallInside(new Point(a[0], a[1]), new Point(a[2], a[3]), 'yellowCircle'))
-let spawns = rooms[defaultRoom].spawnAreas.map(a => new Rectangle(new Point(a[0], a[1]), new Point(a[2], a[3])))
+let edges: WallEdge[] = []
+let insides: WallInside[] = rooms[defaultRoom].insides.map(a => new WallInside(new Point(a[0], a[1]), new Point(a[2], a[3]), theme))
+let spawns: Rectangle[] = []
 const entrances = rooms[defaultRoom].entrances
-let spawnPoint = new Point(rooms[defaultRoom].spawnPoint[0], rooms[defaultRoom].spawnPoint[1])
-const defaultItem: {
-  type: string,
-  position: [number, number],
-  color: string
-} | undefined = (rooms[defaultRoom] as any).item
-let itemPos = defaultItem === undefined ? undefined : new Point(defaultItem.position[0], defaultItem.position[1])
+let itemPos: Point | undefined = undefined // defaultItem === undefined ? undefined : new Point(defaultItem.position[0], defaultItem.position[1])
 
 
 const modeKeys = {
   '1': 'edge',
   '2': 'inside',
   '3': 'spawn',
-  '4': 'spawnPoint',
-  '5': 'item'
+  '4': 'item'
 } as const
 const helpers: Rectangle[] = [
-  new Rectangle(new Point(1395, 280), new Point(1400, 505)),
-  new Rectangle(new Point(0, 280), new Point(5, 505)),
-  new Rectangle(new Point(587, 795), new Point(812, 800)),
-  new Rectangle(new Point(587, 0), new Point(812, 5))
+  new Rectangle(new Point(0, 280), new Point(5, 520)),
+  new Rectangle(new Point(1395, 280), new Point(1400, 520)),
+  new Rectangle(new Point(580, 795), new Point(820, 800)),
+  new Rectangle(new Point(580, 0), new Point(820, 5))
 ]
 const helperPoints: Point[] = [
   new Point(1400, 280),
@@ -50,9 +67,7 @@ const helperPoints: Point[] = [
 const save = () => {
   document.write(JSON.stringify({
     item: {
-      type: 'key',
-      position: itemPos === undefined ? [] : [itemPos.x, itemPos.y],
-      color: 'purple'
+      type: 'mystery'
     },
     units: {
       drone: 0,
@@ -60,11 +75,10 @@ const save = () => {
       droid: 0
     },
     entrances,
-    theme: 'yellowCircle',
+    theme,
     edges: edges.map(e => [e.a.x, e.a.y, e.c.x, e.c.y]),
     insides: insides.map(e => [e.a.x, e.a.y, e.c.x, e.c.y]),
-    spawnAreas: spawns.map(e => [e.a.x, e.a.y, e.c.x, e.c.y]),
-    spawnPoint: [spawnPoint.x, spawnPoint.y]
+    spawnAreas: spawns.map(e => [e.a.x, e.a.y, e.c.x, e.c.y])
   }, null, 2))
 }
 
@@ -87,6 +101,16 @@ document.addEventListener('keydown', (e) => {
       } else if (mode === 'spawn') {
         spawns.pop()
       }
+      updateListener?.()
+    } else if (e.key === 'd') {
+      themeIndex++
+      themeIndex %= themes.length
+      theme = themes[themeIndex]
+      const ins: WallInside[] = []
+      for (const e of insides) {
+        ins.push(new WallInside(e.a, e.c, theme))
+      }
+      insides = ins
       updateListener?.()
     }
   }
@@ -149,41 +173,21 @@ const getPoint = (x: number, y: number): Point => {
   return new Point(x, y)
 }
 
-const adjustEdge = (w: WallEdge): WallEdge => {
-  let minDiff = Infinity
-  let closest = w.a
-  let target = w.a
-  if (w.orientation === 'vertical') {
-    for (const e of [w.a, w.b, w.c, w.d]) {
-      const p = getPoint(e.x, e.y)
-      const dist = e.calculateDistance(p)
-      if (dist !== 0 && minDiff > dist) {
-        minDiff = dist
-        closest = e
-        target = p
-      }
-    }
-    if (closest === w.a) {
-      w = new WallEdge(target, new Point(target.x + edgeWidth, getPoint(target.x + edgeWidth, w.c.y).y))
-    } else if (closest === w.b) {
-      w = new WallEdge(new Point(target.x - edgeWidth, target.y), new Point(target.x, getPoint(target.x, w.c.y).y))
-    } else if (closest === w.c) {
-      w = new WallEdge(new Point(target.x - edgeWidth, getPoint(target.x - edgeWidth, w.a.y).y), new Point(target.x, target.y))
-    } else if (closest === w.d) {
-      w = new WallEdge(new Point(target.x, getPoint(target.x, w.a.y).y), new Point(target.x + edgeWidth, target.y))
-    }
-    return w
-  } else {
-    return w
-  }
-}
-
 content.addEventListener('mousedown', (e) => {
   if (e.button !== 0) { return }
   e.preventDefault()
   if (!isEnabled || mode === undefined) { return }
   const rect = (e as any).target.getBoundingClientRect();
   startPoint = getPoint(~~(e.clientX - rect.left), ~~(e.clientY - rect.top))
+  if (mode === 'edge') {
+    const edge = possibleEdges.find(a => a.pointCollision(new Point(e.clientX - rect.left, e.clientY - rect.top)))
+    if (edge !== undefined) {
+      if (!edges.some(a => a.equals(edge))) {
+        edges.push(new WallEdge(edge.a, edge.c))
+        updateListener?.()
+      }
+    }
+  }
 })
 
 content.addEventListener('mouseup', (e) => {
@@ -191,18 +195,7 @@ content.addEventListener('mouseup', (e) => {
   if (!isEnabled || startPoint === undefined) { return }
   const rect = (e as any).target.getBoundingClientRect();
   const p = getPoint(~~(e.clientX - rect.left), ~~(e.clientY - rect.top))
-  const edge = new WallEdge(startPoint, p)
-  if (mode === 'edge') {
-    let w: WallEdge
-    if (edge.orientation === 'vertical') {
-      w = adjustEdge(new WallEdge(edge.a, new Point(edge.a.x + edgeWidth, edge.c.y)))
-    } else {
-      w = adjustEdge(new WallEdge(edge.a, new Point(edge.c.x, edge.a.y + edgeWidth)))
-    }
-    startPoint = undefined
-    if (w.area < 300) { return }
-    edges.push(w)
-  } else if (mode === 'inside') {
+  if (mode === 'inside') {
     const w = new WallInside(startPoint, p, 'yellowCircle')
     startPoint = undefined
     if (w.area < 300) { return }
@@ -212,9 +205,6 @@ content.addEventListener('mouseup', (e) => {
     startPoint = undefined
     if (r.area < 300) { return }
     spawns.push(r)
-  } else if (mode === 'spawnPoint') {
-    spawnPoint = new Point(~~(e.clientX - rect.left), ~~(e.clientY - rect.top))
-    startPoint = undefined
   } else if (mode === 'item') {
     itemPos = new Point(~~(e.clientX - rect.left), ~~(e.clientY - rect.top))
     startPoint = undefined
@@ -229,7 +219,7 @@ const enable = (): void => {
   updateListener?.()
 }
 const disable = () => { isEnabled = false }
-const getObjects = () => [spawnPoint, (itemPos ?? new Point(-1, -1)), ...spawns, ...insides, ...edges, ...helpers]
+const getObjects = () => [...possibleEdges, (itemPos ?? new Point(-1, -1)), ...spawns, ...insides, ...edges, ...helpers]
 
 export const editor = {
   onUpdate: (callback: () => void) => {

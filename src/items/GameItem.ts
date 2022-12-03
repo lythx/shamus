@@ -22,6 +22,10 @@ export abstract class GameItem implements Drawable {
     this.hitbox = new Circle(this._pos, this.size * 2)
   }
 
+  get pos() {
+    return this.pos
+  }
+
   draw(ctx: CanvasRenderingContext2D): void {
     ctx.drawImage(this.image, this._pos.x - this.size, this._pos.y - this.size, this.size * 2, this.size * 2)
   }

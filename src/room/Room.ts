@@ -5,6 +5,7 @@ import { GameItem } from '../items/GameItem.js'
 import { Circle, Drawable, Point, Rectangle, Vector } from '../utils/Geometry.js'
 import { Direction4 } from '../utils/Directions.js'
 import { config } from '../config.js'
+import { MovingBarrier } from './MovingBarrier.js'
 
 interface EnemyUnits {
   droid: number
@@ -25,24 +26,33 @@ export class Room implements Drawable {
   private _spawnSide: Direction4
   static randomItemPositions: Point[] = config.room.randomItemPositions.map(a => new Point(a[0], a[1]))
   readonly randomItemPositions: Point[] = []
+  barriers: MovingBarrier[]
   private readonly baseEnemies: Partial<EnemyUnits>
 
   constructor(roomNumber: number, edges: WallEdge[], insides: WallInside[], entrances: RoomEntrance[],
-    spawnAreas: Rectangle[], enemies: Partial<EnemyUnits>, item?: { obj: GameItem, pos?: Point }) {
+    spawnAreas: Rectangle[], enemies: Partial<EnemyUnits>, item?: { obj: GameItem, pos?: Point },
+    barriers: MovingBarrier[] = []) {
     this.edges = edges
     this.insides = insides
     this.entrances = entrances
     this.spawnAreas = spawnAreas
     this.roomNumber = roomNumber
+    this.barriers = barriers
     this.item = item?.obj
     this.itemPos = item?.pos
-    if (this.item !== undefined && this.itemPos !== undefined) {
-      this.item.pos = this.itemPos
+    if (this.item !== undefined) {
+      if (this.itemPos !== undefined) {
+        this.item.pos = this.itemPos
+      } else {
+        this.randomItemPositions = Room.randomItemPositions
+          .filter(a => !this.circleCollision(new Circle(a, config.items.size)))
+        if (this.randomItemPositions.length === 0) {
+          throw new Error(`No possible item positions found in room ${roomNumber}`)
+        }
+      }
     }
     this._spawnPoint = this.entrances[0].spawnPoint
     this._spawnSide = this.entrances[0].position
-    this.randomItemPositions = Room.randomItemPositions
-      .filter(a => this.circleCollision(new Circle(a, config.items.size)))
     this.baseEnemies = enemies
     this.enemies = this.randomizeUnitCount(this.baseEnemies)
   }
@@ -102,12 +112,23 @@ export class Room implements Drawable {
     }
   }
 
+  get hasBarriers() {
+    return this.barriers.length !== 0
+  }
+
+  checkIfBarrierTriggered(hitbox: Circle) {
+    return this.barriers.some(a => a.checkIfTriggered(hitbox))
+  }
+
   circleCollision(c: Circle, checkInsides?: true) {
     for (let i = 0; i < this.edges.length; i++) {
       if (this.edges[i].circleCollision(c)) { return true }
     }
     for (let i = 0; i < this.entrances.length; i++) {
       if (this.entrances[i].circleCollision(c)) { return true }
+    }
+    for (let i = 0; i < this.barriers.length; i++) {
+      if (this.barriers[i].circleCollision(c)) { return true }
     }
     if (checkInsides === true) {
       for (let i = 0; i < this.entrances.length; i++) {
