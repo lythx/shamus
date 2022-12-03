@@ -39,8 +39,8 @@ export const config = {
     }
   },
   room: {
-    start: 18,
-    startSide: 'left',
+    start: 0,
+    startSide: 'right',
     enemyCountOffset: 0.5,
     randomItemPositions: [
       [415, 140], [415, 400], [415, 660],
@@ -53,7 +53,8 @@ export const config = {
       speed: 130,
       color: 'rgb(152, 222, 245)',
       resetTime: 4000
-    }
+    },
+    winningRoom: 38 // Transition from last room (last + 1)
   },
   items: {
     size: 30

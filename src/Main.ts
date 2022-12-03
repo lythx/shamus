@@ -118,7 +118,18 @@ const handleBarrierTrigger = () => {
   spawnEnemies(room.enemies, room.spawnAreas)
 }
 
+const handleWin = () => {
+  isRunning = false
+  console.log('WIN')
+}
+
+// TODO RENDER EDGES BEFORE WALLS
+
 const onRoomChange = (roomNum: number, sideOrPos: Direction4 | Point) => {
+  if (roomNum === config.room.winningRoom) {
+    handleWin()
+    return
+  }
   state.room = roomNum
   Projectile.playerProjectiles.length = 0
   Projectile.enemyProjectiles.length = 0
@@ -196,16 +207,16 @@ Enemy.onKill = (wasLastEnemy: boolean) => {
   renderUi(state)
 }
 
-const lose = () => {
+const handleLose = () => {
   console.log('game over')
 }
 
 player.onRoomChange = onRoomChange
 player.onDeath = async () => {
-  return
+  return // TODO
   state.lifes--
   if (state.lifes === 0) {
-    lose()
+    handleLose()
     return
   }
   isRunning = false
@@ -214,7 +225,7 @@ player.onDeath = async () => {
   onRoomChange(state.room, room.spawnPoint)
 }
 
-const shadowPositions = [[0, 0], [1400, 0], [0, 800], [1400, 800]] as const
+const shadowPositions = [[0, 0], [1400, 0], [0, 800], [1400, 800]] as const // TODO CONFIG
 
 const spawnShadow = () => {
   shadowSpawned = true

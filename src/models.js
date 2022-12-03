@@ -5,7 +5,8 @@ export const models = {
     inside: {
       yellowCircle: 'yellow_circle',
       greenBrick: 'green_brick',
-      purpleHex: 'green_brick'
+      purpleHex: 'green_brick',
+      yellowSolid: 'green_brick'
     }
   },
   explosion: ['explosion1', 'explosion1', 'explosion1'],

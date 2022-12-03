@@ -1,5 +1,4 @@
 import { config } from '../config.js'
-import { Point } from '../utils/Geometry.js';
 import { GameItem } from './GameItem.js'
 
 export type GameKeyType = 'purple' | 'blue'

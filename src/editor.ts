@@ -25,7 +25,7 @@ const possibleEdges: Rectangle[] = [
   r(1110, 520, 1400, 560), r(1110, 520, 1150, 800),
   r(1360, 240, 1400, 560)
 ]
-const themes = ['yellowCircle', 'greenBrick', 'purpleHex']
+const themes = ['yellowCircle', 'greenBrick', 'purpleHex', 'yellowSolid']
 let themeIndex = 0
 let theme = 'yellowCircle'
 let placementCorrection = true
@@ -67,7 +67,7 @@ const helperPoints: Point[] = [
 const save = () => {
   document.write(JSON.stringify({
     item: {
-      type: 'mystery'
+      type: 'random'
     },
     units: {
       drone: 0,
