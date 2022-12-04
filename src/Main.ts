@@ -25,7 +25,7 @@ let debug = false
 let isRunning = true
 let shadowSpawned = false
 const state: UiData = {
-  highScore: 0, // TODO
+  highScore: 0,
   score: 0,
   lifes: config.lifesAtStart,
   room: config.room.start,

@@ -31,6 +31,35 @@
   align-items: center;
 }
 
+#intro {
+  z-index: 20;
+  width: 1400px;
+  height: 900px;
+  position: relative;
+  background-color: var(--black);
+}
+
+#introScore {
+  top: 50px;
+  left: 200px;
+}
+
+#introHighScore {
+  top: 50px;
+  right: 200px;
+}
+
+#introList {
+  grid-template-columns: 1fr 4fr;
+}
+
+#introList div {
+  width: 100%;
+  height: 100%;
+}
+
+
+
 #content {
   width: 1400px;
   height: 900px;
