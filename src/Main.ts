@@ -40,6 +40,13 @@ const unitClasses = {
   droid: Droid
 }
 
+const increaseScore = (amount: number) => {
+  state.score += amount
+  if (state.highScore < state.score) {
+    state.highScore = state.score
+  }
+}
+
 ExtraLife.onCollect = () => {
   state.lifes++
   renderUi(state)
@@ -61,10 +68,12 @@ KeyHole.onCollect = (type, edgeToDelete) => {
 }
 
 MysteryItem.onCollect = (action, amount) => {
-  if (action === 'life') {
+  if (state.room === 0) {
+    increaseScore(500)// The item in 1st room always gives 500 points
+  } else if (action === 'life') {
     state.lifes += amount
   } else if (action === 'points') {
-    state.score += amount
+    increaseScore(amount)
   }
   room.item = undefined
   renderUi(state)
@@ -195,13 +204,27 @@ events.onAction('menu', () => {
 editor.onUpdate(() => renderUnits(editor.getObjects()))
 Enemy.onKill = (wasLastEnemy: boolean) => {
   lastKillOrRoomChange = Date.now()
-  state.score += config.killScore
-  if (wasLastEnemy) { state.score += config.clearRoomScore }
+  increaseScore(config.killScore)
+  if (wasLastEnemy) { increaseScore(config.clearRoomScore) }
   renderUi(state)
 }
 
+const restartGame = () => {
+  state.score = 0
+  state.keys = []
+  state.room = config.startingRoom
+  state.lifes = config.lifesAtStart
+  isRunning = true
+  shadowSpawned = false
+  roomManager.initialize()
+  player.revive()
+  Timer.resume()
+  onRoomChange(state.room, config.room.startSide as Direction4)
+}
+
 const handleLose = () => {
-  console.log('game over')
+  setTimeout(() => restartGame(), 2000)
+  isRunning = false
 }
 
 player.onRoomChange = onRoomChange

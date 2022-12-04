@@ -4,7 +4,7 @@ import { models } from '../models.js'
 import { roomManager } from '../room/RoomManager.js'
 import { Point, Rectangle, Vector } from '../utils/Geometry.js'
 import { Rays } from '../utils/Rays.js'
-
+// TODO PURPLE PROJECTILE
 export class Drone extends Enemy {
 
   private nextAiUpdate = 0

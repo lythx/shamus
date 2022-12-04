@@ -25,7 +25,7 @@ const renderUi = (data: UiData) => {
   scoreTop.innerHTML = data.highScore.toString()
   scoreBottom.innerHTML = data.score.toString()
   lifes.innerHTML = ''
-  for (let i = 0; i < data.lifes; i++) {
+  for (let i = 0; i < data.lifes - 1; i++) {
     const div = document.createElement('div')
     lifes.appendChild(div)
   }

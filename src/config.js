@@ -74,7 +74,7 @@ export const config = {
   explosionRadius: 25,
   explosionModelChange: 100,
   aiShotFriendDetectionWidth: 100,
-  lifesAtStart: 4,
+  lifesAtStart: 5,
   lifesLimit: 12,
   killScore: 5,
   clearRoomScore: 200,
