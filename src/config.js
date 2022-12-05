@@ -59,6 +59,18 @@ export const config = {
   items: {
     size: 30
   },
+  intro: {
+    list: [
+      ['', 'Extra Life'],
+      ['', 'Mystery?'],
+      ['', 'Key'],
+      ['', 'Keyhole'],
+      ['', 'Robo-Droid'],
+      ['', 'Drone'],
+      ['', 'Jumper'],
+      ['', 'Shadow'],
+    ]
+  },
 
 
 
@@ -74,7 +86,7 @@ export const config = {
   explosionRadius: 25,
   explosionModelChange: 100,
   aiShotFriendDetectionWidth: 100,
-  lifesAtStart: 5,
+  lifesAtStart: 13, //5,
   lifesLimit: 12,
   killScore: 5,
   clearRoomScore: 200,
@@ -86,7 +98,7 @@ export const config = {
     modelUpdateInterval: 50,
     size: 25,
     shotInterval: 200,
-    speed: 190,//190,
+    speed: 170,//190,
     projectile: {
       speed: 1100,
       size: 10,
@@ -97,10 +109,10 @@ export const config = {
     movementOffset: 100,
     modelUpdateInterval: 150,
     size: 25,
-    speed: 100,
+    speed: 90,
     maxShotAngleOffset: 20,
     projectile: {
-      speed: 300,
+      speed: 250,
       size: 5,
       modelPath: 'droid/projectile',
       explosionRadius: 5
@@ -118,7 +130,7 @@ export const config = {
     movementOffset: 100,
     modelUpdateInterval: 40,
     size: 25,
-    speed: 100,
+    speed: 70,
     maxShotAngleOffset: 30,
     projectile: {
       speed: 250,
@@ -138,7 +150,7 @@ export const config = {
   jumper: {
     modelUpdateInterval: 500,
     size: 25,
-    jumpLength: 100,
+    jumpLength: 70,
     jumpLengthOffset: 50,
     speed: 0,
     jumpTime: 30,

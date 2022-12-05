@@ -10,6 +10,9 @@ export interface UiData {
   keys: string[]
 }
 const intro = document.getElementById('intro') as HTMLDivElement
+const introScore = document.getElementById('introScore') as HTMLDivElement
+const introHighscore = document.getElementById('introHighscore') as HTMLDivElement
+const introList = document.getElementById('introList') as HTMLDivElement
 const keys = document.getElementById('keys') as HTMLDivElement
 const scoreTop = document.getElementById('scoreTop') as HTMLDivElement
 const scoreBottom = document.getElementById('scoreBottom') as HTMLDivElement
@@ -21,21 +24,29 @@ const ctx = canvas.getContext('2d') as CanvasRenderingContext2D
 const debugCanvas = document.getElementById('debugCanvas') as HTMLCanvasElement
 const debugCtx = debugCanvas.getContext('2d') as CanvasRenderingContext2D
 debugCtx.strokeStyle = config.debugColor
+let isIntroListCreated = false
+
+const createIntroList = () => {
+  isIntroListCreated = true
+  for (const e of config.intro.list) {
+    const img = document.createElement('div')
+    const text = document.createElement('div')
+    img.style.backgroundImage = e[0]
+    text.innerHTML = e[1]
+    introList.appendChild(img)
+    introList.appendChild(text)
+  }
+}
 
 const renderIntro = (score: number = 0, highScore: number = 0) => {
-  const appendEl = (className: string, innerHTML?: string): HTMLDivElement => {
-    const el = document.createElement('div')
-    el.classList.add(className)
-    if (innerHTML !== undefined) {
-      el.innerHTML = innerHTML
-    }
-    intro.appendChild(el)
-    return el // TODO
-  }
-  appendEl('introScore', score.toString())
-  appendEl('introHighscore', highScore.toString())
-  const list = appendEl('introList')
-  
+  introScore.innerHTML = score.toString()
+  introHighscore.innerHTML = highScore.toString()
+  if (!isIntroListCreated) { createIntroList() }
+  intro.style.display = 'grid'
+}
+
+const removeIntro = () => {
+  intro.style.display = 'none'
 }
 
 const renderUi = (data: UiData) => {
@@ -70,4 +81,4 @@ const renderDebug = (objects: Drawable[]): void => {
   }
 }
 
-export { renderUnits, renderDebug, renderUi }
+export { renderUnits, renderDebug, renderUi, renderIntro, removeIntro }

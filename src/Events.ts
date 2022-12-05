@@ -10,6 +10,7 @@ const actionKeys: { [action in Action]: string[] } = config.controls.keyboard.ac
 const actionListeners: { action: Action, callback: () => void }[] = []
 const pressedKeys: Direction4[] = []
 let lastAngle: number | undefined
+let anyKeydownListener: (() => void) | undefined
 
 const onMoveChange = () => {
   let angle = direction4Angles[pressedKeys[0]]
@@ -42,6 +43,8 @@ const emitActionEvent = (action: Action) => {
   }
 }
 document.addEventListener('keydown', (e) => {
+  anyKeydownListener?.()
+  anyKeydownListener = undefined
   for (const action in actionKeys) {
     if (actionKeys[action as Action].includes(e.key)) {
       emitActionEvent(action as Action)
@@ -158,5 +161,9 @@ export const events = {
   },
   onAction(action: Action, callback: () => void) {
     actionListeners.push({ action, callback })
+  },
+  /** Deletes listener after it executes */
+  onAnyKeydown(callback: () => void) {
+    anyKeydownListener = callback
   }
 }

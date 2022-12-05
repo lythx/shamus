@@ -4,7 +4,7 @@ import { Projectile } from "./Projectile.js";
 import { events } from './Events.js'
 import { Circle, Drawable, Point, Rectangle } from "./utils/Geometry.js";
 import { roomManager } from './room/RoomManager.js'
-import { renderDebug, renderUi, renderUnits, UiData } from "./Renderer.js";
+import { renderDebug, renderIntro, renderUi, renderUnits, UiData, removeIntro } from "./Renderer.js";
 import { Drone } from './enemies/Drone.js'
 import { Jumper } from './enemies/Jumper.js'
 import { Shadow } from './enemies/Shadow.js'
@@ -39,6 +39,8 @@ const unitClasses = {
   jumper: Jumper,
   droid: Droid
 }
+
+
 
 const increaseScore = (amount: number) => {
   state.score += amount
@@ -161,7 +163,13 @@ const onRoomChange = (roomNum: number, sideOrPos: Direction4 | Point) => {
 }
 
 const player = new Player(new Point(-100, -100))
-onRoomChange(state.room, config.room.startSide as Direction4)
+
+renderIntro()
+events.onAnyKeydown(() => {
+  removeIntro()
+  onRoomChange(state.room, config.room.startSide as Direction4)
+  requestAnimationFrame(gameLoop)
+})
 
 events.onMovementChange((isMoving, angle) => {
   if (!isMoving) {
@@ -219,11 +227,14 @@ const restartGame = () => {
   roomManager.initialize()
   player.revive()
   Timer.resume()
+  removeIntro()
   onRoomChange(state.room, config.room.startSide as Direction4)
+  requestAnimationFrame(gameLoop)
 }
 
 const handleLose = () => {
-  setTimeout(() => restartGame(), 2000)
+  renderIntro()
+  events.onAnyKeydown(() => restartGame())
   isRunning = false
 }
 
@@ -328,8 +339,6 @@ const gameLoop = () => {
     renderDebug(objects)
   }
 }
-
-requestAnimationFrame(gameLoop)
 
 //new Shadow(new Point(350, 350))
 // new Drone(new Point(400, 400), 'blue')
