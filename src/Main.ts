@@ -339,8 +339,3 @@ const gameLoop = () => {
     renderDebug(objects)
   }
 }
-
-//new Shadow(new Point(350, 350))
-// new Drone(new Point(400, 400), 'blue')
-// new Jumper(new Point(350, 300))
-Enemy.enemies.sort(a => player.pos.calculateDistance(a.pos)) // todo
