@@ -9,7 +9,8 @@ export interface UiData {
   level: string
   keys: string[]
 }
-const keys = document.getElementById('keys') as HTMLElement
+const intro = document.getElementById('intro') as HTMLDivElement
+const keys = document.getElementById('keys') as HTMLDivElement
 const scoreTop = document.getElementById('scoreTop') as HTMLDivElement
 const scoreBottom = document.getElementById('scoreBottom') as HTMLDivElement
 const lifes = document.getElementById('lifes') as HTMLDivElement
@@ -20,6 +21,22 @@ const ctx = canvas.getContext('2d') as CanvasRenderingContext2D
 const debugCanvas = document.getElementById('debugCanvas') as HTMLCanvasElement
 const debugCtx = debugCanvas.getContext('2d') as CanvasRenderingContext2D
 debugCtx.strokeStyle = config.debugColor
+
+const renderIntro = (score: number = 0, highScore: number = 0) => {
+  const appendEl = (className: string, innerHTML?: string): HTMLDivElement => {
+    const el = document.createElement('div')
+    el.classList.add(className)
+    if (innerHTML !== undefined) {
+      el.innerHTML = innerHTML
+    }
+    intro.appendChild(el)
+    return el // TODO
+  }
+  appendEl('introScore', score.toString())
+  appendEl('introHighscore', highScore.toString())
+  const list = appendEl('introList')
+  
+}
 
 const renderUi = (data: UiData) => {
   scoreTop.innerHTML = data.highScore.toString()
