@@ -71,6 +71,12 @@ export const config = {
       ['', 'Shadow'],
     ]
   },
+  audio: {
+    player: {
+      shot: 'shot.mp3',
+      step: 'step.mp3'
+    }
+  },
 
 
 

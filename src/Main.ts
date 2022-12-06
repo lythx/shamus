@@ -40,6 +40,12 @@ const unitClasses = {
   droid: Droid
 }
 
+// const audioContext = new AudioContext();
+// const audioElement = new Audio('./assets/audio/step.mp3')
+// const track = audioContext.createMediaElementSource(audioElement)
+// track.connect(audioContext.destination);
+// audioElement.loop = true
+// audioElement.play() // TODO
 
 
 const increaseScore = (amount: number) => {

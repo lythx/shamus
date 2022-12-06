@@ -6,6 +6,7 @@ import { Projectile } from "./Projectile.js";
 import { roomManager } from "./room/RoomManager.js";
 import { Point, Vector } from "./utils/Geometry.js";
 import { Direction8, angle8Directions, Direction4 } from './utils/Directions.js'
+import { AudioPlayer } from "./AudioPlayer.js";
 
 const infinity = 1000000
 
@@ -15,6 +16,7 @@ export class Player extends Fighter {
   projectileSize: number
   nextShot: number = 0
   nextModelUpdate: number = 0
+  private audioPlayer = new AudioPlayer('player')
   onRoomChange: ((room: number, entranceUsed: Direction4, pos: Point) => void) | undefined
   isDead = false
   onDeath: () => void = () => undefined
@@ -139,6 +141,7 @@ export class Player extends Fighter {
 
   shoot(): void {
     if (this.nextShot > Date.now() || this.isDead) { return }
+    this.audioPlayer.play('shot')
     this.nextShot = Date.now() + this.shotInterval
     this._shoot(this._angle)
   }
