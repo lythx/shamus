@@ -39,7 +39,7 @@ export class Shadow extends Enemy {
     })
     this.target.disable()
     Shadow.audioPlayer.play('spawn')
-    this.stepAudioId = Shadow.audioPlayer.play('step', true, 1500)
+    this.stepAudioId = Shadow.audioPlayer.play('step', false, true, 1500)
   }
 
   update(playerPos: Point): void {

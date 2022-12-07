@@ -75,12 +75,17 @@ export const config = {
     player: {
       shot: 'shot.mp3',
       step: 'step.mp3',
-      death: 'death.mp3',
-      noLifesDeath: 'no_lifes_death.mp3'
+      death: 'death.mp3'
     },
     shadow: {
       spawn: 'spawn.mp3',
       step: 'step.mp3'
+    },
+    drone: {
+      shot: 'shot.mp3'
+    },
+    other: {
+      itemCollect: 'item_collect.mp3'
     }
   },
 

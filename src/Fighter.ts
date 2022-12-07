@@ -1,6 +1,7 @@
 import { Projectile } from "./Projectile.js";
 import { Point } from "./utils/Geometry.js";
 import { Unit } from "./Unit.js"
+import { AudioPlayer } from "./AudioPlayer.js";
 
 interface FighterOptions {
   pos: Point
@@ -34,7 +35,7 @@ export abstract class Fighter extends Unit {
   /**
    * Fires a projectile in given angle
    */
-  protected _shoot(angle: number) {
+  protected _shoot(angle: number, audio?: { player: AudioPlayer, id: number }) {
     new Projectile({
       pos: this.pos,
       angle,
@@ -43,7 +44,7 @@ export abstract class Fighter extends Unit {
       side: this.side,
       image: this.projectileImage,
       explosionRadius: this.projectileExplosion
-    }, this)
+    }, this, audio)
   }
 
 }

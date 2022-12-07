@@ -24,6 +24,7 @@ import { Room } from "./room/Room.js";
 import { Direction4, oppositeDirection4 } from "./utils/Directions.js";
 import { AudioPlayer } from "./AudioPlayer.js";
 
+const audioPlayer = new AudioPlayer('other')
 roomManager.initialize()
 let debug = false
 let isRunning = false
@@ -73,18 +74,21 @@ const increaseScore = (amount: number) => {
 }
 
 ExtraLife.onCollect = () => {
+  audioPlayer.play('itemCollect')
   player.lifes++
   updateUi()
   room.item = undefined
 }
 
 GameKey.onCollect = (type) => {
+  audioPlayer.play('keyCollect')
   state.keys.push(type)
   room.item = undefined
   updateUi()
 }
 
 KeyHole.onCollect = (type, edgeToDelete) => {
+  audioPlayer.play('keyCollect')
   if (!state.keys.includes(type)) { return }
   room.item = undefined
   state.keys = state.keys.filter(a => a !== type)
@@ -93,6 +97,7 @@ KeyHole.onCollect = (type, edgeToDelete) => {
 }
 
 MysteryItem.onCollect = (action, amount) => {
+  audioPlayer.play('itemCollect')
   if (room.roomNumber === 0) {
     increaseScore(500)// The item in 1st room always gives 500 points
   } else if (action === 'life') {

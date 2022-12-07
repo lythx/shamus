@@ -124,6 +124,7 @@ export class Player extends Fighter {
     this.isDead = true
     this.stop()
     this.onDeath()
+    Player.audioPlayer.play('death', true)
   }
 
   /**

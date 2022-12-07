@@ -1,3 +1,4 @@
+import { AudioPlayer } from '../AudioPlayer.js'
 import { config } from '../config.js'
 import { Enemy } from '../Enemy.js'
 import { models } from '../models.js'
@@ -13,6 +14,7 @@ export class Drone extends Enemy {
   private readonly models: HTMLImageElement[]
   private modelChange = 0
   private modelIndex = 0
+  private static audioPlayer = new AudioPlayer('drone')
   private readonly modelChangeInterval = config.drone.modelUpdateInterval
   private readonly aiRange = config.drone.ai.range
   private readonly aiUpdateInterval = config.drone.ai.updateInterval
@@ -216,7 +218,9 @@ export class Drone extends Enemy {
     const randOffset = Math.random() * this.shotIntervalOffset
     this.nextShot = Date.now() +
       this.shotInterval + randOffset - (this.shotIntervalOffset / 2)
-    this._shoot(direction)
+    console.log('PENISER XD')
+    const audioId = Drone.audioPlayer.play('shot')
+    this._shoot(direction, { player: Drone.audioPlayer, id: audioId })
   }
 
 }

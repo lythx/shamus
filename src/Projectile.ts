@@ -1,3 +1,4 @@
+import { AudioPlayer } from "./AudioPlayer.js";
 import { Enemy } from "./Enemy.js";
 import { roomManager } from "./room/RoomManager.js";
 import { Unit } from "./Unit.js";
@@ -21,8 +22,9 @@ export class Projectile extends Unit {
   private readonly image: HTMLImageElement
   private readonly shooter: Unit
   private readonly explosionRadius: number
+  private readonly audio: { player: AudioPlayer, id: number } | undefined
 
-  constructor(options: ProjectileOptions, shooter: Unit) {
+  constructor(options: ProjectileOptions, shooter: Unit, audio?: { player: AudioPlayer, id: number }) {
     super(options)
     this.move(options.angle, infinty)
     this.side === 'player' ? Projectile.playerProjectiles.push(this)
@@ -30,6 +32,7 @@ export class Projectile extends Unit {
     this.image = options.image
     this.shooter = shooter
     this.explosionRadius = options.explosionRadius
+    this.audio = audio
   }
 
   update(): void {
@@ -82,6 +85,7 @@ export class Projectile extends Unit {
    * Stops listeners and unloads object from memory
    */
   destroy(): void {
+    if (this.audio !== undefined) { this.audio.player.stop(this.audio.id) }
     this.tween?.stop()
     if (this.side === 'enemy') {
       const index = Projectile.enemyProjectiles.indexOf(this)

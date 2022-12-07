@@ -6,7 +6,6 @@ export class AudioPlayer {
   id = 0
   context: keyof typeof sounds
   audios: { [id: number]: HTMLAudioElement | undefined } = {}
-  static: AudioPlayer[] = []
   static isStopped = false
   static players: AudioPlayer[] = []
 
@@ -43,8 +42,8 @@ export class AudioPlayer {
     }
   }
 
-  play(soundName: string, loop: boolean = false, delay?: number): number {
-    if (AudioPlayer.isStopped) { return -1 }
+  play(soundName: string, forcePlay: boolean = false, loop: boolean = false, delay?: number): number {
+    if (!forcePlay && AudioPlayer.isStopped) { return -1 }
     const source: string = (sounds[this.context] as any)[soundName]
     const audio = new Audio(`./assets/audio/${this.context}/${source}`)
     audio.volume = 0.1 // TODO
