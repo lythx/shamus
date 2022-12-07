@@ -10,7 +10,7 @@ const actionKeys: { [action in Action]: string[] } = config.controls.keyboard.ac
 const actionListeners: { action: Action, callback: () => void }[] = []
 const pressedKeys: Direction4[] = []
 let lastAngle: number | undefined
-let anyKeydownListener: (() => void) | undefined
+let anyKeydownListener: ((key: string) => void) | undefined
 let blurListener: (() => void) | undefined
 
 const onMoveChange = () => {
@@ -46,7 +46,7 @@ const emitActionEvent = (action: Action) => {
 document.addEventListener('keydown', (e) => {
   const listener = anyKeydownListener
   anyKeydownListener = undefined
-  listener?.()
+  listener?.(e.key)
   for (const action in actionKeys) {
     if (actionKeys[action as Action].includes(e.key)) {
       emitActionEvent(action as Action)
@@ -122,10 +122,19 @@ window.addEventListener("gamepaddisconnected", () => {
 
 const buttonState: { [action in PadAction]: boolean } = Object.fromEntries(
   Object.keys(padActionButtons).map(a => [a, false])) as any
+const lastButtonState: boolean[] = []
 
 const padPoll = () => {
   if (gamepad === undefined) { return }
   requestAnimationFrame(padPoll)
+  for (let i = 0; i < gamepad.buttons.length; i++) {
+    if (gamepad.buttons[i].pressed && !lastButtonState[i]) {
+      const listener = anyKeydownListener
+      anyKeydownListener = undefined
+      listener?.(String(i))
+    }
+    lastButtonState[i] = gamepad.buttons[i].pressed
+  }
   for (const action in padActionButtons) {
     let isPressed = false
     for (let i = 0; i < padActionButtons[action as PadAction].length; i++) {
@@ -169,7 +178,7 @@ export const events = {
     actionListeners.push({ action, callback })
   },
   /** Deletes listener after it executes */
-  onAnyKeydown(callback: () => void) {
+  onAnyKeydown(callback: (key: string) => void) {
     anyKeydownListener = callback
   },
   onBlur(callback: () => void) {

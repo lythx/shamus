@@ -15,6 +15,7 @@ const intro = document.getElementById('intro') as HTMLDivElement
 const introScore = document.getElementById('introScore') as HTMLDivElement
 const introHighscore = document.getElementById('introHighscore') as HTMLDivElement
 const introList = document.getElementById('introList') as HTMLDivElement
+const introDifficulty = document.getElementById('introDifficulty') as HTMLDivElement
 const keys = document.getElementById('keys') as HTMLDivElement
 const scoreTop = document.getElementById('scoreTop') as HTMLDivElement
 const scoreBottom = document.getElementById('scoreBottom') as HTMLDivElement
@@ -59,9 +60,10 @@ const createIntroList = () => {
   }
 }
 
-const renderIntro = (score: number = 0, highScore: number = 0) => {
+const renderIntro = (difficulty: keyof typeof config.speedMultipliers, score: number = 0, highScore: number = 0) => {
   introScore.innerHTML = score.toString()
   introHighscore.innerHTML = highScore.toString()
+  introDifficulty.innerHTML = difficulty
   if (!isIntroListCreated) { createIntroList() }
   intro.style.display = 'grid'
 }

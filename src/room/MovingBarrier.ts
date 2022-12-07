@@ -19,7 +19,6 @@ export class MovingBarrier implements Drawable {
     this.hitboxes =
       [new Rectangle(new Point(x - this.width / 2, -(this.rectH + this.offset)), this.width, this.rectH),
       new Rectangle(new Point(x - this.width / 2, this.gap - this.offset), this.width, this.rectH)]
-    console.table(this.hitboxes)
     if (shootSide === 'left') {
       this.trigger = new Rectangle(this.hitboxes[0].b, 10, 20000)
     } else {

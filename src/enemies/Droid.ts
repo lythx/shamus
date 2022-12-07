@@ -1,3 +1,4 @@
+import { AudioPlayer } from '../AudioPlayer.js'
 import { config } from '../config.js'
 import { Enemy } from '../Enemy.js'
 import { models } from '../models.js'
@@ -11,6 +12,7 @@ export class Droid extends Enemy {
 
   private nextAiUpdate = 0
   private nextShot = Date.now() + config.shotTimeoutOnRoomLoad
+  private static audioPlayer = new AudioPlayer('droid')
   private nextCollisionCheck = 0
   private readonly models: {
     up: HTMLImageElement[],

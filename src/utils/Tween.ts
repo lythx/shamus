@@ -5,6 +5,7 @@ import { Point, Vector } from "./Geometry.js"
 export class Tween {
 
   private timer: Timer
+  static speedMultiplier: number
   vector: Vector
   destination: Point
   currentPosition: Point
@@ -13,7 +14,7 @@ export class Tween {
 
   constructor(start: Point, end: Point, speed: number) {
     this.vector = new Vector(start, end)
-    this.timer = new Timer().start((this.vector.length * 10000) / (speed * config.speedMultiplier))
+    this.timer = new Timer().start((this.vector.length * 10000) / (speed * Tween.speedMultiplier))
     this.currentPosition = start
     this.destination = end
     this.timer.onUpdate = () => {
@@ -31,7 +32,7 @@ export class Tween {
     this.destination = this.currentPosition
     this.timer.stop()
     this.vector = new Vector(start, end)
-    this.timer = new Timer().start((this.vector.length * 10000) / (speed * config.speedMultiplier))
+    this.timer = new Timer().start((this.vector.length * 10000) / (speed * Tween.speedMultiplier))
     this.currentPosition = start
     this.destination = end
     this.timer.onUpdate = () => {

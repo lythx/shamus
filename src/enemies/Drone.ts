@@ -218,7 +218,6 @@ export class Drone extends Enemy {
     const randOffset = Math.random() * this.shotIntervalOffset
     this.nextShot = Date.now() +
       this.shotInterval + randOffset - (this.shotIntervalOffset / 2)
-    console.log('PENISER XD')
     const audioId = Drone.audioPlayer.play('shot')
     this._shoot(direction, { player: Drone.audioPlayer, id: audioId })
   }

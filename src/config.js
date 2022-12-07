@@ -27,7 +27,8 @@ export const config = {
         menu: ['Escape'],
         debug: ['Control'], // TODO check if works
         editor: ['p']
-      }
+      },
+      changeDifficulty: ' '
     },
     gamepad: {
       movementAxis: 'left', // left or right
@@ -35,7 +36,8 @@ export const config = {
         shoot: [0],
         menu: [4],
         debug: [5]
-      }
+      },
+      changeDifficulty: [0]
     }
   },
   room: {
@@ -84,9 +86,20 @@ export const config = {
     drone: {
       shot: 'shot.mp3'
     },
+    droid: {
+      shot: 'shot.mp3'
+    },
     other: {
-      itemCollect: 'item_collect.mp3'
+      itemCollect: 'item_collect.mp3',
+      keyCollect: 'key_collect.mp3'
     }
+  },
+  difficulties: ['novice', 'experienced', 'advanced', 'expert'],
+  speedMultipliers: {
+    novice: 18,
+    experienced: 26,
+    advanced: 36,
+    expert: 50
   },
 
 
@@ -96,9 +109,6 @@ export const config = {
 
 
 
-
-  startingRoom: 0,
-  speedMultiplier: 20,
   wallUpdateInterval: 100,
   explosionRadius: 25,
   explosionModelChange: 100,
@@ -114,7 +124,7 @@ export const config = {
   player: {
     modelUpdateInterval: 50,
     size: 25,
-    shotInterval: 200,
+    shotInterval: 100,
     speed: 150,
     roomClearSpeed: 250,
     projectile: {
@@ -186,10 +196,10 @@ export const config = {
   },
   shadow: {
     spawnTimeout: 10000,
-    modelUpdateInterval: 500,
+    modelUpdateInterval: 200,
     movementOffset: 30,
     size: 25,
-    speed: 130,
+    speed: 150,
     projectile: {
       speed: 0,
       size: 0,

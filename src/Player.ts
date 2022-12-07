@@ -20,6 +20,7 @@ export class Player extends Fighter {
   private static audioPlayer = new AudioPlayer('player')
   onRoomChange: ((room: number, entranceUsed: Direction4, pos: Point) => void) | undefined
   isDead = false
+  private stepAudioId: number = -1
   onDeath: () => void = () => undefined
   readonly directions = angle8Directions
   readonly models: { [direction in Direction8]: HTMLImageElement[] } = {
@@ -131,12 +132,15 @@ export class Player extends Fighter {
    * Stops unit movement
    */
   stop() {
+    Player.audioPlayer.stop(this.stepAudioId)
     this.currentDirection = undefined
     this.tween?.stop()
   }
 
   move(angle: number): void {
     if (this.isDead) { return }
+    Player.audioPlayer.stop(this.stepAudioId)
+    this.stepAudioId = Player.audioPlayer.play('step')
     this.currentDirection = this.directions[angle]
     this.modelIndex = 0
     this._move(new Vector(this.pos, angle, infinity))

@@ -47,6 +47,7 @@ export class AudioPlayer {
     const source: string = (sounds[this.context] as any)[soundName]
     const audio = new Audio(`./assets/audio/${this.context}/${source}`)
     audio.volume = 0.1 // TODO
+    this.id = (this.id + 1) % 30
     if (delay !== undefined) {
       setTimeout(() => audio.play(), delay)
     } else {
@@ -54,8 +55,11 @@ export class AudioPlayer {
     }
     if (loop) {
       audio.onended = () => audio.play()
+    } else {
+      audio.onended = () => {
+        this.stop(this.id)
+      }
     }
-    this.id = (this.id + 1) % 30
     this.audios[this.id] = audio
     return this.id
   }

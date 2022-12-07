@@ -23,9 +23,11 @@ import { Timer } from './utils/Timer.js'
 import { Room } from "./room/Room.js";
 import { Direction4, oppositeDirection4 } from "./utils/Directions.js";
 import { AudioPlayer } from "./AudioPlayer.js";
+import { Tween } from "./utils/Tween.js";
 
 const audioPlayer = new AudioPlayer('other')
 roomManager.initialize()
+let difficulty: keyof typeof config.speedMultipliers
 let debug = false
 let isRunning = false
 let shadowSpawned = false
@@ -194,15 +196,23 @@ const onRoomChange = (roomNum: number, sideOrPos: Direction4 | Point) => {
 
 const player = new Player(new Point(-100, -100))
 
+const handleIntroKeydown = (key: string) => {
+  if (config.controls.keyboard.changeDifficulty === key) {
+    difficulty = config.difficulties[
+      (config.difficulties.indexOf(difficulty) + 1) % config.difficulties.length] as any
+    renderIntro(difficulty, state.score, state.highScore)
+    events.onAnyKeydown((key) => handleIntroKeydown(key))
+    return
+  }
+  Tween.speedMultiplier = config.speedMultipliers[difficulty]
+  restartGame()
+}
+
 events.onAnyKeydown(() => {
   removeStart()
-  renderIntro()
-  events.onAnyKeydown(() => {
-    removeIntro()
-    isRunning = true
-    onRoomChange(config.startingRoom, config.room.startSide as Direction4)
-    requestAnimationFrame(gameLoop)
-  })
+  difficulty = 'novice'
+  renderIntro(difficulty)
+  events.onAnyKeydown((key) => handleIntroKeydown(key))
 })
 
 events.onMovementChange((isMoving, angle) => {
@@ -279,13 +289,13 @@ const restartGame = () => {
   player.revive()
   Timer.resume()
   removeIntro()
-  onRoomChange(config.startingRoom, config.room.startSide as Direction4)
+  onRoomChange(config.room.start, config.room.startSide as Direction4)
   requestAnimationFrame(gameLoop)
 }
 
 const handleLose = () => {
-  renderIntro(state.score, state.highScore)
-  events.onAnyKeydown(() => restartGame())
+  renderIntro(difficulty, state.score, state.highScore)
+  events.onAnyKeydown((key) => handleIntroKeydown(key))
   isRunning = false
 }
 
