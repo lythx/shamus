@@ -13,7 +13,7 @@ export abstract class Unit implements Drawable {
 
   private _pos: Point
   readonly size: number
-  readonly speed: number
+  speed: number
   protected tween: Tween
   readonly side: 'player' | 'enemy'
   protected _angle: number = 0

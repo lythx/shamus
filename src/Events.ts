@@ -43,8 +43,9 @@ const emitActionEvent = (action: Action) => {
   }
 }
 document.addEventListener('keydown', (e) => {
-  anyKeydownListener?.()
+  const listener = anyKeydownListener
   anyKeydownListener = undefined
+  listener?.()
   for (const action in actionKeys) {
     if (actionKeys[action as Action].includes(e.key)) {
       emitActionEvent(action as Action)

@@ -4,7 +4,10 @@ import { Projectile } from "./Projectile.js";
 import { events } from './Events.js'
 import { Circle, Drawable, Point, Rectangle } from "./utils/Geometry.js";
 import { roomManager } from './room/RoomManager.js'
-import { renderDebug, renderIntro, renderUi, renderUnits, UiData, removeIntro } from "./Renderer.js";
+import {
+  renderDebug, renderIntro, renderUi, renderUnits, UiData, removeIntro, removeStart
+  , displayPause, removePause
+} from "./Renderer.js";
 import { Drone } from './enemies/Drone.js'
 import { Jumper } from './enemies/Jumper.js'
 import { Shadow } from './enemies/Shadow.js'
@@ -39,6 +42,7 @@ const unitClasses = {
   jumper: Jumper,
   droid: Droid
 }
+let isPlayedDead = false
 
 // const audioContext = new AudioContext();
 // const audioElement = new Audio('./assets/audio/step.mp3')
@@ -152,6 +156,7 @@ const onRoomChange = (roomNum: number, sideOrPos: Direction4 | Point) => {
   Projectile.enemyProjectiles.length = 0
   Enemy.enemies.length = 0
   player.stop()
+  player.speed = config.player.speed
   player.pos = new Point(-1, -1)
   if (typeof sideOrPos === 'string') {
     room = roomManager.loadRoom(state.room, oppositeDirection4(sideOrPos))
@@ -170,11 +175,14 @@ const onRoomChange = (roomNum: number, sideOrPos: Direction4 | Point) => {
 
 const player = new Player(new Point(-100, -100))
 
-renderIntro()
 events.onAnyKeydown(() => {
-  removeIntro()
-  onRoomChange(state.room, config.room.startSide as Direction4)
-  requestAnimationFrame(gameLoop)
+  removeStart()
+  renderIntro()
+  events.onAnyKeydown(() => {
+    removeIntro()
+    onRoomChange(state.room, config.room.startSide as Direction4)
+    requestAnimationFrame(gameLoop)
+  })
 })
 
 events.onMovementChange((isMoving, angle) => {
@@ -206,20 +214,24 @@ events.onAction('editor', () => {
   }
 })
 events.onAction('menu', () => {
-  console.log('pause') // todo
   isRunning = false
   Timer.pause()
-  setTimeout(() => {
+  displayPause()
+  events.onAnyKeydown(() => {
+    removePause()
     isRunning = true
     Timer.resume()
-  }, 1000)
+  })
 })
 
 editor.onUpdate(() => renderUnits(editor.getObjects()))
 Enemy.onKill = (wasLastEnemy: boolean) => {
   lastKillOrRoomChange = Date.now()
   increaseScore(config.killScore)
-  if (wasLastEnemy) { increaseScore(config.clearRoomScore) }
+  if (wasLastEnemy) {
+    increaseScore(config.clearRoomScore)
+    player.speed = config.player.roomClearSpeed
+  }
   renderUi(state)
 }
 
@@ -248,6 +260,7 @@ player.onRoomChange = onRoomChange
 player.onDeath = async () => {
   state.lifes--
   Timer.pause()
+  isPlayedDead = true
   renderUi(state)
   await new Promise(resolve => setTimeout(resolve, 1000))
   player.revive()
@@ -255,6 +268,7 @@ player.onDeath = async () => {
     handleLose()
     return
   }
+  isPlayedDead = false
   Timer.resume()
   onRoomChange(state.room, room.spawnPoint)
 }
@@ -274,22 +288,24 @@ const gameLoop = () => {
     spawnShadow()
   }
   player.update()
-  for (let i = 0; i < Projectile.playerProjectiles.length; i++) {
-    Projectile.playerProjectiles[i].update()
-  }
-  for (let i = 0; i < Projectile.enemyProjectiles.length; i++) {
-    Projectile.enemyProjectiles[i].update()
-  }
-  for (let i = 0; i < Enemy.enemies.length; i++) {
-    Enemy.enemies[i].update(player.pos)
-  }
-  if (room.item !== undefined) {
-    room.item.checkCollision(player)
-  }
-  if (room.hasBarriers) {
+  if (!isPlayedDead) {
     for (let i = 0; i < Projectile.playerProjectiles.length; i++) {
-      if (room.checkIfBarrierTriggered(Projectile.playerProjectiles[i].hitbox)) {
-        handleBarrierTrigger()
+      Projectile.playerProjectiles[i].update()
+    }
+    for (let i = 0; i < Projectile.enemyProjectiles.length; i++) {
+      Projectile.enemyProjectiles[i].update()
+    }
+    for (let i = 0; i < Enemy.enemies.length; i++) {
+      Enemy.enemies[i].update(player.pos)
+    }
+    if (room.item !== undefined) {
+      room.item.checkCollision(player)
+    }
+    if (room.hasBarriers) {
+      for (let i = 0; i < Projectile.playerProjectiles.length; i++) {
+        if (room.checkIfBarrierTriggered(Projectile.playerProjectiles[i].hitbox)) {
+          handleBarrierTrigger()
+        }
       }
     }
   }

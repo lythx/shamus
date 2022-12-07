@@ -9,6 +9,7 @@ export interface UiData {
   level: string
   keys: string[]
 }
+const pause = document.getElementById('pause') as HTMLDivElement
 const intro = document.getElementById('intro') as HTMLDivElement
 const introScore = document.getElementById('introScore') as HTMLDivElement
 const introHighscore = document.getElementById('introHighscore') as HTMLDivElement
@@ -25,6 +26,21 @@ const debugCanvas = document.getElementById('debugCanvas') as HTMLCanvasElement
 const debugCtx = debugCanvas.getContext('2d') as CanvasRenderingContext2D
 debugCtx.strokeStyle = config.debugColor
 let isIntroListCreated = false
+
+const displayPause = () => {
+  pause.style.display = 'flex'
+}
+
+const removePause = () => {
+  pause.style.display = 'none'
+}
+
+const removeStart = () => {
+  const start = document.getElementById('start')
+  if (start !== null) {
+    start.remove()
+  }
+}
 
 const createIntroList = () => {
   isIntroListCreated = true
@@ -81,4 +97,4 @@ const renderDebug = (objects: Drawable[]): void => {
   }
 }
 
-export { renderUnits, renderDebug, renderUi, renderIntro, removeIntro }
+export { renderUnits, renderDebug, renderUi, renderIntro, removeIntro, removeStart, displayPause, removePause }

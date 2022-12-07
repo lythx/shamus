@@ -104,7 +104,8 @@ export const config = {
     modelUpdateInterval: 50,
     size: 25,
     shotInterval: 200,
-    speed: 170,//190,
+    speed: 150,
+    roomClearSpeed: 250,
     projectile: {
       speed: 1100,
       size: 10,

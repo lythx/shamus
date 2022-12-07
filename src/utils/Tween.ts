@@ -45,6 +45,14 @@ export class Tween {
     }
   }
 
+  pause() {
+    this.timer.pause()
+  }
+
+  resume() {
+    this.timer.resume()
+  }
+
   get remainingTime(): number {
     return this.timer.remainingTime
   }

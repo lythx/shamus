@@ -41,13 +41,14 @@ export class Timer {
   }
 
   pause() {
-    if (!this.isStarted) { return }
+    if (!this.isStarted || this.isPaused) { return }
     this.savedRemainingTime = this.remainingTime
     this.isPaused = true
   }
 
   resume() {
-    if (!this.isStarted) { return }
+    if (!this.isStarted || !this.isPaused) { return }
+
     this.endTimestamp = Date.now() + this.savedRemainingTime
     this.isPaused = false
     this.cycle()
