@@ -35,7 +35,7 @@ export class RoomEntrance extends Rectangle {
     this.position = pos
     this.orientation = this.width < this.height ? 'vertical' : 'horizontal'
     this.nextRoom = nextRoom
-    this.spawnPoint = RoomEntrance.spawnPoints[pos]
+    this.spawnPoint = RoomEntrance.spawnPoints[pos] //todo change key color
   }
 
   getEntryPosition = (playerPos: Point): Point =>

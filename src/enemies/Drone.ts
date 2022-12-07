@@ -5,11 +5,11 @@ import { models } from '../models.js'
 import { roomManager } from '../room/RoomManager.js'
 import { Point, Rectangle, Vector } from '../utils/Geometry.js'
 import { Rays } from '../utils/Rays.js'
-// TODO PURPLE PROJECTILE
 export class Drone extends Enemy {
 
   private nextAiUpdate = 0
-  private nextShot = Date.now() + config.shotTimeoutOnRoomLoad
+  private nextShot = Date.now() + config.aiDelay
+  private aiActivation = Date.now() + config.aiDelay
   private nextCollisionCheck = 0
   private readonly models: HTMLImageElement[]
   private modelChange = 0
@@ -28,7 +28,11 @@ export class Drone extends Enemy {
   constructor(pos: Point, colour: 'blue' | 'purple') {
     super({
       ...config.drone,
-      pos
+      pos,
+      projectile: {
+        modelPath: colour === 'blue' ? 'drone/projectile_blue' : 'drone/projectile_purple',
+        ...config.drone.projectile
+      }
     })
     this.models = models.drone[colour].map(a => {
       const img = new Image()
@@ -61,7 +65,7 @@ export class Drone extends Enemy {
   }
 
   private movementAi(playerPos: Point) {
-    if (playerPos.calculateDistance(this.pos) > this.aiRange) {
+    if (this.aiActivation > Date.now() || playerPos.calculateDistance(this.pos) > this.aiRange) {
       this.untargetedMove()
     } else {
       this.targetedMove(playerPos)

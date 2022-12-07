@@ -1,7 +1,6 @@
 import { config } from '../config.js'
 import { Circle, Drawable, Point, Rectangle } from '../utils/Geometry.js'
 import { Tween } from '../utils/Tween.js'
-// TODO DRAWABLE OUT OF GEOM
 export class MovingBarrier implements Drawable {
 
   readonly x: number
@@ -48,7 +47,7 @@ export class MovingBarrier implements Drawable {
   draw(ctx: CanvasRenderingContext2D): void {
     const initialFillStyle = ctx.fillStyle
     ctx.fillStyle = config.room.movingBarrier.color
-    for (const e of this.hitboxes) { // TODO COLOUR
+    for (const e of this.hitboxes) { 
       ctx.fillRect(e.a.x, e.a.y, e.width, e.height)
     }
     ctx.fillStyle = initialFillStyle

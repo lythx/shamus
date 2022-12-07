@@ -36,9 +36,7 @@ export class AudioPlayer {
 
   stopAll() {
     for (const key in this.audios) {
-      this.audios[key]?.pause?.()
-      this.audios[key]?.remove?.()
-      this.audios[key] = undefined
+      this.stop(Number(key))
     }
   }
 
@@ -46,7 +44,7 @@ export class AudioPlayer {
     if (!forcePlay && AudioPlayer.isStopped) { return -1 }
     const source: string = (sounds[this.context] as any)[soundName]
     const audio = new Audio(`./assets/audio/${this.context}/${source}`)
-    audio.volume = 0.1 // TODO
+    audio.volume = 0.1 
     this.id = (this.id + 1) % 30
     if (delay !== undefined) {
       setTimeout(() => audio.play(), delay)

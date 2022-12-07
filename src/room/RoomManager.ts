@@ -68,7 +68,7 @@ const initialize = () => {
       } else if (itemObj.type === 'extra life') {
         item = { obj: new ExtraLife(), pos }
       } else if (itemObj.type === 'keyhole') {
-        const r = itemObj.edgeToDelete // todo fix purple color
+        const r = itemObj.edgeToDelete 
         const edgeToDelete = new Rectangle(new Point(r[0], r[1]), new Point(r[2], r[3]))
         item = {
           obj: new KeyHole(itemObj.color as any, edgeToDelete), pos

@@ -12,6 +12,7 @@ export interface UiData {
 const pause = document.getElementById('pause') as HTMLDivElement
 const win = document.getElementById('win') as HTMLDivElement
 const intro = document.getElementById('intro') as HTMLDivElement
+const introControls = document.getElementById('introControls') as HTMLDivElement
 const introScore = document.getElementById('introScore') as HTMLDivElement
 const introHighscore = document.getElementById('introHighscore') as HTMLDivElement
 const introList = document.getElementById('introList') as HTMLDivElement
@@ -53,10 +54,22 @@ const createIntroList = () => {
   for (const e of config.intro.list) {
     const img = document.createElement('div')
     const text = document.createElement('div')
-    img.style.backgroundImage = e[0]
+    text.classList.add('introListText')
+    img.classList.add('introListImg')
+    img.style.backgroundImage = `url('./assets/${e[0]}')`
     text.innerHTML = e[1]
     introList.appendChild(img)
     introList.appendChild(text)
+  }
+  for (const e of config.intro.controls) {
+    const text1 = document.createElement('div')
+    const text2 = document.createElement('div')
+    text1.classList.add('introControlsEntry')
+    text2.classList.add('introControlsEntry')
+    text1.innerHTML = e[0]
+    text2.innerHTML = e[1]
+    introControls.appendChild(text1)
+    introControls.appendChild(text2)
   }
 }
 

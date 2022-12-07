@@ -1,3 +1,4 @@
+import { AudioPlayer } from "./AudioPlayer.js";
 import { config } from "./config.js";
 import { models } from "./models.js";
 import { Circle, Point } from "./utils/Geometry.js";
@@ -10,6 +11,7 @@ export class Explosion extends Circle {
     img.src = `./assets/explosion/${a}.png`
     return img
   })
+  static audioPlayer = new AudioPlayer('other')
   private currentModel: number = 0
   private nextModelChange: number
   private readonly modelChangeInterval = config.explosionModelChange
@@ -18,6 +20,7 @@ export class Explosion extends Circle {
     super(pos, config.explosionRadius)
     Explosion.explosions.push(this)
     this.nextModelChange = Date.now() + this.modelChangeInterval
+    Explosion.audioPlayer.play('explosion')
   }
 
   draw(ctx: CanvasRenderingContext2D): void {

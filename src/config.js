@@ -25,7 +25,7 @@ export const config = {
       actions: {
         shoot: [' '],
         menu: ['Escape'],
-        debug: ['Control'], // TODO check if works
+        debug: ['Control'],
         editor: ['p']
       },
       changeDifficulty: ' '
@@ -33,11 +33,11 @@ export const config = {
     gamepad: {
       movementAxis: 'left', // left or right
       actions: {
-        shoot: [0],
+        shoot: [0, 5, 7],
         menu: [4],
-        debug: [5]
+        debug: [9]
       },
-      changeDifficulty: [0]
+      changeDifficulty: 0
     }
   },
   room: {
@@ -63,14 +63,20 @@ export const config = {
   },
   intro: {
     list: [
-      ['', 'Extra Life'],
-      ['', 'Mystery?'],
-      ['', 'Key'],
-      ['', 'Keyhole'],
-      ['', 'Robo-Droid'],
-      ['', 'Drone'],
-      ['', 'Jumper'],
-      ['', 'Shadow'],
+      ['items/keyhole_green.png', 'Keyhole'],
+      ['items/key_green.png', 'Key'],
+      ['items/mystery_item_green.png', 'Mystery?'],
+      ['items/extra_life_green.png', 'Extra Life'],
+      ['intro/droid.png', 'Robo-Droid'],
+      ['intro/shadow.png', 'Shadow'],
+      ['intro/drone.png', 'Spiral Drones'],
+      ['intro/jumper.png', 'Snap Jumpers'],
+    ],
+    controls: [
+      ['Move', 'WASD, ArrowKeys, Left pad axis'],
+      ['Shot', 'Space, Pad A, Pad RB, Pad RT'],
+      ['Pause', 'Escape, Pad LB'],
+      ['Change difficulty', 'Space, Pad A']
     ]
   },
   audio: {
@@ -91,7 +97,8 @@ export const config = {
     },
     other: {
       itemCollect: 'item_collect.mp3',
-      keyCollect: 'key_collect.mp3'
+      keyCollect: 'key_collect.mp3',
+      explosion: 'explosion.mp3'
     }
   },
   difficulties: ['novice', 'experienced', 'advanced', 'expert'],
@@ -101,14 +108,6 @@ export const config = {
     advanced: 36,
     expert: 50
   },
-
-
-
-
-
-
-
-
   wallUpdateInterval: 100,
   explosionRadius: 25,
   explosionModelChange: 100,
@@ -118,7 +117,7 @@ export const config = {
   killScore: 5,
   clearRoomScore: 200,
   aiNoTargetMoveLength: 150,
-  shotTimeoutOnRoomLoad: 3000,
+  aiDelay: 3000,
   aiTargetMoveLength: 300,
   aiCollisionCheckInterval: 100,
   player: {
@@ -163,7 +162,6 @@ export const config = {
     projectile: {
       speed: 250,
       size: 5,
-      modelPath: 'drone/projectile_blue',
       explosionRadius: 5
     },
     ai: {
@@ -182,12 +180,6 @@ export const config = {
     jumpLengthOffset: 50,
     speed: 0,
     jumpTime: 30,
-    projectile: {
-      speed: 0,
-      size: 0,
-      modelPath: 'drone/projectile',
-      explosionRadius: 0
-    },
     ai: {
       range: 500,
       updateInterval: 200,
@@ -200,12 +192,6 @@ export const config = {
     movementOffset: 30,
     size: 25,
     speed: 150,
-    projectile: {
-      speed: 0,
-      size: 0,
-      modelPath: 'drone/projectile',
-      explosionRadius: 0
-    },
     reviveTimout: 5000,
     ai: {
       range: 300,
@@ -229,16 +215,16 @@ export const config = {
     size: 30,
     images: {
       purple: 'key_purple',
-      blue: 'key_blue',
-      brown: 'key_yellow'
+      red: 'key_red',
+      brown: 'key_brown'
     }
   },
   keyHole: {
     size: 30,
     images: {
       purple: 'keyhole_purple',
-      blue: 'keyhole_blue',
-      brown: 'keyhole_yellow'
+      red: 'keyhole_red',
+      brown: 'keyhole_brown'
     }
   },
   debugColor: "#FFFFFF",

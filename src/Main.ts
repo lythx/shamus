@@ -60,14 +60,6 @@ const updateUi = () => {
   })
 }
 
-// const audioContext = new AudioContext();
-// const audioElement = new Audio('./assets/audio/step.mp3')
-// const track = audioContext.createMediaElementSource(audioElement)
-// track.connect(audioContext.destination);
-// audioElement.loop = true
-// audioElement.play() // TODO
-
-
 const increaseScore = (amount: number) => {
   state.score += amount
   if (state.highScore < state.score) {
@@ -164,7 +156,6 @@ const handleWin = () => {
   displayWin()
 }
 
-// TODO RENDER EDGES BEFORE WALLS
 
 const onRoomChange = (roomNum: number, sideOrPos: Direction4 | Point) => {
   AudioPlayer.stop()
@@ -197,7 +188,8 @@ const onRoomChange = (roomNum: number, sideOrPos: Direction4 | Point) => {
 const player = new Player(new Point(-100, -100))
 
 const handleIntroKeydown = (key: string) => {
-  if (config.controls.keyboard.changeDifficulty === key) {
+  if (config.controls.keyboard.changeDifficulty === key ||
+    config.controls.gamepad.changeDifficulty.toString() === key) {
     difficulty = config.difficulties[
       (config.difficulties.indexOf(difficulty) + 1) % config.difficulties.length] as any
     renderIntro(difficulty, state.score, state.highScore)
@@ -250,11 +242,14 @@ events.onAction('editor', () => {
 })
 const pause = () => {
   if (!isRunning) { return }
+  new Droid(new Point(700, 400), 'blue')
+  lastKillOrRoomChange = Date.now() - lastKillOrRoomChange
   isRunning = false
   Timer.pause()
   displayPause()
   events.onAnyKeydown(() => {
     removePause()
+    lastKillOrRoomChange = Date.now() - lastKillOrRoomChange
     AudioPlayer.resume()
     isRunning = true
     Timer.resume()
@@ -317,7 +312,7 @@ player.onDeath = async () => {
   onRoomChange(room.roomNumber, room.spawnPoint)
 }
 
-const shadowPositions = [[0, 0], [1400, 0], [0, 800], [1400, 800]] as const // TODO CONFIG
+const shadowPositions = [[0, 0], [1400, 0], [0, 800], [1400, 800]] as const 
 
 const spawnShadow = () => {
   shadowSpawned = true

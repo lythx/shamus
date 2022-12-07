@@ -11,8 +11,9 @@ type Direction = 'up' | 'down' | 'left' | 'right'
 export class Droid extends Enemy {
 
   private nextAiUpdate = 0
-  private nextShot = Date.now() + config.shotTimeoutOnRoomLoad
+  private nextShot = Date.now() + config.aiDelay
   private static audioPlayer = new AudioPlayer('droid')
+  private aiActivation = Date.now() + config.aiDelay
   private nextCollisionCheck = 0
   private readonly models: {
     up: HTMLImageElement[],
@@ -42,19 +43,23 @@ export class Droid extends Enemy {
     180: 'left',
     270: 'up',
   }
-  private currentDirection: Direction | undefined = 'down' // TODO
+  private currentDirection: Direction | undefined = 'down'
 
-  constructor(pos: Point) {
+  constructor(pos: Point, colour: 'purple' | 'blue') {
     super({
       ...config.droid,
-      pos
+      pos,
+      projectile: {
+        ...config.droid.projectile,
+        modelPath: colour === 'blue' ? 'droid/projectile_blue' : 'droid/projectile_purple',
+      }
     })
     for (const key in this.models) {
       this.models[key as keyof typeof this.models] =
         models.droid[key as keyof typeof models.droid]
           .map(a => {
             const img = new Image()
-            img.src = `./assets/droid/${a}.png`
+            img.src = `./assets/droid/${a}${colour}.png`
             return img
           })
     }
@@ -84,7 +89,7 @@ export class Droid extends Enemy {
   }
 
   private movementAi(playerPos: Point) {
-    if (playerPos.calculateDistance(this.pos) > this.aiRange) {
+    if (this.aiActivation > Date.now() || playerPos.calculateDistance(this.pos) > this.aiRange) {
       this.untargetedMove()
     } else {
       this.targetedMove(playerPos)
@@ -208,7 +213,8 @@ export class Droid extends Enemy {
     const randOffset = Math.random() * this.shotIntervalOffset
     this.nextShot = Date.now() +
       this.shotInterval + randOffset - (this.shotIntervalOffset / 2)
-    this._shoot(direction)
+    const audioId = Droid.audioPlayer.play('shot')
+    this._shoot(direction, { player: Droid.audioPlayer, id: audioId })
   }
 
 }

@@ -10,10 +10,14 @@ const actionKeys: { [action in Action]: string[] } = config.controls.keyboard.ac
 const actionListeners: { action: Action, callback: () => void }[] = []
 const pressedKeys: Direction4[] = []
 let lastAngle: number | undefined
+let lastDevice: 'pad' | 'keyboard'
 let anyKeydownListener: ((key: string) => void) | undefined
 let blurListener: (() => void) | undefined
+let lastKeyboardUse = 0
 
 const onMoveChange = () => {
+  lastDevice = 'keyboard'
+  lastKeyboardUse = Date.now()
   let angle = direction4Angles[pressedKeys[0]]
   if (angle === undefined) {
     lastAngle = undefined
@@ -127,6 +131,7 @@ const lastButtonState: boolean[] = []
 const padPoll = () => {
   if (gamepad === undefined) { return }
   requestAnimationFrame(padPoll)
+  if (lastKeyboardUse + 1000 > Date.now()) { return }
   for (let i = 0; i < gamepad.buttons.length; i++) {
     if (gamepad.buttons[i].pressed && !lastButtonState[i]) {
       const listener = anyKeydownListener
@@ -148,7 +153,7 @@ const padPoll = () => {
       if (buttonState[action as PadAction]) { emitActionEvent(action as PadAction) }
     }
   }
-  if (Math.abs(gamepad.axes[movementAxis.x]) < minMovementDetection &&
+  if (lastDevice === 'pad' && Math.abs(gamepad.axes[movementAxis.x]) < minMovementDetection &&
     Math.abs(gamepad.axes[movementAxis.y]) < minMovementDetection) {
     lastAngle = undefined
     pressedKeys.length = 0
@@ -165,6 +170,7 @@ const padPoll = () => {
     if (lastAngle !== trimmedAngle) {
       lastAngle = trimmedAngle
       pressedKeys.length = 0
+      lastDevice = 'pad'
       for (let i = 0; i < movementListeners.length; i++) { movementListeners[i](true, trimmedAngle) }
     }
   }

@@ -65,7 +65,7 @@ export class Projectile extends Unit {
     ctx.save()
     ctx.translate(this.x, this.y)
     ctx.rotate(math.degToRad(this.angle))
-    ctx.drawImage(this.image, -this.size * 3, -this.size * 0.75, this.size * 6, this.size * 1.5) // TODO maybe config?
+    ctx.drawImage(this.image, -this.size * 3, -this.size * 0.75, this.size * 6, this.size * 1.5) 
     ctx.restore()
   }
 

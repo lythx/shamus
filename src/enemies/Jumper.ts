@@ -9,6 +9,7 @@ export class Jumper extends Enemy {
   private nextAiUpdate = 0
   private readonly model: HTMLImageElement
   private readonly jumpModel: HTMLImageElement
+  private aiActivation = Date.now() + config.aiDelay
   private readonly jumpTime = config.jumper.jumpTime
   private currentModel: HTMLImageElement
   private readonly aiRange = config.jumper.ai.range
@@ -39,7 +40,7 @@ export class Jumper extends Enemy {
   }
 
   private movementAi(playerPos: Point) {
-    if (playerPos.calculateDistance(this.pos) > this.aiRange) {
+    if (this.aiActivation > Date.now() || playerPos.calculateDistance(this.pos) > this.aiRange) {
       this.untargetedMove()
     } else {
       this.targetedMove(playerPos)

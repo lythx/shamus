@@ -33,7 +33,16 @@ export class Player extends Fighter {
     up: [],
     upright: []
   }
-  readonly deathModels: HTMLImageElement[]
+  readonly deathModels: { [direction in Direction8]: HTMLImageElement[] } = {
+    right: [],
+    downright: [],
+    down: [],
+    downleft: [],
+    left: [],
+    upleft: [],
+    up: [],
+    upright: []
+  }
   readonly shotInterval = config.player.shotInterval
   currentDirection: Direction8 | undefined
   modelIndex = 0
@@ -50,12 +59,6 @@ export class Player extends Fighter {
         image: projectileImg
       }
     })
-    /// todo
-    this.deathModels = models.droid.up.map(a => {
-      const img = new Image()
-      img.src = `./assets/droid/${a}.png`
-      return img
-    })
     this.projectileSpeed = config.player.projectile.speed
     this.projectileSize = config.player.projectile.size
     for (const key in this.models) {
@@ -66,13 +69,20 @@ export class Player extends Fighter {
             img.src = `./assets/player/${a}.png`
             return img
           })
+      this.deathModels[key as Direction8]
+        = models.player[key as Direction8].map(a => {
+          const img = new Image()
+          img.src = `./assets/player/${a}dead.png`
+          return img
+        })
     }
   }
 
   draw(ctx: CanvasRenderingContext2D): void {
     let model: HTMLImageElement
     if (this.isDead) {
-      model = this.deathModels[this.modelIndex]
+      model = this.currentDirection !== undefined ?
+        this.deathModels[this.currentDirection][this.modelIndex] : this.deathModels.down[0]
     } else {
       model = this.currentDirection !== undefined ?
         this.models[this.currentDirection][this.modelIndex] : this.models.down[0]
@@ -87,15 +97,11 @@ export class Player extends Fighter {
       return
     }
     this.checkCollision()
-    if (Date.now() < this.nextModelUpdate) { return }
+    if (Date.now() < this.nextModelUpdate || this.isDead) { return }
     this.nextModelUpdate = Date.now() + config.player.modelUpdateInterval
     this.modelIndex++
-    if (this.isDead) {
-      this.modelIndex %= this.deathModels.length
-    } else {
-      this.modelIndex = this.currentDirection ?
-        this.modelIndex % this.models[this.currentDirection].length : 0
-    }
+    this.modelIndex = this.currentDirection ?
+      this.modelIndex % this.models[this.currentDirection].length : 0
   }
 
   checkCollision(): void {
@@ -133,7 +139,9 @@ export class Player extends Fighter {
    */
   stop() {
     Player.audioPlayer.stop(this.stepAudioId)
-    this.currentDirection = undefined
+    if (!this.isDead) {
+      this.currentDirection = undefined
+    }
     this.tween?.stop()
   }
 
@@ -150,7 +158,7 @@ export class Player extends Fighter {
     if (this.nextShot > Date.now() || this.isDead) { return }
     Player.audioPlayer.play('shot')
     this.tween.pause()
-    setTimeout(() => this.tween.resume(), 100) // TODO CONFIG
+    setTimeout(() => this.tween.resume(), 100)
     this.nextShot = Date.now() + this.shotInterval
     this._shoot(this._angle)
   }

@@ -1,12 +1,12 @@
 export const models = {
   wall: {
-    horizontal: ['wall_horizontal1',], //'wall_horizontal2', 'wall_horizontal3', 'wall_horizontal4'],
-    vertical: ['wall_vertical1',],// 'wall_vertical2', 'wall_vertical3', 'wall_vertical4'],
+    horizontal: ['wall_horizontal1', 'wall_horizontal2', 'wall_horizontal3', 'wall_horizontal4'],
+    vertical: ['wall_vertical1', 'wall_vertical2', 'wall_vertical3', 'wall_vertical4'],
     inside: {
       yellowCircle: 'yellow_circle',
       greenBrick: 'green_brick',
-      purpleHex: 'green_brick',
-      yellowSolid: 'green_brick'
+      purpleHex: 'purple_hex',
+      yellowSolid: 'yellow_solid'
     }
   },
   explosion: ['explosion1', 'explosion1', 'explosion1'],
@@ -26,10 +26,10 @@ export const models = {
     blue: ['blue1', 'blue2', 'blue3', 'blue4']
   },
   droid: {
-    up: ['back1', 'back2', 'back3', 'back4', 'back3', 'back2'],
-    down: ['back1', 'back2', 'back3', 'back4', 'back3', 'back2'],
-    left: ['left1', 'left2', 'left3'],
-    right: ['left1', 'left2', 'left3']
+    up: ['default', 'up1', 'up2', 'up3', 'up2', 'up1'],
+    down: ['default', 'up1', 'up2', 'up3', 'up2', 'up1'],
+    left: ['default', 'left1', 'left2', 'left3', 'left4', 'left3', 'left2', 'left1'],
+    right: ['default', 'left3', 'left2', 'left1', 'right4', 'left1', 'left2', 'left3']
   },
   jumper: {
     normal: 'normal',
