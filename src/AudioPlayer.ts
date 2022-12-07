@@ -12,6 +12,7 @@ export class AudioPlayer {
   play(soundName: string) {
     const source: string = (sounds[this.context] as any)[soundName]
     const audio = new Audio(`./assets/audio/${this.context}/${source}`)
+    audio.volume = 0.1
     audio.play()
   }
 

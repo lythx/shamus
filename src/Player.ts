@@ -16,6 +16,7 @@ export class Player extends Fighter {
   projectileSize: number
   nextShot: number = 0
   nextModelUpdate: number = 0
+  lifes = config.lifesAtStart
   private audioPlayer = new AudioPlayer('player')
   onRoomChange: ((room: number, entranceUsed: Direction4, pos: Point) => void) | undefined
   isDead = false
@@ -119,6 +120,7 @@ export class Player extends Fighter {
 
   destroy(): void {
     if (this.isDead) { return }
+    this.lifes--
     this.isDead = true
     this.stop()
     this.onDeath()

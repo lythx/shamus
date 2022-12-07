@@ -24,12 +24,13 @@ roomManager.initialize()
 let debug = false
 let isRunning = true
 let shadowSpawned = false
-const state: UiData = {
+const state: {
+  highScore: number
+  score: number,
+  keys: string[]
+} = {
   highScore: 0,
   score: 0,
-  lifes: config.lifesAtStart,
-  room: config.room.start,
-  level: 'black',
   keys: []
 }
 let lastKillOrRoomChange = 0
@@ -38,6 +39,17 @@ const unitClasses = {
   drone: Drone,
   jumper: Jumper,
   droid: Droid
+}
+
+const updateUi = () => {
+  renderUi({
+    highScore: state.highScore,
+    score: state.score,
+    lifes: player.lifes,
+    room: room.roomNumber,
+    level: 'black',
+    keys: state.keys
+  })
 }
 
 // const audioContext = new AudioContext();
@@ -56,15 +68,15 @@ const increaseScore = (amount: number) => {
 }
 
 ExtraLife.onCollect = () => {
-  state.lifes++
-  renderUi(state)
+  player.lifes++
+  updateUi()
   room.item = undefined
 }
 
 GameKey.onCollect = (type) => {
   state.keys.push(type)
   room.item = undefined
-  renderUi(state)
+  updateUi()
 }
 
 KeyHole.onCollect = (type, edgeToDelete) => {
@@ -72,22 +84,22 @@ KeyHole.onCollect = (type, edgeToDelete) => {
   room.item = undefined
   state.keys = state.keys.filter(a => a !== type)
   room.deleteEdge(edgeToDelete)
-  renderUi(state)
+  updateUi()
 }
 
 MysteryItem.onCollect = (action, amount) => {
-  if (state.room === 0) {
+  if (room.roomNumber === 0) {
     increaseScore(500)// The item in 1st room always gives 500 points
   } else if (action === 'life') {
-    state.lifes += amount
+    player.lifes += amount
   } else if (action === 'points') {
     increaseScore(amount)
   }
   room.item = undefined
-  renderUi(state)
+  updateUi()
 }
 
-const spawnEnemies = (units: { drone?: number, jumper?: number }, spawnAreas: Rectangle[]) => {
+const spawnEnemies = (units: { drone?: number, droid?: number, jumper?: number }, spawnAreas: Rectangle[]) => {
   const wallDistance = 35
   const canvasW = 1400
   const canvasH = 800
@@ -147,20 +159,19 @@ const onRoomChange = (roomNum: number, sideOrPos: Direction4 | Point) => {
     handleWin()
     return
   }
-  state.room = roomNum
   Projectile.playerProjectiles.length = 0
   Projectile.enemyProjectiles.length = 0
   Enemy.enemies.length = 0
   player.stop()
   player.pos = new Point(-1, -1)
   if (typeof sideOrPos === 'string') {
-    room = roomManager.loadRoom(state.room, oppositeDirection4(sideOrPos))
+    room = roomManager.loadRoom(roomNum, oppositeDirection4(sideOrPos))
     player.pos = room.spawnPoint
   } else {
-    room = roomManager.loadRoom(state.room, room.spawnSide)
+    room = roomManager.loadRoom(roomNum, room.spawnSide)
     player.pos = sideOrPos ?? room.spawnPoint
   }
-  renderUi(state)
+  updateUi()
   if (!room.hasBarriers) {
     spawnEnemies(room.enemies, room.spawnAreas)
   }
@@ -173,7 +184,7 @@ const player = new Player(new Point(-100, -100))
 renderIntro()
 events.onAnyKeydown(() => {
   removeIntro()
-  onRoomChange(state.room, config.room.startSide as Direction4)
+  onRoomChange(config.startingRoom, config.room.startSide as Direction4)
   requestAnimationFrame(gameLoop)
 })
 
@@ -220,21 +231,20 @@ Enemy.onKill = (wasLastEnemy: boolean) => {
   lastKillOrRoomChange = Date.now()
   increaseScore(config.killScore)
   if (wasLastEnemy) { increaseScore(config.clearRoomScore) }
-  renderUi(state)
+  updateUi()
 }
 
 const restartGame = () => {
   state.score = 0
   state.keys = []
-  state.room = config.startingRoom
-  state.lifes = config.lifesAtStart
+  player.lifes = config.lifesAtStart
   isRunning = true
   shadowSpawned = false
   roomManager.initialize()
   player.revive()
   Timer.resume()
   removeIntro()
-  onRoomChange(state.room, config.room.startSide as Direction4)
+  onRoomChange(config.startingRoom, config.room.startSide as Direction4)
   requestAnimationFrame(gameLoop)
 }
 
@@ -246,17 +256,16 @@ const handleLose = () => {
 
 player.onRoomChange = onRoomChange
 player.onDeath = async () => {
-  state.lifes--
   Timer.pause()
-  renderUi(state)
+  updateUi()
   await new Promise(resolve => setTimeout(resolve, 1000))
   player.revive()
-  if (state.lifes === 0) {
+  if (player.lifes === 0) {
     handleLose()
     return
   }
   Timer.resume()
-  onRoomChange(state.room, room.spawnPoint)
+  onRoomChange(room.roomNumber, room.spawnPoint)
 }
 
 const shadowPositions = [[0, 0], [1400, 0], [0, 800], [1400, 800]] as const // TODO CONFIG
