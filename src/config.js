@@ -92,7 +92,7 @@ export const config = {
   explosionRadius: 25,
   explosionModelChange: 100,
   aiShotFriendDetectionWidth: 100,
-  lifesAtStart: 13, //5,
+  lifesAtStart: 1, //5,
   lifesLimit: 12,
   killScore: 5,
   clearRoomScore: 200,
@@ -104,7 +104,8 @@ export const config = {
     modelUpdateInterval: 50,
     size: 25,
     shotInterval: 200,
-    speed: 170,//190,
+    speed: 150,
+    roomClearSpeed: 250,
     projectile: {
       speed: 1100,
       size: 10,

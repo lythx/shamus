@@ -144,6 +144,8 @@ export class Player extends Fighter {
   shoot(): void {
     if (this.nextShot > Date.now() || this.isDead) { return }
     this.audioPlayer.play('shot')
+    this.tween.pause()
+    setTimeout(() => this.tween.resume(), 100) // TODO CONFIG
     this.nextShot = Date.now() + this.shotInterval
     this._shoot(this._angle)
   }

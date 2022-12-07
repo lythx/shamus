@@ -4,7 +4,10 @@ import { Projectile } from "./Projectile.js";
 import { events } from './Events.js'
 import { Circle, Drawable, Point, Rectangle } from "./utils/Geometry.js";
 import { roomManager } from './room/RoomManager.js'
-import { renderDebug, renderIntro, renderUi, renderUnits, UiData, removeIntro } from "./Renderer.js";
+import {
+  renderDebug, renderIntro, renderUi, renderUnits, UiData, removeIntro, removeStart
+  , displayPause, removePause, displayWin
+} from "./Renderer.js";
 import { Drone } from './enemies/Drone.js'
 import { Jumper } from './enemies/Jumper.js'
 import { Shadow } from './enemies/Shadow.js'
@@ -22,7 +25,7 @@ import { Direction4, oppositeDirection4 } from "./utils/Directions.js";
 
 roomManager.initialize()
 let debug = false
-let isRunning = true
+let isRunning = false
 let shadowSpawned = false
 const state: {
   highScore: number
@@ -40,6 +43,7 @@ const unitClasses = {
   jumper: Jumper,
   droid: Droid
 }
+let isPlayedDead = false
 
 const updateUi = () => {
   renderUi({
@@ -149,7 +153,7 @@ const handleBarrierTrigger = () => {
 
 const handleWin = () => {
   isRunning = false
-  console.log('WIN')
+  displayWin()
 }
 
 // TODO RENDER EDGES BEFORE WALLS
@@ -163,6 +167,7 @@ const onRoomChange = (roomNum: number, sideOrPos: Direction4 | Point) => {
   Projectile.enemyProjectiles.length = 0
   Enemy.enemies.length = 0
   player.stop()
+  player.speed = config.player.speed
   player.pos = new Point(-1, -1)
   if (typeof sideOrPos === 'string') {
     room = roomManager.loadRoom(roomNum, oppositeDirection4(sideOrPos))
@@ -181,11 +186,15 @@ const onRoomChange = (roomNum: number, sideOrPos: Direction4 | Point) => {
 
 const player = new Player(new Point(-100, -100))
 
-renderIntro()
 events.onAnyKeydown(() => {
-  removeIntro()
-  onRoomChange(config.startingRoom, config.room.startSide as Direction4)
-  requestAnimationFrame(gameLoop)
+  removeStart()
+  renderIntro()
+  events.onAnyKeydown(() => {
+    removeIntro()
+    isRunning = true
+    onRoomChange(config.startingRoom, config.room.startSide as Direction4)
+    requestAnimationFrame(gameLoop)
+  })
 })
 
 events.onMovementChange((isMoving, angle) => {
@@ -216,25 +225,35 @@ events.onAction('editor', () => {
     editor.enable()
   }
 })
-events.onAction('menu', () => {
-  console.log('pause') // todo
+const pause = () => {
+  if (!isRunning) { return }
   isRunning = false
   Timer.pause()
-  setTimeout(() => {
+  displayPause()
+  events.onAnyKeydown(() => {
+    removePause()
     isRunning = true
     Timer.resume()
-  }, 1000)
-})
+  })
+}
+events.onAction('menu', () => pause())
+
+events.onBlur(() => pause())
 
 editor.onUpdate(() => renderUnits(editor.getObjects()))
 Enemy.onKill = (wasLastEnemy: boolean) => {
   lastKillOrRoomChange = Date.now()
   increaseScore(config.killScore)
-  if (wasLastEnemy) { increaseScore(config.clearRoomScore) }
+  if (wasLastEnemy) {
+    increaseScore(config.clearRoomScore)
+    player.speed = config.player.roomClearSpeed
+  }
   updateUi()
 }
 
 const restartGame = () => {
+  isRunning = true
+  isPlayedDead = false
   state.score = 0
   state.keys = []
   player.lifes = config.lifesAtStart
@@ -249,7 +268,7 @@ const restartGame = () => {
 }
 
 const handleLose = () => {
-  renderIntro()
+  renderIntro(state.score, state.highScore)
   events.onAnyKeydown(() => restartGame())
   isRunning = false
 }
@@ -258,12 +277,14 @@ player.onRoomChange = onRoomChange
 player.onDeath = async () => {
   Timer.pause()
   updateUi()
+  isPlayedDead = true
   await new Promise(resolve => setTimeout(resolve, 1000))
   player.revive()
   if (player.lifes === 0) {
     handleLose()
     return
   }
+  isPlayedDead = false
   Timer.resume()
   onRoomChange(room.roomNumber, room.spawnPoint)
 }
@@ -283,22 +304,24 @@ const gameLoop = () => {
     spawnShadow()
   }
   player.update()
-  for (let i = 0; i < Projectile.playerProjectiles.length; i++) {
-    Projectile.playerProjectiles[i].update()
-  }
-  for (let i = 0; i < Projectile.enemyProjectiles.length; i++) {
-    Projectile.enemyProjectiles[i].update()
-  }
-  for (let i = 0; i < Enemy.enemies.length; i++) {
-    Enemy.enemies[i].update(player.pos)
-  }
-  if (room.item !== undefined) {
-    room.item.checkCollision(player)
-  }
-  if (room.hasBarriers) {
+  if (!isPlayedDead) {
     for (let i = 0; i < Projectile.playerProjectiles.length; i++) {
-      if (room.checkIfBarrierTriggered(Projectile.playerProjectiles[i].hitbox)) {
-        handleBarrierTrigger()
+      Projectile.playerProjectiles[i].update()
+    }
+    for (let i = 0; i < Projectile.enemyProjectiles.length; i++) {
+      Projectile.enemyProjectiles[i].update()
+    }
+    for (let i = 0; i < Enemy.enemies.length; i++) {
+      Enemy.enemies[i].update(player.pos)
+    }
+    if (room.item !== undefined) {
+      room.item.checkCollision(player)
+    }
+    if (room.hasBarriers) {
+      for (let i = 0; i < Projectile.playerProjectiles.length; i++) {
+        if (room.checkIfBarrierTriggered(Projectile.playerProjectiles[i].hitbox)) {
+          handleBarrierTrigger()
+        }
       }
     }
   }
