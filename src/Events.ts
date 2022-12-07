@@ -11,6 +11,7 @@ const actionListeners: { action: Action, callback: () => void }[] = []
 const pressedKeys: Direction4[] = []
 let lastAngle: number | undefined
 let anyKeydownListener: (() => void) | undefined
+let blurListener: (() => void) | undefined
 
 const onMoveChange = () => {
   let angle = direction4Angles[pressedKeys[0]]
@@ -59,6 +60,10 @@ document.addEventListener('keydown', (e) => {
       }
     }
   }
+})
+
+document.addEventListener('blur', () => {
+  blurListener?.()
 })
 
 document.addEventListener('keyup', (e) => {
@@ -166,5 +171,8 @@ export const events = {
   /** Deletes listener after it executes */
   onAnyKeydown(callback: () => void) {
     anyKeydownListener = callback
+  },
+  onBlur(callback: () => void) {
+    blurListener = callback
   }
 }

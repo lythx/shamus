@@ -25,7 +25,7 @@ import { Direction4, oppositeDirection4 } from "./utils/Directions.js";
 
 roomManager.initialize()
 let debug = false
-let isRunning = true
+let isRunning = false
 let shadowSpawned = false
 const state: UiData = {
   highScore: 0,
@@ -180,6 +180,7 @@ events.onAnyKeydown(() => {
   renderIntro()
   events.onAnyKeydown(() => {
     removeIntro()
+    isRunning = true
     onRoomChange(state.room, config.room.startSide as Direction4)
     requestAnimationFrame(gameLoop)
   })
@@ -213,7 +214,8 @@ events.onAction('editor', () => {
     editor.enable()
   }
 })
-events.onAction('menu', () => {
+const pause = () => {
+  if (!isRunning) { return }
   isRunning = false
   Timer.pause()
   displayPause()
@@ -222,7 +224,10 @@ events.onAction('menu', () => {
     isRunning = true
     Timer.resume()
   })
-})
+}
+events.onAction('menu', () => pause())
+
+events.onBlur(() => pause())
 
 editor.onUpdate(() => renderUnits(editor.getObjects()))
 Enemy.onKill = (wasLastEnemy: boolean) => {
