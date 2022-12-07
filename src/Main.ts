@@ -6,7 +6,7 @@ import { Circle, Drawable, Point, Rectangle } from "./utils/Geometry.js";
 import { roomManager } from './room/RoomManager.js'
 import {
   renderDebug, renderIntro, renderUi, renderUnits, UiData, removeIntro, removeStart
-  , displayPause, removePause
+  , displayPause, removePause, displayWin
 } from "./Renderer.js";
 import { Drone } from './enemies/Drone.js'
 import { Jumper } from './enemies/Jumper.js'
@@ -141,7 +141,7 @@ const handleBarrierTrigger = () => {
 
 const handleWin = () => {
   isRunning = false
-  console.log('WIN')
+  displayWin()
 }
 
 // TODO RENDER EDGES BEFORE WALLS
@@ -241,6 +241,8 @@ Enemy.onKill = (wasLastEnemy: boolean) => {
 }
 
 const restartGame = () => {
+  isRunning = true
+  isPlayedDead = false
   state.score = 0
   state.keys = []
   state.room = config.startingRoom
@@ -256,7 +258,7 @@ const restartGame = () => {
 }
 
 const handleLose = () => {
-  renderIntro()
+  renderIntro(state.score, state.highScore)
   events.onAnyKeydown(() => restartGame())
   isRunning = false
 }

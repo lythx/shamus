@@ -10,6 +10,7 @@ export interface UiData {
   keys: string[]
 }
 const pause = document.getElementById('pause') as HTMLDivElement
+const win = document.getElementById('win') as HTMLDivElement
 const intro = document.getElementById('intro') as HTMLDivElement
 const introScore = document.getElementById('introScore') as HTMLDivElement
 const introHighscore = document.getElementById('introHighscore') as HTMLDivElement
@@ -33,6 +34,10 @@ const displayPause = () => {
 
 const removePause = () => {
   pause.style.display = 'none'
+}
+
+const displayWin = () => {
+  win.style.display = 'flex'
 }
 
 const removeStart = () => {
@@ -97,4 +102,7 @@ const renderDebug = (objects: Drawable[]): void => {
   }
 }
 
-export { renderUnits, renderDebug, renderUi, renderIntro, removeIntro, removeStart, displayPause, removePause }
+export {
+  renderUnits, renderDebug, renderUi, renderIntro, displayWin,
+  removeIntro, removeStart, displayPause, removePause
+}

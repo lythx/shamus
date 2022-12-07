@@ -116,6 +116,24 @@
   text-align: center;
 }
 
+#win {
+  z-index: 15;
+  width: 1400px;
+  height: 900px;
+  display: none;
+  font-family: sh-text;
+  font-size: 100px;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: var(--purple);
+}
+
+#win div {
+  text-align: center;
+}
+
 #content {
   width: 1400px;
   height: 900px;
