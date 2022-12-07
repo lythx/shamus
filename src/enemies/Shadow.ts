@@ -1,3 +1,4 @@
+import { AudioPlayer } from '../AudioPlayer.js'
 import { config } from '../config.js'
 import { Enemy } from '../Enemy.js'
 import { models } from '../models.js'
@@ -10,6 +11,7 @@ export class Shadow extends Enemy {
   private readonly aliveModels: HTMLImageElement[]
   private readonly deadModels: HTMLImageElement[]
   private modelIndex: number = 0
+  private static audioPlayer = new AudioPlayer('shadow')
   private modelChange = 0
   private dead = false
   private reviveTimestamp = 0
@@ -17,6 +19,7 @@ export class Shadow extends Enemy {
   private readonly modelChangeInterval = config.shadow.modelUpdateInterval
   private readonly aiUpdateInterval = config.shadow.ai.updateInterval
   private readonly aiUpdateOffset = config.shadow.ai.updateIntervalOffset
+  private stepAudioId: number
 
   constructor(pos: Point) {
     super({
@@ -35,12 +38,15 @@ export class Shadow extends Enemy {
       return img
     })
     this.target.disable()
+    Shadow.audioPlayer.play('spawn')
+    this.stepAudioId = Shadow.audioPlayer.play('step', true, 1500)
   }
 
   update(playerPos: Point): void {
     if (this.dead) {
       if (this.reviveTimestamp > Date.now()) { return }
       this.dead = false
+      this.stepAudioId = Shadow.audioPlayer.play('step', true)
       this.models = this.aliveModels
     }
     this.updateModel()
@@ -73,8 +79,20 @@ export class Shadow extends Enemy {
     this.modelIndex %= this.models.length
   }
 
+  /**
+   * Moves unit by a vector of given angle and length
+   * @param angle Angle in degrees
+   * @param length Vector length
+   */
+  move(angle: number, length: number) {
+    if (this.dead) { return }
+    const destination = new Vector(this.pos, angle, length)
+    this._move(destination)
+  }
+
   destroy(): void {
     if (this.dead) { return }
+    Shadow.audioPlayer.stop(this.stepAudioId)
     this.stop()
     this.dead = true
     this.models = this.deadModels

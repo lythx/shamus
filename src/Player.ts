@@ -17,7 +17,7 @@ export class Player extends Fighter {
   nextShot: number = 0
   nextModelUpdate: number = 0
   lifes = config.lifesAtStart
-  private audioPlayer = new AudioPlayer('player')
+  private static audioPlayer = new AudioPlayer('player')
   onRoomChange: ((room: number, entranceUsed: Direction4, pos: Point) => void) | undefined
   isDead = false
   onDeath: () => void = () => undefined
@@ -143,7 +143,7 @@ export class Player extends Fighter {
 
   shoot(): void {
     if (this.nextShot > Date.now() || this.isDead) { return }
-    this.audioPlayer.play('shot')
+    Player.audioPlayer.play('shot')
     this.tween.pause()
     setTimeout(() => this.tween.resume(), 100) // TODO CONFIG
     this.nextShot = Date.now() + this.shotInterval

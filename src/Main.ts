@@ -22,6 +22,7 @@ import { MysteryItem } from './items/MysteryItem.js'
 import { Timer } from './utils/Timer.js'
 import { Room } from "./room/Room.js";
 import { Direction4, oppositeDirection4 } from "./utils/Directions.js";
+import { AudioPlayer } from "./AudioPlayer.js";
 
 roomManager.initialize()
 let debug = false
@@ -159,6 +160,8 @@ const handleWin = () => {
 // TODO RENDER EDGES BEFORE WALLS
 
 const onRoomChange = (roomNum: number, sideOrPos: Direction4 | Point) => {
+  AudioPlayer.stop()
+  AudioPlayer.resume()
   if (roomNum === config.room.winningRoom) {
     handleWin()
     return
@@ -198,13 +201,16 @@ events.onAnyKeydown(() => {
 })
 
 events.onMovementChange((isMoving, angle) => {
+  if (!isRunning) { return }
   if (!isMoving) {
     player.stop()
   } else {
     player.move(angle ?? 0)
   }
 })
-events.onAction('shoot', () => player.shoot())
+events.onAction('shoot', () => {
+  if (isRunning) { player.shoot() }
+})
 events.onAction('debug', () => {
   debug = !debug
   if (!debug) {
@@ -214,6 +220,8 @@ events.onAction('debug', () => {
   }
 })
 events.onAction('editor', () => {
+  if (!isRunning) { return }
+  AudioPlayer.stop()
   if (!editor.isEnabled()) {
     Projectile.playerProjectiles.length = 0
     Projectile.enemyProjectiles.length = 0
@@ -232,6 +240,7 @@ const pause = () => {
   displayPause()
   events.onAnyKeydown(() => {
     removePause()
+    AudioPlayer.resume()
     isRunning = true
     Timer.resume()
   })
@@ -252,6 +261,8 @@ Enemy.onKill = (wasLastEnemy: boolean) => {
 }
 
 const restartGame = () => {
+  AudioPlayer.stop()
+  AudioPlayer.resume()
   isRunning = true
   isPlayedDead = false
   state.score = 0
@@ -275,11 +286,13 @@ const handleLose = () => {
 
 player.onRoomChange = onRoomChange
 player.onDeath = async () => {
+  AudioPlayer.stop()
   Timer.pause()
   updateUi()
   isPlayedDead = true
   await new Promise(resolve => setTimeout(resolve, 1000))
   player.revive()
+  AudioPlayer.resume()
   if (player.lifes === 0) {
     handleLose()
     return
@@ -327,18 +340,6 @@ const gameLoop = () => {
   }
   const objects: Drawable[] = [player]
   let index = 1
-  for (let i = 0; i < Projectile.playerProjectiles.length; i++) {
-    objects[index++] = Projectile.playerProjectiles[i]
-  }
-  for (let i = 0; i < Projectile.enemyProjectiles.length; i++) {
-    objects[index++] = Projectile.enemyProjectiles[i]
-  }
-  for (let i = 0; i < Enemy.enemies.length; i++) {
-    objects[index++] = Enemy.enemies[i]
-  }
-  for (let i = 0; i < Explosion.explosions.length; i++) {
-    objects[index++] = Explosion.explosions[i]
-  }
   for (let i = 0; i < room.barriers.length; i++) {
     objects[index++] = room.barriers[i]
   }
@@ -350,6 +351,18 @@ const gameLoop = () => {
   }
   if (room.item !== undefined) {
     objects[index++] = room.item
+  }
+  for (let i = 0; i < Projectile.playerProjectiles.length; i++) {
+    objects[index++] = Projectile.playerProjectiles[i]
+  }
+  for (let i = 0; i < Projectile.enemyProjectiles.length; i++) {
+    objects[index++] = Projectile.enemyProjectiles[i]
+  }
+  for (let i = 0; i < Enemy.enemies.length; i++) {
+    objects[index++] = Enemy.enemies[i]
+  }
+  for (let i = 0; i < Explosion.explosions.length; i++) {
+    objects[index++] = Explosion.explosions[i]
   }
   renderUnits(objects)
   if (debug) {

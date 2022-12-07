@@ -74,6 +74,12 @@ export const config = {
   audio: {
     player: {
       shot: 'shot.mp3',
+      step: 'step.mp3',
+      death: 'death.mp3',
+      noLifesDeath: 'no_lifes_death.mp3'
+    },
+    shadow: {
+      spawn: 'spawn.mp3',
       step: 'step.mp3'
     }
   },
@@ -92,7 +98,7 @@ export const config = {
   explosionRadius: 25,
   explosionModelChange: 100,
   aiShotFriendDetectionWidth: 100,
-  lifesAtStart: 1, //5,
+  lifesAtStart: 5,
   lifesLimit: 12,
   killScore: 5,
   clearRoomScore: 200,
@@ -178,7 +184,7 @@ export const config = {
     modelUpdateInterval: 500,
     movementOffset: 30,
     size: 25,
-    speed: 180,
+    speed: 130,
     projectile: {
       speed: 0,
       size: 0,
