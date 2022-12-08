@@ -219,30 +219,29 @@ events.onAction('shoot', () => {
   if (isRunning) { player.shoot() }
 })
 events.onAction('debug', () => {
-  debug = !debug
-  if (!debug) {
-    renderDebug([])
-  } else {
-    renderDebug([])
-  }
+  // debug = !debug
+  // if (!debug) {
+  //   renderDebug([])
+  // } else {
+  //   renderDebug([])
+  // }
 })
 events.onAction('editor', () => {
-  if (!isRunning) { return }
-  AudioPlayer.stop()
-  if (!editor.isEnabled()) {
-    Projectile.playerProjectiles.length = 0
-    Projectile.enemyProjectiles.length = 0
-    Enemy.enemies.length = 0
-    player.stop()
-    isRunning = false
-    renderDebug([])
-    renderUnits([])
-    editor.enable()
-  }
+  // if (!isRunning) { return }
+  // AudioPlayer.stop()
+  // if (!editor.isEnabled()) {
+  //   Projectile.playerProjectiles.length = 0
+  //   Projectile.enemyProjectiles.length = 0
+  //   Enemy.enemies.length = 0
+  //   player.stop()
+  //   isRunning = false
+  //   renderDebug([])
+  //   renderUnits([])
+  //   editor.enable()
+  // }
 })
 const pause = () => {
   if (!isRunning) { return }
-  new Droid(new Point(700, 400), 'blue')
   lastKillOrRoomChange = Date.now() - lastKillOrRoomChange
   isRunning = false
   Timer.pause()
@@ -312,7 +311,7 @@ player.onDeath = async () => {
   onRoomChange(room.roomNumber, room.spawnPoint)
 }
 
-const shadowPositions = [[0, 0], [1400, 0], [0, 800], [1400, 800]] as const 
+const shadowPositions = [[0, 0], [1400, 0], [0, 800], [1400, 800]] as const
 
 const spawnShadow = () => {
   shadowSpawned = true

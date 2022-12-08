@@ -33,11 +33,11 @@ export const config = {
     gamepad: {
       movementAxis: 'left', // left or right
       actions: {
-        shoot: [0, 5, 7],
+        shoot: [5, 7, 1],
         menu: [4],
         debug: [9]
       },
-      changeDifficulty: 0
+      changeDifficulty: 1
     }
   },
   room: {
