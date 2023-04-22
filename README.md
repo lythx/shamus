@@ -14,5 +14,12 @@ Shamus is a classic single-player shooter game that was originally released for 
 ## Controls 
 The game can be played on both pad and keyboard, however PAD WORKS ONLY IN FIREFOX. Control details are explained on the intro screen. (screenshot below)
 ## Screenshots
+![1](https://cdn.discordapp.com/attachments/522878388269088782/1099364634252804176/yellow1.png)  
 
-[![1](https://raw.githubusercontent.com/lythx/shamus/main/assets/screenshots/blue.png)
+![2](https://cdn.discordapp.com/attachments/522878388269088782/1099362467152396399/green.png)  
+
+![3](https://cdn.discordapp.com/attachments/522878388269088782/1099364634873573406/blue.png)  
+
+![4](https://cdn.discordapp.com/attachments/522878388269088782/1099364634588364810/yellow2.png)  
+
+![5](https://cdn.discordapp.com/attachments/522878388269088782/1099364633967603803/intro.png)  
