@@ -1,5 +1,5 @@
 # Shamus
-I created this remake as my final high school project.
+I created this remake as my final high school project. It's entirely developed using TypeScript without the use of any frameworks.
 ## About Shamus
 Shamus is a classic single-player shooter game that was originally released for Atari 8-bit consoles in 1982. The game is set in a maze of rooms filled with various enemies and items that the player must navigate through. The objective of the game is to gain score by defeating enemies and to collect keys needed to progress through the maze. The original game consisted of four levels with a total of 128 rooms, and this remake includes the first level with 38 rooms. [Read more about Shamus](https://en.wikipedia.org/wiki/Shamus_(video_game))
 ## Installation and launch tutorial
@@ -13,4 +13,6 @@ Shamus is a classic single-player shooter game that was originally released for 
     - Click the following link: http://localhost:5500
 ## Controls 
 The game can be played on both pad and keyboard, however PAD WORKS ONLY IN FIREFOX. Control details are explained on the intro screen. (screenshot below)
+## Screenshots
 
+[![1](https://raw.githubusercontent.com/lythx/shamus/main/assets/screenshots/blue.png)
